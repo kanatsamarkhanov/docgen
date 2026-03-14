@@ -257,12 +257,14 @@ font_mapping = {
 selected_css_font = font_mapping.get(st.session_state.ui_font, "sans-serif")
 
 # ------------ CSS Дизайн ------------
+# This CSS ensures fonts, text alignment, translation of the dropzone, AND removes the annoying vertical lines from selectboxes
 file_uploader_i18n = f"""
 <style>
 /* Font family and Text Justify distribution */
 * {{ font-family: {selected_css_font} !important; }}
 .stApp p, .stApp div[data-testid="stMarkdownContainer"] {{ text-align: justify !important; }}
 
+/* Translate File Uploader Dropzone */
 [data-testid="stFileUploadDropzone"] button {{ color: transparent !important; position: relative; }}
 [data-testid="stFileUploadDropzone"] button::after {{
     content: "{l['browse_files']}"; color: #ffffff !important; position: absolute;
@@ -272,7 +274,12 @@ file_uploader_i18n = f"""
 [data-testid="stFileUploadDropzone"] div[data-testid="stText"]::before {{
     content: "{l['drag_drop']}\\A {l['limit']}"; white-space: pre-wrap; color: #888888 !important; display: block; text-align: center; font-size: 0.9rem;
 }}
+
+/* УБИРАЕМ ВЕРТИКАЛЬНЫЕ ЛИНИИ (SEPARATORS) В КНОПКАХ И СЕЛЕКТАХ ВО ВСЕХ ЯЗЫКАХ */
 [data-baseweb="select"] input {{ caret-color: transparent !important; }}
+/* Находим разделитель внутри выпадающего списка и прячем его */
+div[data-baseweb="select"] > div > div:nth-child(2) {{ width: 0 !important; display: none !important; border: none !important; }}
+div[data-baseweb="select"] div[aria-hidden="true"] {{ background-color: transparent !important; width: 0 !important; border: none !important; display: none !important; }}
 div[data-baseweb="select"] * {{ border-left: none !important; border-right: none !important; }}
 </style>
 """
@@ -288,6 +295,8 @@ input:focus, textarea:focus, [data-baseweb="select"] > div:focus-within { border
 input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled="true"] { background-color: #e9ecef !important; color: #6c757d !important; -webkit-text-fill-color: #6c757d !important; border: 1px solid #dddddd !important; }
 button[kind="primary"] { background-color: #2563eb !important; color: #ffffff !important; border: 1px solid #1d4ed8 !important; border-radius: 6px !important; font-weight: 600 !important; }
 button[kind="primary"]:hover { background-color: #1d4ed8 !important; border-color: #1e40af !important; box-shadow: 0 0 8px rgba(37, 99, 235, 0.4) !important; }
+
+/* Переключатели навигации (Segmented Control) */
 div[data-testid="stRadio"] { display: flex; justify-content: center; margin-bottom: 1rem; }
 div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #f1f3f4 !important; border-radius: 20px !important; padding: 4px !important; display: inline-flex !important; gap: 4px !important; border: none !important; }
 div[data-testid="stRadio"] div[role="radiogroup"] label { background-color: transparent !important; padding: 8px 24px !important; border-radius: 16px !important; color: #5f6368 !important; font-weight: 500 !important; cursor: pointer !important; border: none !important; transition: all 0.2s; margin:0 !important; }
@@ -297,22 +306,31 @@ div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="tr
 </style>
 """
 
-# В ночном режиме текст кнопки темнее (#0f172a), фон кнопки светло-синий (#60a5fa)
+# Глубокий Ночной режим, соответствующий скриншотам (Deep Navy & Dark Blue)
 dark_css = """
 <style>
-.stApp { background-color: #0d1b2e !important; }
-[data-testid="stSidebar"] { background-color: #0b1727 !important; border-right: 1px solid #1e3a5f !important; }
-[data-testid="stMarkdownContainer"] h1, [data-testid="stMarkdownContainer"] h2, [data-testid="stMarkdownContainer"] h3 { color: #e2edf7 !important; }
-hr { border-color: #1e3a5f !important; }
-input, textarea, [data-baseweb="select"] > div { background-color: #172a45 !important; color: #e2edf7 !important; border: 1px solid #2e5cb8 !important; box-shadow: 0 0 4px rgba(46, 92, 184, 0.5) !important; border-radius: 6px !important; }
-input:focus, textarea:focus, [data-baseweb="select"] > div:focus-within { border: 1px solid #4a86e8 !important; box-shadow: 0 0 8px rgba(74, 134, 232, 0.8) !important; }
-input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled="true"] { background-color: #0b1727 !important; color: #7b96b8 !important; -webkit-text-fill-color: #7b96b8 !important; border: 1px solid #152b4a !important; box-shadow: none !important; }
-button[kind="primary"] { background-color: #60a5fa !important; color: #0f172a !important; border: 1px solid #3b82f6 !important; border-radius: 6px !important; font-weight: 600 !important; }
-button[kind="primary"]:hover { background-color: #93c5fd !important; border-color: #60a5fa !important; box-shadow: 0 0 8px rgba(96, 165, 250, 0.6) !important; }
+.stApp { background-color: #0b1426 !important; } /* Deepest Navy Background */
+[data-testid="stSidebar"] { background-color: #0f1c34 !important; border-right: 1px solid #1d3354 !important; }
+[data-testid="stMarkdownContainer"] h1, [data-testid="stMarkdownContainer"] h2, [data-testid="stMarkdownContainer"] h3 { color: #f8fafc !important; }
+p, span, label { color: #cbd5e1 !important; }
+hr { border-color: #1d3354 !important; }
+input, textarea, [data-baseweb="select"] > div { background-color: #132440 !important; color: #f8fafc !important; border: 1px solid #284470 !important; box-shadow: 0 0 4px rgba(46, 92, 184, 0.2) !important; border-radius: 6px !important; }
+input:focus, textarea:focus, [data-baseweb="select"] > div:focus-within { border: 1px solid #3b82f6 !important; box-shadow: 0 0 6px rgba(59, 130, 246, 0.6) !important; }
+input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled="true"] { background-color: #0f1c34 !important; color: #64748b !important; -webkit-text-fill-color: #64748b !important; border: 1px solid #1d3354 !important; box-shadow: none !important; }
+
+/* Primary Buttons */
+button[kind="primary"] { background-color: #3b82f6 !important; color: #ffffff !important; border: 1px solid #2563eb !important; border-radius: 6px !important; font-weight: 600 !important; }
+button[kind="primary"]:hover { background-color: #60a5fa !important; border-color: #3b82f6 !important; box-shadow: 0 0 8px rgba(96, 165, 250, 0.4) !important; }
+
+/* Secondary Buttons (Theme Toggle) */
+button[kind="secondary"] { background-color: #132440 !important; color: #cbd5e1 !important; border: 1px solid #284470 !important; }
+button[kind="secondary"]:hover { border-color: #3b82f6 !important; color: #ffffff !important; }
+
+/* Segmented Control (Nav Bar in Dark Mode) */
 div[data-testid="stRadio"] { display: flex; justify-content: center; margin-bottom: 1rem; }
-div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #0b1727 !important; border-radius: 20px !important; padding: 4px !important; display: inline-flex !important; gap: 4px !important; border: 1px solid #1e3a5f !important; }
-div[data-testid="stRadio"] div[role="radiogroup"] label { background-color: transparent !important; padding: 8px 24px !important; border-radius: 16px !important; color: #7b96b8 !important; font-weight: 500 !important; cursor: pointer !important; border: none !important; transition: all 0.2s; margin:0 !important; }
-div[data-testid="stRadio"] div[role="radiogroup"] label:hover { background-color: rgba(255,255,255,0.05) !important; }
+div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #0f1c34 !important; border-radius: 20px !important; padding: 4px !important; display: inline-flex !important; gap: 4px !important; border: 1px solid #1d3354 !important; }
+div[data-testid="stRadio"] div[role="radiogroup"] label { background-color: transparent !important; padding: 8px 24px !important; border-radius: 16px !important; color: #64748b !important; font-weight: 500 !important; cursor: pointer !important; border: none !important; transition: all 0.2s; margin:0 !important; }
+div[data-testid="stRadio"] div[role="radiogroup"] label:hover { background-color: rgba(255,255,255,0.05) !important; color: #cbd5e1 !important;}
 div[data-testid="stRadio"] div[role="radio"] { display: none !important; }
 div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) { background-color: #2563eb !important; color: #ffffff !important; box-shadow: 0 2px 5px rgba(0,0,0,0.3) !important; font-weight: 600 !important; }
 </style>
@@ -345,7 +363,7 @@ def create_sample_docx(section_title):
     heading = doc.add_heading(section_title, level=1)
     heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p = doc.add_paragraph(f"Here is sample content for {section_title}. Delete this and paste your text. ")
-    p.add_run("All paragraphs here are justified.").bold = True
+    p.add_run("All paragraphs here are justified. ").bold = True
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     
     p2 = doc.add_paragraph("Example of tagging: The results shown in [@fig1] are summarized in [@tab1]. Relevant literature supports this [@ref1].")
@@ -402,7 +420,8 @@ with hc1:
     st.title(l["title"])
     st.caption(l["subtitle"])
 with hc2:
-    _lang_labels = {"kz": "🇰🇿 KZ", "ru": "🇷🇺 RU", "en": "🇬🇧 EN"}
+    # Языковые кнопки с флагами и полным названием!
+    _lang_labels = {"kz": "🇰🇿 Қазақша", "ru": "🇷🇺 Русский", "en": "🇬🇧 English"}
     _lang_keys = list(_lang_labels.keys())
     _sel = st.selectbox("lang", _lang_keys, index=_lang_keys.index(st.session_state.lang), format_func=lambda x: _lang_labels[x], label_visibility="collapsed")
     if _sel != st.session_state.lang:
@@ -526,15 +545,10 @@ if app_mode == l["nav_gen"]:
     st.info("Пожалуйста, заполните необходимые разделы ниже. В случае отсутствия информации (например, финансирования), оставьте стандартную фразу.")
     
     val_supp = st.text_area(l["lbl_supp"], value="No supplementary material.", height=68, disabled=is_locked)
-    
     val_contrib = st.text_area(l["lbl_contrib"], value="Conceptualization, X.X. and Y.Y.; methodology, X.X.; software, X.X.; validation, X.X., Y.Y. and Z.Z.; formal analysis, X.X.; investigation, X.X.; resources, X.X.; data curation, X.X.; writing—original draft preparation, X.X.; writing—review and editing, X.X.; visualisation, X.X.; supervision, X.X.; project administration, X.X.; funding acquisition, Y.Y. All authors have read and agreed to the published version of the manuscript.", height=120, disabled=is_locked)
-    
     val_auth_info = st.text_area(l["lbl_auth_info"], value="Beisembayev, Adil Sayatuly - researcher, L.N. Gumilyov Eurasian National University, Kazhymukan st., 13, Astana, Kazakhstan, 010000; email: beisembayev_as@enu.kz, https://orcid.org/0001-0003-2203-9099", height=80, disabled=is_locked)
-    
     val_funding = st.text_area(l["lbl_funding"], value="This research received no external funding.", height=68, disabled=is_locked)
-    
     val_ack = st.text_area(l["lbl_ack"], value="Administrative and technical support was provided by...", height=68, disabled=is_locked)
-    
     val_coi = st.text_area(l["lbl_coi"], value="The authors declare no conflicts of interest. The funders had no role in the study’s design, data collection, analysis, manuscript writing, or publication decisions.", height=80, disabled=is_locked)
 
     # --- Аудармалар ---
