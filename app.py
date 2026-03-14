@@ -70,6 +70,11 @@ locales = {
         "lbl_tab_manager": "📋 Менеджер таблиц",
         "lbl_add_fig": "➕ Добавить рисунок",
         "lbl_add_tab": "➕ Добавить таблицу",
+        "btn_upload_short": "📎 Загрузить файл",
+        "lbl_fig_hint_title": "💡 Подсказка для сложных графиков",
+        "lbl_fig_hint_text": "Если рисунок состоит из нескольких частей (a, b, c), используйте **один тег** `[@fig1]` для всей группы. В подписи подробно опишите каждую часть: *Рисунок 1. Главное название: (a) первый график; (b) второй график.*",
+        "lbl_tab_hint_title": "💡 Подсказка для сложных таблиц",
+        "lbl_tab_hint_text": "Если ваша таблица очень широкая или имеет объединенные ячейки (merge), мы настоятельно рекомендуем загружать её в формате **.docx**, чтобы сохранить всё форматирование. Обязательно вставьте тег `[@tab1]` в нужный абзац вашего текста.",
         "lbl_samples": "📥 Скачать шаблоны файлов",
         "sec_backmatter": "4. Дополнительная информация (Back Matter)",
         "lbl_supp": "6. Supplementary Materials",
@@ -144,6 +149,11 @@ locales = {
         "lbl_tab_manager": "📋 Кестелер менеджері",
         "lbl_add_fig": "➕ Сурет қосу",
         "lbl_add_tab": "➕ Кесте қосу",
+        "btn_upload_short": "📎 Файлды жүктеу",
+        "lbl_fig_hint_title": "💡 Күрделі суреттерге арналған нұсқаулық",
+        "lbl_fig_hint_text": "Егер сурет бірнеше бөліктен (a, b, c) тұрса, бүкіл топ үшін **бір тегті** `[@fig1]` пайдаланыңыз. Әр бөлікті сипаттаңыз: *Сурет 1. Негізгі атау: (a) бірінші график; (b) екінші график.*",
+        "lbl_tab_hint_title": "💡 Күрделі кестелерге арналған нұсқаулық",
+        "lbl_tab_hint_text": "Кестеңіз өте кең болса немесе біріктірілген ұяшықтары болса, пішімдеуді сақтау үшін оны **.docx** форматында жүктеуді ұсынамыз. `[@tab1]` тегін мәтініңізге қосуды ұмытпаңыз.",
         "lbl_samples": "📥 Файл үлгілерін жүктеп алу",
         "sec_backmatter": "4. Қосымша ақпарат (Back Matter)",
         "lbl_supp": "6. Supplementary Materials",
@@ -178,7 +188,7 @@ locales = {
         "f_license": "Лицензия",
         "f_univ": "Л.Н. Гумилев атындағы ЕҰУ",
         "browse_files": "Файлды таңдаңыз немесе осында сүйреңіз",
-        "drag_drop": "Қолдау көрсетілетін форматтар: txt, docx, png, jpg, xlsx",
+        "drag_drop": "Қолдау көрсетілетін форматтар: txt, docx, png, jpg, xlsx, csv",
         "limit": "Шектеу 200MB",
         "fig_prefix": "Сурет",
         "tab_prefix": "Кесте"
@@ -218,6 +228,11 @@ locales = {
         "lbl_tab_manager": "📋 Table Manager",
         "lbl_add_fig": "➕ Add Figure",
         "lbl_add_tab": "➕ Add Table",
+        "btn_upload_short": "📎 Upload File",
+        "lbl_fig_hint_title": "💡 Hint for Complicated Figures",
+        "lbl_fig_hint_text": "If a figure has multiple parts (a, b, c), use a **single tag** `[@fig1]` for the entire group. Describe each part in the caption: *Figure 1. Main title: (a) chart one; (b) chart two.*",
+        "lbl_tab_hint_title": "💡 Hint for Complex Tables",
+        "lbl_tab_hint_text": "For wide tables or tables with merged cells, please upload a **.docx** file to preserve the formatting perfectly. Make sure to insert the tag `[@tab1]` in your text.",
         "lbl_samples": "📥 Download Sample Files",
         "sec_backmatter": "4. Additional Information (Back Matter)",
         "lbl_supp": "6. Supplementary Materials",
@@ -271,66 +286,36 @@ font_mapping = {
 selected_css_font = font_mapping.get(st.session_state.ui_font, "sans-serif")
 
 # ------------ CSS Дизайн ------------
-# Styling the Upload Dropzone exactly like the screenshot
+# 1. Main File Uploader design (for IMRAD)
+# 2. COMPACT File Uploader design (for dynamic rows)
 file_uploader_i18n = f"""
 <style>
 /* Font family and Text Justify distribution */
 * {{ font-family: {selected_css_font} !important; }}
 .stApp p, .stApp div[data-testid="stMarkdownContainer"] {{ text-align: justify !important; }}
 
-/* Customize File Uploader to look like the Screenshot */
+/* Customize MAIN File Uploaders to look like the Screenshot */
 [data-testid="stFileUploadDropzone"] {{
-    border: 2px dashed #a0aec0 !important;
-    border-radius: 12px !important;
-    padding: 24px !important;
-    text-align: center !important;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    border: 2px dashed #a0aec0 !important; border-radius: 12px !important;
+    padding: 24px !important; text-align: center !important;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
 }}
-/* Cloud Icon Injection */
-[data-testid="stFileUploadDropzone"]::before {{
-    content: "☁️";
-    font-size: 40px;
-    display: block;
-    margin-bottom: 8px;
-}}
-/* Hide original generic icon */
+[data-testid="stFileUploadDropzone"]::before {{ content: "☁️"; font-size: 40px; display: block; margin-bottom: 8px; }}
 [data-testid="stFileUploadDropzone"] svg {{ display: none !important; }}
-
-/* Translate and Style the Button inside Uploader */
 [data-testid="stFileUploadDropzone"] button {{ 
-    color: transparent !important; 
-    position: relative; 
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    margin-top: 10px;
+    color: transparent !important; position: relative; background-color: transparent !important;
+    border: none !important; box-shadow: none !important; margin-top: 10px;
 }}
 [data-testid="stFileUploadDropzone"] button::after {{
-    content: "{l['browse_files']}"; 
-    color: #3b82f6 !important; 
-    position: absolute;
-    left: 50%; top: 50%; transform: translate(-50%, -50%); 
-    visibility: visible; 
-    font-weight: 600;
-    font-size: 16px;
-    white-space: nowrap;
-    text-decoration: underline;
+    content: "{l['browse_files']}"; color: #3b82f6 !important; position: absolute;
+    left: 50%; top: 50%; transform: translate(-50%, -50%); visibility: visible; 
+    font-weight: 600; font-size: 16px; white-space: nowrap; text-decoration: underline;
 }}
 [data-testid="stFileUploadDropzone"] button:hover::after {{ color: #2563eb !important; }}
-
-/* Translate Subtext */
 [data-testid="stFileUploadDropzone"] div[data-testid="stText"] span {{ display: none !important; }}
 [data-testid="stFileUploadDropzone"] div[data-testid="stText"]::before {{
-    content: "{l['drag_drop']}\\A {l['limit']}"; 
-    white-space: pre-wrap; 
-    color: #64748b !important; 
-    display: block; 
-    text-align: center; 
-    font-size: 0.85rem;
-    margin-top: 5px;
+    content: "{l['drag_drop']}\\A {l['limit']}"; white-space: pre-wrap; color: #64748b !important; 
+    display: block; text-align: center; font-size: 0.85rem; margin-top: 5px;
 }}
 
 /* УБИРАЕМ ВЕРТИКАЛЬНЫЕ ЛИНИИ В СЕЛЕКТАХ */
@@ -338,6 +323,21 @@ file_uploader_i18n = f"""
 div[data-baseweb="select"] > div > div:nth-child(2) {{ width: 0 !important; display: none !important; border: none !important; }}
 div[data-baseweb="select"] div[aria-hidden="true"] {{ background-color: transparent !important; width: 0 !important; border: none !important; display: none !important; }}
 div[data-baseweb="select"] * {{ border-left: none !important; border-right: none !important; }}
+
+/* --- COMPACT UPLOADER FOR ROWS (Fixing the "Mess") --- */
+.element-container:has(.small-uploader-marker) + .element-container [data-testid="stFileUploadDropzone"] {{
+    padding: 0 !important; min-height: 40px !important; height: 40px !important;
+    border: 1px dashed #94a3b8 !important; border-radius: 6px !important;
+    display: flex; align-items: center; justify-content: center; flex-direction: row;
+}}
+.element-container:has(.small-uploader-marker) + .element-container [data-testid="stFileUploadDropzone"]::before {{ display: none !important; }}
+.element-container:has(.small-uploader-marker) + .element-container [data-testid="stFileUploadDropzone"] div[data-testid="stText"] {{ display: none !important; }}
+.element-container:has(.small-uploader-marker) + .element-container [data-testid="stFileUploadDropzone"] button {{ margin: 0 !important; width: 100% !important; height: 100% !important; display: block; }}
+.element-container:has(.small-uploader-marker) + .element-container [data-testid="stFileUploadDropzone"] button::after {{
+    content: "{l['btn_upload_short']}" !important; font-size: 13px !important; color: #64748b !important; text-decoration: none !important;
+}}
+.element-container:has(.small-uploader-marker) + .element-container [data-testid="stFileUploadDropzone"]:hover {{ border-color: #3b82f6 !important; }}
+.element-container:has(.small-uploader-marker) + .element-container [data-testid="stFileUploadDropzone"]:hover button::after {{ color: #3b82f6 !important; }}
 </style>
 """
 
@@ -578,26 +578,28 @@ if app_mode == l["nav_gen"]:
 
     st.markdown("<br><hr>", unsafe_allow_html=True)
     
-    # --- ДИНАМИЧЕСКИЕ МЕНЕДЖЕРЫ (Рисунки и Таблицы на каждой линии) ---
+    # --- ДИНАМИЧЕСКИЕ МЕНЕДЖЕРЫ РИСУНКОВ И ТАБЛИЦ С КОМПАКТНЫМИ ЗАГРУЗЧИКАМИ ---
     col_ft1, col_ft2 = st.columns(2)
     
     # --- ФОРМА РИСУНКОВ ---
     with col_ft1:
         st.header(l["lbl_fig_manager"])
-        with st.expander("💡 Подсказка для сложных графиков (Complicated Figures)"):
-            st.markdown("Используйте **один тег** `[@fig1]` для группы. В подписи опишите каждую часть: *Figure 1. Main title: (a) chart one; (b) chart two.*")
+        with st.expander(l["lbl_fig_hint_title"]):
+            st.markdown(l["lbl_fig_hint_text"])
         
-        # Заголовки таблицы Рисунков
-        hf1, hf2, hf3 = st.columns([1, 2, 2])
+        hf1, hf2, hf3 = st.columns([1.5, 3.5, 3])
         hf1.markdown("**Tag**")
         hf2.markdown("**Caption**")
         hf3.markdown("**File Upload**")
 
         for i in range(st.session_state.fig_count):
-            cf1, cf2, cf3 = st.columns([1, 2, 2])
+            cf1, cf2, cf3 = st.columns([1.5, 3.5, 3])
             with cf1: st.text_input(f"fig_tag_{i}", value=f"[@fig{i+1}]", key=f"f_tag_{i}", label_visibility="collapsed", disabled=is_locked)
-            with cf2: st.text_input(f"fig_cap_{i}", placeholder="Название рисунка...", key=f"f_cap_{i}", label_visibility="collapsed", disabled=is_locked)
-            with cf3: st.file_uploader(f"fig_file_{i}", type=["png", "jpg", "jpeg"], key=f"f_file_{i}", label_visibility="collapsed", disabled=is_locked)
+            with cf2: st.text_input(f"fig_cap_{i}", placeholder="Caption...", key=f"f_cap_{i}", label_visibility="collapsed", disabled=is_locked)
+            with cf3: 
+                # Скрытый маркер для применения CSS к компактному загрузчику
+                st.markdown('<div class="small-uploader-marker"></div>', unsafe_allow_html=True)
+                st.file_uploader(f"fig_file_{i}", type=["png", "jpg", "jpeg"], key=f"f_file_{i}", label_visibility="collapsed", disabled=is_locked)
             
         if st.button(l["lbl_add_fig"], disabled=is_locked):
             st.session_state.fig_count += 1
@@ -606,19 +608,22 @@ if app_mode == l["nav_gen"]:
     # --- ФОРМА ТАБЛИЦ ---
     with col_ft2:
         st.header(l["lbl_tab_manager"])
-        st.markdown("<br><br>", unsafe_allow_html=True) # Выравнивание высоты с expander'ом рисунков
+        with st.expander(l["lbl_tab_hint_title"]):
+            st.markdown(l["lbl_tab_hint_text"])
         
-        # Заголовки таблицы Таблиц
-        ht1, ht2, ht3 = st.columns([1, 2, 2])
+        ht1, ht2, ht3 = st.columns([1.5, 3.5, 3])
         ht1.markdown("**Tag**")
         ht2.markdown("**Caption**")
         ht3.markdown("**File Upload**")
 
         for i in range(st.session_state.tab_count):
-            ct1, ct2, ct3 = st.columns([1, 2, 2])
+            ct1, ct2, ct3 = st.columns([1.5, 3.5, 3])
             with ct1: st.text_input(f"tab_tag_{i}", value=f"[@tab{i+1}]", key=f"t_tag_{i}", label_visibility="collapsed", disabled=is_locked)
-            with ct2: st.text_input(f"tab_cap_{i}", placeholder="Название таблицы...", key=f"t_cap_{i}", label_visibility="collapsed", disabled=is_locked)
-            with ct3: st.file_uploader(f"tab_file_{i}", type=["xlsx", "csv", "docx", "txt"], key=f"t_file_{i}", label_visibility="collapsed", disabled=is_locked)
+            with ct2: st.text_input(f"tab_cap_{i}", placeholder="Caption...", key=f"t_cap_{i}", label_visibility="collapsed", disabled=is_locked)
+            with ct3: 
+                # Скрытый маркер для применения CSS к компактному загрузчику
+                st.markdown('<div class="small-uploader-marker"></div>', unsafe_allow_html=True)
+                st.file_uploader(f"tab_file_{i}", type=["xlsx", "csv", "docx", "txt"], key=f"t_file_{i}", label_visibility="collapsed", disabled=is_locked)
             
         if st.button(l["lbl_add_tab"], disabled=is_locked):
             st.session_state.tab_count += 1
@@ -686,7 +691,6 @@ if app_mode == l["nav_gen"]:
                     for i in range(st.session_state.fig_count):
                         c_tag = st.session_state.get(f"f_tag_{i}", "").strip()
                         c_cap = st.session_state.get(f"f_cap_{i}", "").strip()
-                        c_file = st.session_state.get(f"f_file_{i}") # File is kept strictly for backend processing if needed
                         
                         if c_cap:
                             fig_label = f"{l['fig_prefix']} {fig_counter}"
@@ -767,7 +771,7 @@ if app_mode == l["nav_gen"]:
                     doc = DocxTemplate(template_filename)
                     doc.render(context)
                     
-                    # Генерация файлов через TemporaryDirectory для безопасной конвертации PDF
+                    # Генерация файлов через TemporaryDirectory
                     with tempfile.TemporaryDirectory() as tmpdir:
                         docx_path = os.path.join(tmpdir, "Formatted_Article.docx")
                         pdf_path = os.path.join(tmpdir, "Formatted_Article.pdf")
@@ -785,7 +789,6 @@ if app_mode == l["nav_gen"]:
                     st.success(l["succ_gen"])
                     log_generation(title, authors, primary_lang)
 
-                    # Отображение кнопок скачивания
                     dcol1, dcol2 = st.columns(2)
                     with dcol1:
                         st.download_button(label=l["btn_dl_docx"], data=docx_bytes, file_name="Formatted_Article.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document", type="primary", use_container_width=True)
