@@ -41,6 +41,7 @@ locales = {
     "ru": {
         "title": "📝 Умный генератор научных статей",
         "subtitle": "Вестник ЕНУ им. Л.Н. Гумилева · Химия / География · 2025",
+        "sidebar_lang": "🌍 Язык интерфейса",
         "btn_theme_dark": "🌙 Тёмная тема",
         "btn_theme_light": "☀️ Светлая тема",
         "nav_gen": "📄 Генератор статей",
@@ -130,6 +131,7 @@ locales = {
     "kz": {
         "title": "📝 Ғылыми мақалалардың ақылды генераторы",
         "subtitle": "Л.Н. Гумилев атындағы ЕҰУ Хабаршысы · Химия / География · 2025",
+        "sidebar_lang": "🌍 Интерфейс тілі",
         "btn_theme_dark": "🌙 Түнгі режим",
         "btn_theme_light": "☀️ Күндізгі режим",
         "nav_gen": "📄 Мақала генераторы",
@@ -219,6 +221,7 @@ locales = {
     "en": {
         "title": "📝 Smart Paper Generator",
         "subtitle": "L.N. Gumilyov ENU Bulletin · Chemistry / Geography · 2025",
+        "sidebar_lang": "🌍 Language",
         "btn_theme_dark": "🌙 Dark mode",
         "btn_theme_light": "☀️ Light mode",
         "nav_gen": "📄 Paper Generator",
@@ -333,11 +336,12 @@ div[data-baseweb="select"] > div > div > div[style*="width: 1px"], div[data-base
 [data-testid="stFileUploader"] div div div div div:nth-of-type(1)::before {{ content: "{l['drag_drop']}"; font-size: 14px; font-weight: 500; white-space: pre-wrap; text-align: center; display: block; }}
 [data-testid="stFileUploader"] div div div div div:nth-of-type(2) small {{ display: none; }}
 [data-testid="stFileUploader"] div div div div div:nth-of-type(2)::before {{ content: "{l['limit']}"; font-size: 12px; opacity: 0.7; }}
-[data-testid="stFileUploader"] button {{ color: transparent !important; position: relative; background-color: rgba(255,255,255,0.05) !important; }}
+[data-testid="stFileUploader"] button {{ color: transparent !important; position: relative; background-color: rgba(255,255,255,0.05) !important; border: 1px solid rgba(150,150,150,0.3) !important; border-radius: 8px !important; transition: all 0.3s ease;}}
 [data-testid="stFileUploader"] button::before {{ content: "{l['browse_files']}"; position: absolute; color: inherit; color: #e2edf7 !important; left: 50%; top: 50%; transform: translate(-50%, -50%); width: max-content; }}
 .stApp[data-theme="light"] [data-testid="stFileUploader"] button::before {{ color: #1a3a5c !important; }}
+[data-testid="stFileUploader"] button:hover {{ background-color: rgba(74, 144, 226, 0.1) !important; border-color: #4a90e2 !important; }}
 
-/* 2. КОМПАКТНЫЕ ЗАГРУЗЧИКИ ДЛЯ ТАБЛИЦ И РИСУНКОВ (Компактный дизайн) */
+/* 2. КОМПАКТНЫЕ ЗАГРУЗЧИКИ ДЛЯ ТАБЛИЦ И РИСУНКОВ */
 div.element-container:has(.compact-uploader) {{ display: none !important; height: 0px !important; margin: 0px !important; padding: 0px !important; }}
 div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] {{
     padding: 0 !important; min-height: 40px !important; height: 40px !important; border: 1px dashed #94a3b8 !important; border-radius: 6px !important; display: flex; align-items: center; justify-content: center; flex-direction: row; background-color: transparent !important; margin: 0 !important;
@@ -350,6 +354,33 @@ div.element-container:has(.compact-uploader) + div.element-container [data-testi
 }}
 div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"]:hover {{ border-color: #4a90e2 !important; background-color: rgba(74, 144, 226, 0.05) !important; }}
 div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"]:hover button::before {{ color: #4a90e2 !important; }}
+
+/* LANGUAGE FLAGS BUTTONS */
+.stButton>button:has(div:contains("🇬🇧")),
+.stButton>button:has(div:contains("🇷🇺")),
+.stButton>button:has(div:contains("🇰🇿")) {{
+    font-size: 24px !important;
+    background: transparent !important;
+    border: 1px solid rgba(150,150,150,0.3) !important;
+    border-radius: 12px !important;
+    padding: 10px 0 !important;
+    transition: all 0.2s ease !important;
+}}
+.stButton>button:has(div:contains("🇬🇧")):hover,
+.stButton>button:has(div:contains("🇷🇺")):hover,
+.stButton>button:has(div:contains("🇰🇿")):hover {{
+    background: rgba(74, 144, 226, 0.1) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
+}}
+
+/* GLASS UI METRICS */
+[data-testid="stMetric"] {{
+    background: rgba(150,150,150, 0.05);
+    border-radius: 14px;
+    border: 1px solid rgba(150,150,150, 0.2);
+    padding: 15px;
+}}
 </style>
 """
 
@@ -362,8 +393,8 @@ hr { border-color: #e9ecef !important; }
 input, textarea, [data-baseweb="select"] > div { background-color: #f8fbff !important; color: #1a3a5c !important; border: 1px solid #bcdcfa !important; border-radius: 6px !important; }
 input:focus, textarea:focus, [data-baseweb="select"] > div:focus-within { border-color: #4a90e2 !important; box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2) !important; }
 input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled="true"] { background-color: #e9ecef !important; color: #6c757d !important; -webkit-text-fill-color: #6c757d !important; border: 1px solid #dddddd !important; }
-button[kind="primary"] { background-color: #4a90e2 !important; color: #ffffff !important; border: 1px solid #357abd !important; border-radius: 6px !important; font-weight: 600 !important; }
-button[kind="primary"]:hover { background-color: #357abd !important; border-color: #2a6296 !important; box-shadow: 0 0 8px rgba(74, 144, 226, 0.4) !important; }
+button[kind="primary"] { background: linear-gradient(135deg, #4f8cff, #7aa2ff) !important; color: #ffffff !important; border: none !important; border-radius: 10px !important; font-weight: 600 !important; }
+button[kind="primary"]:hover { opacity: 0.9; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4) !important; transform: translateY(-1px); }
 div[data-testid="stRadio"] { display: flex; justify-content: center; margin-bottom: 1rem; }
 div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #f1f3f4 !important; border-radius: 20px !important; padding: 4px !important; display: inline-flex !important; gap: 4px !important; border: none !important; }
 div[data-testid="stRadio"] div[role="radiogroup"] label { background-color: transparent !important; padding: 8px 24px !important; border-radius: 16px !important; color: #5f6368 !important; font-weight: 500 !important; cursor: pointer !important; border: none !important; transition: all 0.2s; margin:0 !important; }
@@ -380,13 +411,11 @@ dark_css = """
 [data-testid="stMarkdownContainer"] h1, [data-testid="stMarkdownContainer"] h2, [data-testid="stMarkdownContainer"] h3 { color: #f8fafc !important; }
 p, span, label { color: #cbd5e1 !important; }
 hr { border-color: #1d3354 !important; }
-/* LIGHTER CELLS FOR DARK MODE */
 input, textarea, [data-baseweb="select"] > div { background-color: #1e3a5f !important; color: #f8fafc !important; border: 1px solid #3b82f6 !important; box-shadow: 0 0 4px rgba(46, 92, 184, 0.2) !important; border-radius: 6px !important; }
 input:focus, textarea:focus, [data-baseweb="select"] > div:focus-within { border: 1px solid #60a5fa !important; box-shadow: 0 0 6px rgba(74, 144, 226, 0.6) !important; }
 input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled="true"] { background-color: #0f1c34 !important; color: #64748b !important; -webkit-text-fill-color: #64748b !important; border: 1px solid #1d3354 !important; box-shadow: none !important; }
-/* LIGHTER PRIMARY BUTTON */
-button[kind="primary"] { background-color: #4b8bf5 !important; color: #ffffff !important; border: 1px solid #3b82f6 !important; border-radius: 6px !important; font-weight: 600 !important; }
-button[kind="primary"]:hover { background-color: #60a5fa !important; box-shadow: 0 0 8px rgba(93, 160, 235, 0.4) !important; }
+button[kind="primary"] { background: linear-gradient(135deg, #4f8cff, #7aa2ff) !important; color: #ffffff !important; border: none !important; border-radius: 10px !important; font-weight: 600 !important; }
+button[kind="primary"]:hover { opacity: 0.9; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4) !important; transform: translateY(-1px); }
 button[kind="secondary"] { background-color: #1e3a5f !important; color: #cbd5e1 !important; border: 1px solid #3b82f6 !important; }
 button[kind="secondary"]:hover { border-color: #60a5fa !important; color: #ffffff !important; }
 div[data-testid="stRadio"] { display: flex; justify-content: center; margin-bottom: 1rem; }
@@ -491,7 +520,6 @@ def log_registration(name, email, phone, org, pos):
     header = ["Уақыты (Timestamp)", "Аты-жөні (Full Name)", "Email", "Телефон (Phone)", "Ұйым (Organization)", "Лауазымы (Position)"]
     append_to_github_csv("registered_users.csv", row, header)
 
-# --- EMAIL NOTIFICATION FUNCTION ---
 def send_email_notification(user_email, feedback_text):
     try:
         target_email = st.secrets.get("CONTACT_EMAIL", "kanat.baurzhanuly@gmail.com")
@@ -525,24 +553,33 @@ def convert_to_pdf(docx_path, pdf_path):
     except: pass
     return False
 
-# ------------ Header ------------
-hc1, hc2, hc3 = st.columns([6, 1.8, 1.8])
-with hc1:
-    st.title(l["title"])
-    st.caption(l["subtitle"])
-with hc2:
-    _lang_labels = {"kz": "🇰🇿 Қазақша", "ru": "🇷🇺 Русский", "en": "🇬🇧 English"}
-    _lang_keys = list(_lang_labels.keys())
-    _sel = st.selectbox("lang", _lang_keys, index=_lang_keys.index(st.session_state.lang), format_func=lambda x: _lang_labels[x], label_visibility="collapsed")
-    if _sel != st.session_state.lang:
-        st.session_state.lang = _sel
+# ------------ SIDEBAR: LANGUAGE FLAGS & UI ------------
+with st.sidebar:
+    st.markdown(f"### {l['sidebar_lang']}")
+    
+    col_f1, col_f2, col_f3 = st.columns(3)
+    if col_f1.button("🇰🇿", use_container_width=True):
+        st.session_state.lang = "kz"
         st.rerun()
-with hc3:
+    if col_f2.button("🇷🇺", use_container_width=True):
+        st.session_state.lang = "ru"
+        st.rerun()
+    if col_f3.button("🇬🇧", use_container_width=True):
+        st.session_state.lang = "en"
+        st.rerun()
+        
+    st.markdown("---")
+
     _tbtn = l["btn_theme_light"] if st.session_state.theme == "dark" else l["btn_theme_dark"]
     if st.button(_tbtn, use_container_width=True):
         st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
         st.rerun()
+        
+    st.markdown("---")
 
+# ------------ Header ------------
+st.title(l["title"])
+st.caption(l["subtitle"])
 st.markdown("---")
 
 if "nav_radio" not in st.session_state or st.session_state.nav_radio not in [l["nav_gen"], l["nav_reg"]]:
@@ -748,7 +785,6 @@ if app_mode == l["nav_gen"]:
                     wc_disc = count_wc(t_discussion)
                     wc_conc = count_wc(t_conclusion)
 
-                    # Сборка основного текста
                     main_text_compiled = ""
                     if t_intro: main_text_compiled += "1. INTRODUCTION\n" + t_intro + "\n\n"
                     if t_methods: main_text_compiled += "2. MATERIALS AND METHODS\n" + t_methods + "\n\n"
