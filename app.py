@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 from docxtpl import DocxTemplate
 from io import BytesIO
 import csv
@@ -8,18 +9,15 @@ import requests
 import base64
 import io
 
-# Беттің баптаулары (Настройка страницы)
 st.set_page_config(page_title="Smart Paper Generator", page_icon="📝", layout="wide")
 
-# Сессия күйлерін бастау (Инициализация состояния сессии)
-if "lang" not in st.session_state: 
+if "lang" not in st.session_state:
     st.session_state.lang = "kz"
-if "theme" not in st.session_state: 
+if "theme" not in st.session_state:
     st.session_state.theme = "light"
 if "is_registered" not in st.session_state:
     st.session_state.is_registered = False
 
-# Аудармалар сөздігі (Словарь переводов)
 locales = {
     "ru": {
         "title": "📝 Умный генератор научных статей",
@@ -53,8 +51,8 @@ locales = {
         "succ_abs_len": "Слов в аннотации: {count}/300",
         "err_fill_req": "Пожалуйста, заполните хотя бы Название и Авторов.",
         "err_gen": "Произошла ошибка при генерации: ",
-        "succ_gen": "✅ Документ успешно сгенерирован!",
-        "btn_dl": "⬇️ Скачать .docx файл",
+        "succ_gen": "✅ Документ успешно сгенерирован! Загрузка начнется автоматически.",
+        "btn_dl": "⬇️ Скачать .docx файл вручную",
         "reg_header": "📝 Регистрация исследователя",
         "reg_name": "ФИО (Полностью)",
         "reg_email": "Ваш Email",
@@ -63,7 +61,9 @@ locales = {
         "reg_pos": "Должность / Статус (например: Докторант)",
         "reg_submit": "Зарегистрироваться",
         "reg_success": "✅ Вы успешно зарегистрированы! Теперь вам доступен генератор статей.",
+        "reg_info": "Вы можете перейти в раздел «Генератор статей».",
         "reg_req_msg": "🔒 Для создания статьи необходимо заполнить форму регистрации. Перейдите во вкладку «Регистрация» выше.",
+        "reg_err_fill": "Пожалуйста, заполните Имя, Email и Телефон.",
         "f_author": "Канат Самарханов / Kanat Samarkhanov",
         "f_license": "Лицензия",
         "f_univ": "ЕНУ им. Л.Н. Гумилева — Кафедра физической и экономической географии",
@@ -100,8 +100,8 @@ locales = {
         "succ_abs_len": "Аңдатпадағы сөз саны: {count}/300",
         "err_fill_req": "Кем дегенде Атауын және Авторларын толтырыңыз.",
         "err_gen": "Генерация кезінде қате пайда болды: ",
-        "succ_gen": "✅ Құжат сәтті генерацияланды!",
-        "btn_dl": "⬇️ .docx файлын жүктеп алу",
+        "succ_gen": "✅ Құжат сәтті генерацияланды! Жүктеп алу автоматты түрде басталады.",
+        "btn_dl": "⬇️ .docx файлын қолмен жүктеп алу",
         "reg_header": "📝 Зерттеушіні тіркеу",
         "reg_name": "Аты-жөні (Толық)",
         "reg_email": "Сіздің Email",
@@ -110,7 +110,9 @@ locales = {
         "reg_pos": "Қызметі / Мәртебесі (мысалы: Докторант)",
         "reg_submit": "Тіркелу",
         "reg_success": "✅ Сіз жүйеге сәтті тіркелдіңіз! Енді мақала генераторы қолжетімді.",
+        "reg_info": "Сіз «Мақала генераторы» бөліміне өтіп, мақала жасай аласыз.",
         "reg_req_msg": "🔒 Мақала жасау үшін тіркелу формасын толтыру қажет. Жоғарыдағы «Тіркелу» бөліміне өтіңіз.",
+        "reg_err_fill": "Аты-жөні, Email және Телефонды толтырыңыз.",
         "f_author": "Канат Самарханов / Kanat Samarkhanov",
         "f_license": "Лицензия",
         "f_univ": "Л.Н. Гумилев атындағы ЕҰУ — Физикалық және экономикалық география кафедрасы",
@@ -147,8 +149,8 @@ locales = {
         "succ_abs_len": "Words in abstract: {count}/300",
         "err_fill_req": "Please fill in at least the Title and Authors.",
         "err_gen": "An error occurred during generation: ",
-        "succ_gen": "✅ Document successfully generated!",
-        "btn_dl": "⬇️ Download .docx file",
+        "succ_gen": "✅ Document successfully generated! Downloading automatically...",
+        "btn_dl": "⬇️ Download .docx file manually",
         "reg_header": "📝 Researcher Registration",
         "reg_name": "Full Name",
         "reg_email": "Your Email",
@@ -157,7 +159,9 @@ locales = {
         "reg_pos": "Position / Status (e.g., PhD Student)",
         "reg_submit": "Register",
         "reg_success": "✅ You have successfully registered! The paper generator is now unlocked.",
+        "reg_info": "You can now go to the 'Paper Generator' section.",
         "reg_req_msg": "🔒 To generate an article, you must complete the registration form. Please go to the 'Registration' tab above.",
+        "reg_err_fill": "Please fill in your Name, Email, and Phone.",
         "f_author": "Kanat Samarkhanov",
         "f_license": "License",
         "f_univ": "L.N. Gumilyov ENU — Department of Physical and Economic Geography",
@@ -166,17 +170,13 @@ locales = {
 
 l = locales[st.session_state.lang]
 
-# ------------ CSS Дизайн (Ақ және Қою көк режимдер) ------------
 light_css = """
 <style>
-/* Основной фон и боковая панель */
 .stApp { background-color: #ffffff !important; }
 [data-testid="stSidebar"] { background-color: #f8f9fa !important; border-right: 1px solid #e9ecef !important; }
 [data-testid="stMarkdownContainer"] h1, [data-testid="stMarkdownContainer"] h2, [data-testid="stMarkdownContainer"] h3 { color: #1a3a5c !important; }
 p, span, label { color: #333333 !important; }
 hr { border-color: #e9ecef !important; }
-
-/* Активные ячейки ввода: Светло-голубой фон (Lightblue) */
 input, textarea, [data-baseweb="select"] > div {
     background-color: #eaf4fc !important;
     color: #1a3a5c !important;
@@ -187,30 +187,24 @@ input:focus, textarea:focus, [data-baseweb="select"] > div:focus-within {
     border-color: #58a6ff !important;
     box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2) !important;
 }
-
-/* ЗАБЛОКИРОВАННЫЕ ячейки (до регистрации): Серые */
 input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled="true"] {
     background-color: #e9ecef !important;
     color: #6c757d !important;
     -webkit-text-fill-color: #6c757d !important;
     border: 1px solid #dddddd !important;
 }
-
-/* ГЛАВНАЯ КНОПКА: Теплый зеленый (Warm Green) */
 button[kind="primary"] {
-    background-color: #7CB342 !important;
+    background-color: #2563eb !important;
     color: #ffffff !important;
-    border: 1px solid #689F38 !important;
+    border: 1px solid #1d4ed8 !important;
     border-radius: 6px !important;
     font-weight: 600 !important;
 }
 button[kind="primary"]:hover {
-    background-color: #8BC34A !important;
-    border-color: #7CB342 !important;
-    box-shadow: 0 0 8px rgba(124, 179, 66, 0.6) !important;
+    background-color: #1d4ed8 !important;
+    border-color: #1e40af !important;
+    box-shadow: 0 0 8px rgba(37, 99, 235, 0.4) !important;
 }
-
-/* Убрать случайные вертикальные линии в меню */
 div[data-testid="stRadio"] div[role="radiogroup"] label {
     border-left: none !important;
 }
@@ -219,14 +213,11 @@ div[data-testid="stRadio"] div[role="radiogroup"] label {
 
 dark_css = """
 <style>
-/* Основной фон для ночного режима */
 .stApp { background-color: #0d1b2e !important; }
 [data-testid="stSidebar"] { background-color: #0b1727 !important; border-right: 1px solid #1e3a5f !important; }
 [data-testid="stMarkdownContainer"] h1, [data-testid="stMarkdownContainer"] h2, [data-testid="stMarkdownContainer"] h3 { color: #e2edf7 !important; }
 p, span, label { color: #c9d8ee !important; }
 hr { border-color: #1e3a5f !important; }
-
-/* Активные ячейки ввода: Темно-синий фон и светящийся контур (Glowing blue) */
 input, textarea, [data-baseweb="select"] > div {
     background-color: #172a45 !important;
     color: #e2edf7 !important;
@@ -238,8 +229,6 @@ input:focus, textarea:focus, [data-baseweb="select"] > div:focus-within {
     border: 1px solid #4a86e8 !important;
     box-shadow: 0 0 8px rgba(74, 134, 232, 0.8) !important;
 }
-
-/* ЗАБЛОКИРОВАННЫЕ ячейки (до регистрации): Темные, без свечения */
 input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled="true"] {
     background-color: #0b1727 !important;
     color: #7b96b8 !important;
@@ -247,22 +236,18 @@ input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled
     border: 1px solid #152b4a !important;
     box-shadow: none !important;
 }
-
-/* ГЛАВНАЯ КНОПКА: Теплый зеленый (Warm Green) */
 button[kind="primary"] {
-    background-color: #7CB342 !important;
+    background-color: #3b82f6 !important;
     color: #ffffff !important;
-    border: 1px solid #689F38 !important;
+    border: 1px solid #2563eb !important;
     border-radius: 6px !important;
     font-weight: 600 !important;
 }
 button[kind="primary"]:hover {
-    background-color: #8BC34A !important;
-    border-color: #7CB342 !important;
-    box-shadow: 0 0 8px rgba(124, 179, 66, 0.6) !important;
+    background-color: #60a5fa !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.6) !important;
 }
-
-/* Убрать случайные вертикальные линии в меню */
 div[data-testid="stRadio"] div[role="radiogroup"] label {
     border-left: none !important;
 }
@@ -272,14 +257,24 @@ div[data-testid="stRadio"] div[role="radiogroup"] label {
 st.markdown(dark_css if st.session_state.theme == "dark" else light_css, unsafe_allow_html=True)
 
 
-# ------------ GitHub API Интеграциясы ------------
+def auto_download(bio, filename):
+    b64 = base64.b64encode(bio.getvalue()).decode()
+    custom_html = f"""
+        <a id="auto_download_link" href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64}" download="{filename}"></a>
+        <script>
+            document.getElementById('auto_download_link').click();
+        </script>
+    """
+    components.html(custom_html, height=0)
+
+
 def append_to_github_csv(filename, row_data, header_data):
     try:
         github_token = st.secrets["GITHUB_TOKEN"]
         github_repo = st.secrets["GITHUB_REPO"]
     except Exception:
         file_exists = os.path.isfile(filename)
-        with open(filename, mode='a', encoding='utf-8', newline='') as f:
+        with open(filename, mode="a", encoding="utf-8-sig", newline="") as f:
             writer = csv.writer(f)
             if not file_exists:
                 writer.writerow(header_data)
@@ -288,29 +283,34 @@ def append_to_github_csv(filename, row_data, header_data):
 
     url = f"https://api.github.com/repos/{github_repo}/contents/{filename}"
     headers = {"Authorization": f"token {github_token}"}
-    
+
     response = requests.get(url, headers=headers)
     sha = None
-    content = ""
+
     if response.status_code == 200:
         data = response.json()
-        sha = data['sha']
-        content = base64.b64decode(data['content']).decode('utf-8')
-    
+        sha = data["sha"]
+        content = base64.b64decode(data["content"]).decode("utf-8")
+    else:
+        content = "\ufeff"
+
     output = io.StringIO()
     writer = csv.writer(output)
-    if not content:
+
+    if content == "\ufeff":
         writer.writerow(header_data)
+
     writer.writerow(row_data)
-    
+
     new_content = content + output.getvalue()
+
     payload = {
         "message": f"Жаңа дерек қосылды: {filename}",
-        "content": base64.b64encode(new_content.encode('utf-8')).decode('utf-8')
+        "content": base64.b64encode(new_content.encode("utf-8")).decode("utf-8"),
     }
     if sha:
         payload["sha"] = sha
-        
+
     requests.put(url, headers=headers, json=payload)
 
 
@@ -324,20 +324,27 @@ def log_generation(title_text, authors_text, lang):
 def log_registration(name, email, phone, org, pos):
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     row = [timestamp, name, email, phone, org, pos]
-    header = ["Уақыты (Timestamp)", "Аты-жөні (Full Name)", "Email", "Телефон (Phone)", "Ұйым (Organization)", "Лауазымы (Position)"]
+    header = [
+        "Уақыты (Timestamp)",
+        "Аты-жөні (Full Name)",
+        "Email",
+        "Телефон (Phone)",
+        "Ұйым (Organization)",
+        "Лауазымы (Position)",
+    ]
     append_to_github_csv("registered_users.csv", row, header)
 
 
-# ------------ Басты Тақырып ------------
 hc1, hc2, hc3 = st.columns([6, 1.8, 1.8])
 with hc1:
     st.title(l["title"])
     st.caption(l["subtitle"])
 with hc2:
     _lang_labels = {"kz": "🇰🇿 Қазақша", "ru": "🇷🇺 Русский", "en": "🇬🇧 English"}
-    _lang_keys   = list(_lang_labels.keys())
+    _lang_keys = list(_lang_labels.keys())
     _sel = st.selectbox(
-        "lang", _lang_keys,
+        "lang",
+        _lang_keys,
         index=_lang_keys.index(st.session_state.lang),
         format_func=lambda x: _lang_labels[x],
         label_visibility="collapsed",
@@ -353,26 +360,28 @@ with hc3:
 
 st.markdown("---")
 
-# ------------ Навигация (Перенесена на главный экран для удобства на мобильных) ------------
+if "nav_radio" not in st.session_state or st.session_state.nav_radio not in [l["nav_gen"], l["nav_reg"]]:
+    st.session_state.nav_radio = l["nav_gen"]
+
+if st.session_state.get("go_to_gen"):
+    st.session_state.nav_radio = l["nav_gen"]
+    st.session_state.go_to_gen = False
+
 app_mode = st.radio(
-    "", 
-    [l["nav_gen"], l["nav_reg"]], 
-    horizontal=True, 
-    label_visibility="collapsed"
+    "",
+    [l["nav_gen"], l["nav_reg"]],
+    horizontal=True,
+    label_visibility="collapsed",
+    key="nav_radio",
 )
 st.markdown("---")
 
 is_locked = not st.session_state.is_registered
 
-# ==========================================
-# РЕЖИМ: ГЕНЕРАТОР (МАҚАЛА ЖАСАУ)
-# ==========================================
 if app_mode == l["nav_gen"]:
-    
     if is_locked:
         st.error(l["reg_req_msg"], icon="🔒")
-        
-    # Настройки статьи вынесены из бокового меню в основное окно (для мобильных)
+
     st.subheader(l["sidebar_title"])
     col_s1, col_s2, col_s3, col_s4 = st.columns(4)
     with col_s1:
@@ -380,10 +389,19 @@ if app_mode == l["nav_gen"]:
     with col_s2:
         section = st.selectbox(l["lbl_sec"], ["Химия", "География"], disabled=is_locked)
     with col_s3:
-        paper_type = st.selectbox(l["lbl_type"], ["Научная статья (Article)", "Обзор (Review)", "Мини-обзор (Mini-review)", "Краткое сообщение (Communication)"], disabled=is_locked)
+        paper_type = st.selectbox(
+            l["lbl_type"],
+            [
+                "Научная статья (Article)",
+                "Обзор (Review)",
+                "Мини-обзор (Mini-review)",
+                "Краткое сообщение (Communication)",
+            ],
+            disabled=is_locked,
+        )
     with col_s4:
         mrnti = st.text_input(l["lbl_mrnti"], value="06.81.23", disabled=is_locked)
-    
+
     st.markdown("<br>", unsafe_allow_html=True)
 
     st.header(l["sec_meta"])
@@ -441,53 +459,68 @@ if app_mode == l["nav_gen"]:
             st.warning(l["err_fill_req"])
         else:
             try:
-                template_filename = "Russian_template_2025.docx" 
-                if primary_lang == "Русский": template_filename = "Russian_template_2025.docx"
-                elif primary_lang == "Қазақша": template_filename = "Kazakh_template_2025.docx"
-                elif primary_lang == "English": template_filename = "English_template_2025.docx"
-                    
+                template_filename = "Russian_template_2025.docx"
+                if primary_lang == "Русский":
+                    template_filename = "Russian_template_2025.docx"
+                elif primary_lang == "Қазақша":
+                    template_filename = "Kazakh_template_2025.docx"
+                elif primary_lang == "English":
+                    template_filename = "English_template_2025.docx"
+
                 context = {
-                    'mrnti': mrnti, 'section': section, 'paper_type': paper_type,
-                    'title': title, 'authors': authors, 'affiliations': affiliations,
-                    'corr_email': corr_email, 'abstract': abstract, 'keywords': keywords,
-                    'main_text': main_text, 'references': references,
-                    't1_title': t1_title, 't1_authors': t1_authors, 't1_abstract': t1_abstract, 't1_keywords': t1_keywords,
-                    't2_title': t2_title, 't2_authors': t2_authors, 't2_abstract': t2_abstract, 't2_keywords': t2_keywords
+                    "mrnti": mrnti,
+                    "section": section,
+                    "paper_type": paper_type,
+                    "title": title,
+                    "authors": authors,
+                    "affiliations": affiliations,
+                    "corr_email": corr_email,
+                    "abstract": abstract,
+                    "keywords": keywords,
+                    "main_text": main_text,
+                    "references": references,
+                    "t1_title": t1_title,
+                    "t1_authors": t1_authors,
+                    "t1_abstract": t1_abstract,
+                    "t1_keywords": t1_keywords,
+                    "t2_title": t2_title,
+                    "t2_authors": t2_authors,
+                    "t2_abstract": t2_abstract,
+                    "t2_keywords": t2_keywords,
                 }
-                
+
                 doc = DocxTemplate(template_filename)
                 doc.render(context)
-                
+
                 bio = BytesIO()
                 doc.save(bio)
-                
+
                 st.success(l["succ_gen"])
-                st.balloons()
-                
-                with st.spinner("Деректер сақталуда... (Сохранение логов)"):
+
+                with st.spinner("Деректер сақталуда..."):
                     log_generation(title, authors, primary_lang)
-                
+
+                auto_download(bio, "Formatted_Article.docx")
+
                 st.download_button(
                     label=l["btn_dl"],
                     data=bio.getvalue(),
                     file_name="Formatted_Article.docx",
                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    type="primary"
+                    type="secondary",
                 )
             except Exception as e:
                 st.error(f"{l['err_gen']} {e}")
-                st.info("💡 Ескерту: 'Russian_template_2025.docx', 'Kazakh_template_2025.docx' және 'English_template_2025.docx' файлдары бумада болуы тиіс.")
+                st.info(
+                    "💡 Ескерту: 'Russian_template_2025.docx', 'Kazakh_template_2025.docx' және 'English_template_2025.docx' файлдары бумада болуы тиіс."
+                )
 
-
-# ==========================================
-# РЕЖИМ: РЕГИСТРАЦИЯ (ТІРКЕЛУ)
-# ==========================================
 elif app_mode == l["nav_reg"]:
     st.header(l["reg_header"])
-    
+
     if st.session_state.is_registered:
         st.success(l["reg_success"])
-        st.info("Сіз 'Генератор' бөліміне өтіп, мақала жасай аласыз. / Вы можете перейти в раздел 'Генератор статей'.")
+        st.info(l["reg_info"])
     else:
         with st.form("registration_form"):
             r_name = st.text_input(l["reg_name"])
@@ -495,28 +528,26 @@ elif app_mode == l["nav_reg"]:
             r_phone = st.text_input(l["reg_phone"])
             r_org = st.text_input(l["reg_org"])
             r_pos = st.text_input(l["reg_pos"])
-            
+
             submitted = st.form_submit_button(l["reg_submit"], type="primary")
-            
+
             if submitted:
                 if r_name and r_email and r_phone:
-                    with st.spinner("Тіркелу жүріп жатыр... (Идет регистрация)"):
+                    with st.spinner("Тіркелу жүріп жатыр..."):
                         log_registration(r_name, r_email, r_phone, r_org, r_pos)
+
                     st.session_state.is_registered = True
+                    st.session_state.go_to_gen = True
                     st.success(l["reg_success"])
-                    st.rerun() 
+                    st.rerun()
                 else:
-                    st.error("Аты-жөні, Email және Телефонды толтырыңыз. / Пожалуйста, заполните Имя, Email и Телефон.")
+                    st.error(l["reg_err_fill"])
 
-
-# ==========================================
-# ПАНЕЛЬ АДМИНИСТРАТОРА (Скачивание файлов)
-# ==========================================
 with st.sidebar:
     if os.path.exists("generation_logs.csv") or os.path.exists("registered_users.csv"):
         st.markdown("<br><br><br>", unsafe_allow_html=True)
         st.caption("🔒 Панель администратора")
-        
+
         if os.path.exists("generation_logs.csv"):
             with open("generation_logs.csv", "rb") as f:
                 st.download_button(
@@ -524,9 +555,9 @@ with st.sidebar:
                     data=f,
                     file_name="generation_logs.csv",
                     mime="text/csv",
-                    use_container_width=True
+                    use_container_width=True,
                 )
-                
+
         if os.path.exists("registered_users.csv"):
             with open("registered_users.csv", "rb") as f:
                 st.download_button(
@@ -534,11 +565,9 @@ with st.sidebar:
                     data=f,
                     file_name="registered_users.csv",
                     mime="text/csv",
-                    use_container_width=True
+                    use_container_width=True,
                 )
 
-
-# ------------ Төменгі колонтитул (Footer) ------------
 st.markdown("---")
 st.markdown(
     f'<div style="text-align:center;font-size:12px;color:gray;padding:12px 0 20px 0;line-height:2.2;">'
@@ -549,4 +578,5 @@ st.markdown(
     f'🏛️ <a href="https://fns.enu.kz/kz/page/departments/physical-and-economical-geography/faculty-members"'
     f'     target="_blank" style="text-decoration:none;">{l["f_univ"]}</a><br>'
     f'</div>',
-    unsafe_allow_html=True)
+    unsafe_allow_html=True,
+)
