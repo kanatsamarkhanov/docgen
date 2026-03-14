@@ -70,11 +70,12 @@ locales = {
         "lbl_tab_manager": "📋 Менеджер таблиц",
         "lbl_add_fig": "➕ Добавить рисунок",
         "lbl_add_tab": "➕ Добавить таблицу",
-        "btn_upload_short": "📎 Загрузить файл",
+        "btn_upload_short": "📎 Загрузить",
         "lbl_fig_hint_title": "💡 Подсказка для сложных графиков",
         "lbl_fig_hint_text": "Если рисунок состоит из нескольких частей (a, b, c), используйте **один тег** `[@fig1]` для всей группы. В подписи подробно опишите каждую часть: *Рисунок 1. Главное название: (a) первый график; (b) второй график.*",
-        "lbl_tab_hint_title": "💡 Подсказка для сложных таблиц",
-        "lbl_tab_hint_text": "Если ваша таблица очень широкая или имеет объединенные ячейки (merge), мы настоятельно рекомендуем загружать её в формате **.docx**, чтобы сохранить всё форматирование. Обязательно вставьте тег `[@tab1]` в нужный абзац вашего текста.",
+        "lbl_tab_hint_title": "💡 Инструкция для сложных таблиц",
+        "lbl_tab_hint_text": "Для очень широких таблиц или таблиц с объединенными ячейками (merge), пожалуйста, загружайте их в формате **.docx**, чтобы сохранить форматирование. Разместите тег `[@tab1]` в нужном абзаце основного текста.",
+        "btn_sample_table": "📥 Скачать образец сложной таблицы",
         "lbl_samples": "📥 Скачать шаблоны файлов",
         "sec_backmatter": "4. Дополнительная информация (Back Matter)",
         "lbl_supp": "6. Supplementary Materials",
@@ -149,11 +150,12 @@ locales = {
         "lbl_tab_manager": "📋 Кестелер менеджері",
         "lbl_add_fig": "➕ Сурет қосу",
         "lbl_add_tab": "➕ Кесте қосу",
-        "btn_upload_short": "📎 Файлды жүктеу",
+        "btn_upload_short": "📎 Жүктеу",
         "lbl_fig_hint_title": "💡 Күрделі суреттерге арналған нұсқаулық",
         "lbl_fig_hint_text": "Егер сурет бірнеше бөліктен (a, b, c) тұрса, бүкіл топ үшін **бір тегті** `[@fig1]` пайдаланыңыз. Әр бөлікті сипаттаңыз: *Сурет 1. Негізгі атау: (a) бірінші график; (b) екінші график.*",
         "lbl_tab_hint_title": "💡 Күрделі кестелерге арналған нұсқаулық",
         "lbl_tab_hint_text": "Кестеңіз өте кең болса немесе біріктірілген ұяшықтары болса, пішімдеуді сақтау үшін оны **.docx** форматында жүктеуді ұсынамыз. `[@tab1]` тегін мәтініңізге қосуды ұмытпаңыз.",
+        "btn_sample_table": "📥 Күрделі кесте үлгісін жүктеу",
         "lbl_samples": "📥 Файл үлгілерін жүктеп алу",
         "sec_backmatter": "4. Қосымша ақпарат (Back Matter)",
         "lbl_supp": "6. Supplementary Materials",
@@ -228,11 +230,12 @@ locales = {
         "lbl_tab_manager": "📋 Table Manager",
         "lbl_add_fig": "➕ Add Figure",
         "lbl_add_tab": "➕ Add Table",
-        "btn_upload_short": "📎 Upload File",
+        "btn_upload_short": "📎 Upload",
         "lbl_fig_hint_title": "💡 Hint for Complicated Figures",
         "lbl_fig_hint_text": "If a figure has multiple parts (a, b, c), use a **single tag** `[@fig1]` for the entire group. Describe each part in the caption: *Figure 1. Main title: (a) chart one; (b) chart two.*",
-        "lbl_tab_hint_title": "💡 Hint for Complex Tables",
-        "lbl_tab_hint_text": "For wide tables or tables with merged cells, please upload a **.docx** file to preserve the formatting perfectly. Make sure to insert the tag `[@tab1]` in your text.",
+        "lbl_tab_hint_title": "💡 Instruction for Complex Tables",
+        "lbl_tab_hint_text": "For wide tables or tables with merged cells, please upload a **.docx** file containing your table to preserve the formatting perfectly. Make sure to insert the tag `[@tab1]` in the relevant paragraph of your text.",
+        "btn_sample_table": "📥 Download Complex Table Sample",
         "lbl_samples": "📥 Download Sample Files",
         "sec_backmatter": "4. Additional Information (Back Matter)",
         "lbl_supp": "6. Supplementary Materials",
@@ -286,15 +289,13 @@ font_mapping = {
 selected_css_font = font_mapping.get(st.session_state.ui_font, "sans-serif")
 
 # ------------ CSS Дизайн ------------
-# 1. Main File Uploader design (for IMRAD)
-# 2. COMPACT File Uploader design (for dynamic rows)
 file_uploader_i18n = f"""
 <style>
 /* Font family and Text Justify distribution */
 * {{ font-family: {selected_css_font} !important; }}
 .stApp p, .stApp div[data-testid="stMarkdownContainer"] {{ text-align: justify !important; }}
 
-/* Customize MAIN File Uploaders to look like the Screenshot */
+/* 1. БОЛЬШИЕ ЗАГРУЗЧИКИ ДЛЯ IMRAD (ПО УМОЛЧАНИЮ) */
 [data-testid="stFileUploadDropzone"] {{
     border: 2px dashed #a0aec0 !important; border-radius: 12px !important;
     padding: 24px !important; text-align: center !important;
@@ -324,20 +325,30 @@ div[data-baseweb="select"] > div > div:nth-child(2) {{ width: 0 !important; disp
 div[data-baseweb="select"] div[aria-hidden="true"] {{ background-color: transparent !important; width: 0 !important; border: none !important; display: none !important; }}
 div[data-baseweb="select"] * {{ border-left: none !important; border-right: none !important; }}
 
-/* --- COMPACT UPLOADER FOR ROWS (Fixing the "Mess") --- */
-.element-container:has(.small-uploader-marker) + .element-container [data-testid="stFileUploadDropzone"] {{
-    padding: 0 !important; min-height: 40px !important; height: 40px !important;
-    border: 1px dashed #94a3b8 !important; border-radius: 6px !important;
+/* 2. КОМПАКТНЫЕ ЗАГРУЗЧИКИ ДЛЯ ТАБЛИЦ И РИСУНКОВ (Фикс проблемы узких колонок) */
+/* Если загрузчик находится ПОСЛЕ невидимого блока #managers-section, мы превращаем его в кнопку */
+div[data-testid="stVerticalBlock"] > div:has(#managers-section) ~ div [data-testid="stFileUploadDropzone"] {{
+    padding: 0 !important;
+    min-height: 40px !important;
+    height: 40px !important;
+    border: 1px dashed #94a3b8 !important;
+    border-radius: 6px !important;
     display: flex; align-items: center; justify-content: center; flex-direction: row;
+    background-color: transparent !important;
 }}
-.element-container:has(.small-uploader-marker) + .element-container [data-testid="stFileUploadDropzone"]::before {{ display: none !important; }}
-.element-container:has(.small-uploader-marker) + .element-container [data-testid="stFileUploadDropzone"] div[data-testid="stText"] {{ display: none !important; }}
-.element-container:has(.small-uploader-marker) + .element-container [data-testid="stFileUploadDropzone"] button {{ margin: 0 !important; width: 100% !important; height: 100% !important; display: block; }}
-.element-container:has(.small-uploader-marker) + .element-container [data-testid="stFileUploadDropzone"] button::after {{
-    content: "{l['btn_upload_short']}" !important; font-size: 13px !important; color: #64748b !important; text-decoration: none !important;
+/* Прячем облачко и текст в компактной версии */
+div[data-testid="stVerticalBlock"] > div:has(#managers-section) ~ div [data-testid="stFileUploadDropzone"]::before {{ content: none !important; display: none !important; }}
+div[data-testid="stVerticalBlock"] > div:has(#managers-section) ~ div [data-testid="stFileUploadDropzone"] svg {{ display: none !important; }}
+div[data-testid="stVerticalBlock"] > div:has(#managers-section) ~ div [data-testid="stFileUploadDropzone"] div[data-testid="stText"] {{ display: none !important; }}
+div[data-testid="stVerticalBlock"] > div:has(#managers-section) ~ div [data-testid="stFileUploadDropzone"] button {{ margin: 0 !important; width: 100% !important; height: 100% !important; display: block; background: transparent !important; border: none !important; }}
+/* Создаем аккуратную надпись кнопки */
+div[data-testid="stVerticalBlock"] > div:has(#managers-section) ~ div [data-testid="stFileUploadDropzone"] button::after {{
+    content: "{l['btn_upload_short']}" !important;
+    font-size: 13px !important; color: #64748b !important; text-decoration: none !important;
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); white-space: nowrap;
 }}
-.element-container:has(.small-uploader-marker) + .element-container [data-testid="stFileUploadDropzone"]:hover {{ border-color: #3b82f6 !important; }}
-.element-container:has(.small-uploader-marker) + .element-container [data-testid="stFileUploadDropzone"]:hover button::after {{ color: #3b82f6 !important; }}
+div[data-testid="stVerticalBlock"] > div:has(#managers-section) ~ div [data-testid="stFileUploadDropzone"]:hover {{ border-color: #3b82f6 !important; background-color: rgba(59,130,246,0.05) !important; }}
+div[data-testid="stVerticalBlock"] > div:has(#managers-section) ~ div [data-testid="stFileUploadDropzone"]:hover button::after {{ color: #3b82f6 !important; }}
 </style>
 """
 
@@ -423,6 +434,36 @@ def create_sample_docx(section_title):
     doc.save(bio)
     return bio.getvalue()
 
+def create_sample_table_docx():
+    """Создает шаблон сложной таблицы для скачивания пользователем"""
+    doc = docx.Document()
+    p_tag = doc.add_paragraph("[@tab1]")
+    p_tag.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_title = doc.add_paragraph("Table 1. A complex table example with merged cells.")
+    p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    
+    # Создаем тестовую таблицу 3x3
+    table = doc.add_table(rows=3, cols=3)
+    table.style = 'Table Grid'
+    # Объединяем ячейки для примера
+    a = table.cell(0, 0)
+    b = table.cell(0, 1)
+    a.merge(b)
+    a.text = "Merged Header (Col 1 & 2)"
+    table.cell(0, 2).text = "Header 3"
+    
+    table.cell(1, 0).text = "Data A"
+    table.cell(1, 1).text = "Data B"
+    table.cell(1, 2).text = "Data C"
+    
+    table.cell(2, 0).text = "Data X"
+    table.cell(2, 1).text = "Data Y"
+    table.cell(2, 2).text = "Data Z"
+    
+    bio = BytesIO()
+    doc.save(bio)
+    return bio.getvalue()
+
 def append_to_github_csv(filename, row_data, header_data):
     try:
         github_token = st.secrets["GITHUB_TOKEN"]
@@ -467,19 +508,16 @@ def log_registration(name, email, phone, org, pos):
 def convert_to_pdf(docx_path, pdf_path):
     """Оболочка для конвертации DOCX -> PDF через LibreOffice или docx2pdf"""
     try:
-        # Для Linux/Серверов с LibreOffice
         subprocess.run(['soffice', '--headless', '--convert-to', 'pdf', docx_path, '--outdir', os.path.dirname(pdf_path)], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         if os.path.exists(pdf_path): return True
     except: pass
     
     try:
-        # Запасной вариант вызова (некоторые дистрибутивы Linux)
         subprocess.run(['libreoffice', '--headless', '--convert-to', 'pdf', docx_path, '--outdir', os.path.dirname(pdf_path)], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         if os.path.exists(pdf_path): return True
     except: pass
 
     try:
-        # Для локальных машин Windows/Mac с установленным MS Word
         from docx2pdf import convert
         convert(docx_path, pdf_path)
         if os.path.exists(pdf_path): return True
@@ -578,7 +616,10 @@ if app_mode == l["nav_gen"]:
 
     st.markdown("<br><hr>", unsafe_allow_html=True)
     
-    # --- ДИНАМИЧЕСКИЕ МЕНЕДЖЕРЫ РИСУНКОВ И ТАБЛИЦ С КОМПАКТНЫМИ ЗАГРУЗЧИКАМИ ---
+    # МАГИЧЕСКИЙ МАРКЕР: Всё, что ниже этого div, получит компактные стили кнопок загрузки
+    st.markdown('<div id="managers-section"></div>', unsafe_allow_html=True)
+    
+    # --- ДИНАМИЧЕСКИЕ МЕНЕДЖЕРЫ РИСУНКОВ И ТАБЛИЦ ---
     col_ft1, col_ft2 = st.columns(2)
     
     # --- ФОРМА РИСУНКОВ ---
@@ -590,16 +631,13 @@ if app_mode == l["nav_gen"]:
         hf1, hf2, hf3 = st.columns([1.5, 3.5, 3])
         hf1.markdown("**Tag**")
         hf2.markdown("**Caption**")
-        hf3.markdown("**File Upload**")
+        hf3.markdown("**File**")
 
         for i in range(st.session_state.fig_count):
             cf1, cf2, cf3 = st.columns([1.5, 3.5, 3])
             with cf1: st.text_input(f"fig_tag_{i}", value=f"[@fig{i+1}]", key=f"f_tag_{i}", label_visibility="collapsed", disabled=is_locked)
             with cf2: st.text_input(f"fig_cap_{i}", placeholder="Caption...", key=f"f_cap_{i}", label_visibility="collapsed", disabled=is_locked)
-            with cf3: 
-                # Скрытый маркер для применения CSS к компактному загрузчику
-                st.markdown('<div class="small-uploader-marker"></div>', unsafe_allow_html=True)
-                st.file_uploader(f"fig_file_{i}", type=["png", "jpg", "jpeg"], key=f"f_file_{i}", label_visibility="collapsed", disabled=is_locked)
+            with cf3: st.file_uploader(f"fig_file_{i}", type=["png", "jpg", "jpeg"], key=f"f_file_{i}", label_visibility="collapsed", disabled=is_locked)
             
         if st.button(l["lbl_add_fig"], disabled=is_locked):
             st.session_state.fig_count += 1
@@ -610,20 +648,18 @@ if app_mode == l["nav_gen"]:
         st.header(l["lbl_tab_manager"])
         with st.expander(l["lbl_tab_hint_title"]):
             st.markdown(l["lbl_tab_hint_text"])
+            st.download_button(l["btn_sample_table"], create_sample_table_docx(), file_name="sample_complex_table.docx", use_container_width=True, disabled=is_locked)
         
         ht1, ht2, ht3 = st.columns([1.5, 3.5, 3])
         ht1.markdown("**Tag**")
         ht2.markdown("**Caption**")
-        ht3.markdown("**File Upload**")
+        ht3.markdown("**File**")
 
         for i in range(st.session_state.tab_count):
             ct1, ct2, ct3 = st.columns([1.5, 3.5, 3])
             with ct1: st.text_input(f"tab_tag_{i}", value=f"[@tab{i+1}]", key=f"t_tag_{i}", label_visibility="collapsed", disabled=is_locked)
             with ct2: st.text_input(f"tab_cap_{i}", placeholder="Caption...", key=f"t_cap_{i}", label_visibility="collapsed", disabled=is_locked)
-            with ct3: 
-                # Скрытый маркер для применения CSS к компактному загрузчику
-                st.markdown('<div class="small-uploader-marker"></div>', unsafe_allow_html=True)
-                st.file_uploader(f"tab_file_{i}", type=["xlsx", "csv", "docx", "txt"], key=f"t_file_{i}", label_visibility="collapsed", disabled=is_locked)
+            with ct3: st.file_uploader(f"tab_file_{i}", type=["xlsx", "csv", "docx", "txt"], key=f"t_file_{i}", label_visibility="collapsed", disabled=is_locked)
             
         if st.button(l["lbl_add_tab"], disabled=is_locked):
             st.session_state.tab_count += 1
