@@ -11,8 +11,10 @@ import io
 import pandas as pd
 import docx
 
+# Беттің баптаулары
 st.set_page_config(page_title="Smart Paper Generator", page_icon="📝", layout="wide")
 
+# Сессия күйлерін бастау
 if "lang" not in st.session_state:
     st.session_state.lang = "kz"
 if "theme" not in st.session_state:
@@ -20,6 +22,7 @@ if "theme" not in st.session_state:
 if "is_registered" not in st.session_state:
     st.session_state.is_registered = False
 
+# Аудармалар сөздігі
 locales = {
     "ru": {
         "title": "📝 Умный генератор научных статей",
@@ -48,9 +51,9 @@ locales = {
         "lbl_methods": "Материалы и методы (.txt или .docx)",
         "lbl_results": "Результаты (.txt или .docx)",
         "lbl_conclusion": "Заключение (.txt или .docx)",
-        "lbl_ref_manager": "📚 Менеджер литературы",
+        "lbl_ref_manager": "📚 Смарт-менеджер литературы",
         "lbl_ref_style": "Стиль цитирования",
-        "lbl_fig_manager": "📊 Менеджер рисунков и таблиц",
+        "lbl_fig_manager": "📊 Смарт-менеджер рисунков и таблиц",
         "sec_trans": "3. Переводы метаданных",
         "trans_info": "По требованиям журнала необходимо предоставить название, авторов, аннотацию и ключевые слова на двух других языках.",
         "gen_btn": "🚀 Сгенерировать статью",
@@ -102,9 +105,9 @@ locales = {
         "lbl_methods": "Материалдар мен әдістер (.txt немесе .docx)",
         "lbl_results": "Нәтижелер (.txt немесе .docx)",
         "lbl_conclusion": "Қорытынды (.txt немесе .docx)",
-        "lbl_ref_manager": "📚 Әдебиеттер менеджері",
+        "lbl_ref_manager": "📚 Смарт-әдебиеттер менеджері",
         "lbl_ref_style": "Дәйексөз стилі",
-        "lbl_fig_manager": "📊 Суреттер мен кестелер менеджері",
+        "lbl_fig_manager": "📊 Смарт-суреттер мен кестелер менеджері",
         "sec_trans": "3. Метадеректер аудармасы",
         "trans_info": "Журнал талаптарына сәйкес атауын, авторларын, аңдатпасын және түйінді сөздерін басқа екі тілде ұсыну қажет.",
         "gen_btn": "🚀 Мақаланы генерациялау",
@@ -156,9 +159,9 @@ locales = {
         "lbl_methods": "Materials and Methods (.txt or .docx)",
         "lbl_results": "Results (.txt or .docx)",
         "lbl_conclusion": "Conclusion (.txt or .docx)",
-        "lbl_ref_manager": "📚 Reference Manager",
+        "lbl_ref_manager": "📚 Smart Reference Manager",
         "lbl_ref_style": "Citation Style",
-        "lbl_fig_manager": "📊 Figure and Table Manager",
+        "lbl_fig_manager": "📊 Smart Figure and Table Manager",
         "sec_trans": "3. Metadata Translations",
         "trans_info": "According to the journal requirements, the title, authors, abstract and keywords must be provided in two other languages.",
         "gen_btn": "🚀 Generate Document",
@@ -187,6 +190,7 @@ locales = {
 
 l = locales[st.session_state.lang]
 
+# ------------ CSS Дизайн ------------
 light_css = """
 <style>
 .stApp { background-color: #ffffff !important; }
@@ -222,6 +226,8 @@ button[kind="primary"]:hover {
     border-color: #1e40af !important;
     box-shadow: 0 0 8px rgba(37, 99, 235, 0.4) !important;
 }
+
+/* --- СТИЛЬ ПЕРЕКЛЮЧАТЕЛЕЙ (SEGMENTED CONTROL LIKE SCREENSHOT) --- */
 div[data-testid="stRadio"] {
     display: flex;
     justify-content: center;
@@ -251,14 +257,17 @@ div[data-testid="stRadio"] div[role="radiogroup"] label {
 div[data-testid="stRadio"] div[role="radiogroup"] label:hover {
     background-color: rgba(0,0,0,0.05) !important;
 }
+/* Ensure inner text inherits color */
 div[data-testid="stRadio"] div[role="radiogroup"] label p {
     color: inherit !important;
     font-weight: inherit !important;
     margin: 0 !important;
 }
+/* Hide the physical radio circles */
 div[data-testid="stRadio"] div[role="radio"] {
     display: none !important;
 }
+/* Active Tab Style */
 div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) {
     background-color: #ffffff !important;
     color: #1a1a1a !important;
@@ -305,6 +314,8 @@ button[kind="primary"]:hover {
     border-color: #3b82f6 !important;
     box-shadow: 0 0 8px rgba(59, 130, 246, 0.6) !important;
 }
+
+/* --- СТИЛЬ ПЕРЕКЛЮЧАТЕЛЕЙ (SEGMENTED CONTROL LIKE SCREENSHOT) --- */
 div[data-testid="stRadio"] {
     display: flex;
     justify-content: center;
@@ -334,14 +345,17 @@ div[data-testid="stRadio"] div[role="radiogroup"] label {
 div[data-testid="stRadio"] div[role="radiogroup"] label:hover {
     background-color: rgba(255,255,255,0.05) !important;
 }
+/* Ensure inner text inherits color */
 div[data-testid="stRadio"] div[role="radiogroup"] label p {
     color: inherit !important;
     font-weight: inherit !important;
     margin: 0 !important;
 }
+/* Hide the physical radio circles */
 div[data-testid="stRadio"] div[role="radio"] {
     display: none !important;
 }
+/* Active Tab Style */
 div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) {
     background-color: #2563eb !important;
     color: #ffffff !important;
@@ -520,7 +534,8 @@ if app_mode == l["nav_gen"]:
             st.success(l["succ_abs_len"].format(count=abstract_word_count))
 
     keywords = st.text_input(l["lbl_kw"], help=l["lbl_kw_help"], disabled=is_locked)
-
+    
+    # --- IMRAD Файлдарды жүктеу (File Uploaders instead of Text Area) ---
     st.subheader("IMRAD: Файлдарды жүктеп алу (Upload files)")
     col_i1, col_i2 = st.columns(2)
     with col_i1:
@@ -530,22 +545,25 @@ if app_mode == l["nav_gen"]:
         file_results = st.file_uploader(l["lbl_results"], type=["txt", "docx"], disabled=is_locked)
         file_conclusion = st.file_uploader(l["lbl_conclusion"], type=["txt", "docx"], disabled=is_locked)
 
+    # --- Суреттер мен кестелер менеджері (Smart Figure & Table Manager) ---
     st.header(l["lbl_fig_manager"])
-    fig_df = pd.DataFrame(columns=["Type (Figure/Table)", "Number", "Caption", "In-text reference (e.g., Fig. 1)"])
+    fig_df = pd.DataFrame(columns=["Tag in text (e.g. @fig1)", "Type (Figure/Table)", "Caption"])
     if not is_locked:
         edited_figs = st.data_editor(fig_df, num_rows="dynamic", use_container_width=True)
     else:
         st.dataframe(fig_df, use_container_width=True)
 
+    # --- Әдебиеттер менеджері (Smart Reference Manager) ---
     st.header(l["lbl_ref_manager"])
     ref_style = st.selectbox(l["lbl_ref_style"], ["GOST", "APA", "IEEE"], disabled=is_locked)
-    ref_df = pd.DataFrame(columns=["Author(s)", "Year", "Title", "Journal/Publisher", "Volume/Pages"])
-
+    ref_df = pd.DataFrame(columns=["Tag in text (e.g. @ref1)", "Author(s)", "Year", "Title", "Journal/Publisher", "Volume/Pages"])
+    
     if not is_locked:
         edited_refs = st.data_editor(ref_df, num_rows="dynamic", use_container_width=True)
     else:
         st.dataframe(ref_df, use_container_width=True)
 
+    # --- Аудармалар ---
     st.header(l["sec_trans"])
     st.info(l["trans_info"])
 
@@ -578,42 +596,73 @@ if app_mode == l["nav_gen"]:
             st.warning(l["err_fill_req"])
         else:
             try:
+                # 1. Мәтіндерді жинақтау (Compile IMRAD text)
                 main_text_compiled = ""
                 if file_intro: main_text_compiled += "1. INTRODUCTION\n" + extract_text(file_intro) + "\n\n"
                 if file_methods: main_text_compiled += "2. MATERIALS AND METHODS\n" + extract_text(file_methods) + "\n\n"
                 if file_results: main_text_compiled += "3. RESULTS\n" + extract_text(file_results) + "\n\n"
                 if file_conclusion: main_text_compiled += "4. CONCLUSION\n" + extract_text(file_conclusion) + "\n\n"
-
+                
+                # 2. Суреттерді өңдеу және мәтінде алмастыру (Process Figures & Replace Tags)
                 fig_text_compiled = ""
+                element_counters = {} # Smart dictionary to independently track "Figure" vs "Table"
+                
                 for _, row in edited_figs.iterrows():
+                    c_tag = str(row.get("Tag in text (e.g. @fig1)", "")).strip()
                     c_type = str(row.get("Type (Figure/Table)", "")).strip()
-                    c_num = str(row.get("Number", "")).strip()
                     c_cap = str(row.get("Caption", "")).strip()
-                    if c_cap and c_cap != "nan":
-                        fig_text_compiled += f"{c_type} {c_num}. {c_cap}\n"
-
+                    
+                    if c_type and c_type != "nan" and c_cap and c_cap != "nan":
+                        # Determine current counter for this exact Type
+                        current_count = element_counters.get(c_type, 1)
+                        fig_label = f"{c_type} {current_count}"
+                        element_counters[c_type] = current_count + 1
+                        
+                        fig_text_compiled += f"{fig_label}. {c_cap}\n"
+                        
+                        # Find and replace the tag in the main text!
+                        if c_tag and c_tag != "nan":
+                            main_text_compiled = main_text_compiled.replace(c_tag, fig_label)
+                
                 if fig_text_compiled:
                     main_text_compiled += "\n\n--- FIGURES & TABLES ---\n" + fig_text_compiled
 
+                # 3. Әдебиеттерді өңдеу және мәтінде алмастыру (Process References & Replace Tags)
                 refs_compiled = []
-                for i, row in edited_refs.iterrows():
+                ref_counter = 1
+                for _, row in edited_refs.iterrows():
+                    r_tag = str(row.get("Tag in text (e.g. @ref1)", "")).strip()
                     r_author = str(row.get("Author(s)", "")).strip()
                     r_year = str(row.get("Year", "")).strip()
                     r_title = str(row.get("Title", "")).strip()
                     r_journal = str(row.get("Journal/Publisher", "")).strip()
                     r_vol = str(row.get("Volume/Pages", "")).strip()
-
+                    
                     if r_author == "nan" or not r_author: continue
-
+                    
+                    # Format the bibliography entry & In-Text Citation
                     if ref_style == "APA":
-                        refs_compiled.append(f"{r_author} ({r_year}). {r_title}. {r_journal}, {r_vol}.")
+                        ref_entry = f"{r_author} ({r_year}). {r_title}. {r_journal}, {r_vol}."
+                        first_author = r_author.split(',')[0].strip()
+                        in_text_citation = f"({first_author} et al., {r_year})"
                     elif ref_style == "IEEE":
-                        refs_compiled.append(f"[{i+1}] {r_author}, \"{r_title},\" {r_journal}, {r_vol}, {r_year}.")
-                    else:
-                        refs_compiled.append(f"{i+1}. {r_author} {r_title} // {r_journal}. - {r_year}. - {r_vol}.")
-
+                        ref_entry = f"[{ref_counter}] {r_author}, \"{r_title},\" {r_journal}, {r_vol}, {r_year}."
+                        in_text_citation = f"[{ref_counter}]"
+                    else: # GOST
+                        ref_entry = f"{ref_counter}. {r_author} {r_title} // {r_journal}. - {r_year}. - {r_vol}."
+                        in_text_citation = f"[{ref_counter}]"
+                        
+                    refs_compiled.append(ref_entry)
+                    
+                    # Replace the tag in the text with the correct citation!
+                    if r_tag and r_tag != "nan":
+                        main_text_compiled = main_text_compiled.replace(r_tag, in_text_citation)
+                        
+                    ref_counter += 1
+                
                 final_references = "\n".join(refs_compiled)
 
+                # Шаблон таңдау
                 template_filename = "Russian_template_2025.docx"
                 if primary_lang == "Русский":
                     template_filename = "Russian_template_2025.docx"
@@ -670,6 +719,9 @@ if app_mode == l["nav_gen"]:
                     "💡 Ескерту: 'Russian_template_2025.docx', 'Kazakh_template_2025.docx' және 'English_template_2025.docx' файлдары бумада болуы тиіс."
                 )
 
+# ==========================================
+# РЕЖИМ: РЕГИСТРАЦИЯ (ТІРКЕЛУ)
+# ==========================================
 elif app_mode == l["nav_reg"]:
     st.header(l["reg_header"])
 
