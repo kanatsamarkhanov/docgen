@@ -334,9 +334,13 @@ selected_css_font = font_mapping.get(st.session_state.ui_font, font_mapping["Sys
 
 css_core = f"""
 <style>
-
 /* GLOBAL TYPOGRAPHY */
 * {{ font-family: {selected_css_font} !important; }}
+
+/* SMALLER TITLES FOR BETTER BUTTON VISIBILITY */
+h1 {{ font-size: 1.8rem !important; margin-bottom: 0.5rem !important; }}
+h2 {{ font-size: 1.4rem !important; margin-bottom: 0.4rem !important; }}
+h3 {{ font-size: 1.15rem !important; margin-bottom: 0.3rem !important; }}
 
 div.element-container:has(style) {{ display: none !important; height: 0 !important; margin: 0 !important; }}
 
@@ -354,19 +358,16 @@ div.element-container:has(style) {{ display: none !important; height: 0 !importa
 /* -------------------------------- */
 /* UPLOAD ZONES (MODERN DASH STYLE) */
 /* -------------------------------- */
-
 [data-testid="stFileUploadDropzone"] {{
     border: 2px dashed #6aa5ff !important;
     border-radius: 14px !important;
     padding: 30px !important;
-    background: linear-gradient(180deg,#f8fbff,#ffffff);
     transition: all 0.2s ease;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
 }}
 
 [data-testid="stFileUploadDropzone"]:hover {{
-    border-color:#2f7df6 !important;
-    background:#f2f7ff;
+    border-color:#2563eb !important;
 }}
 
 [data-testid="stFileUploadDropzone"] button {{
@@ -406,11 +407,9 @@ div.element-container:has(style) {{ display: none !important; height: 0 !importa
 div[data-baseweb="select"] > div > div > div[style*="width: 1px"],
 div[data-baseweb="select"] > div > div > div[style*="background-color"] {{ display: none !important; }}
 
-
 /* -------------------------------- */
 /* COMPACT UPLOAD BUTTONS */
 /* -------------------------------- */
-
 div.element-container:has(.compact-uploader) {{
     display: none !important; height: 0px !important; margin: 0px !important; padding: 0px !important;
 }}
@@ -420,7 +419,6 @@ div.element-container:has(.compact-uploader) + div.element-container [data-testi
     height:40px !important;
     border:1px dashed #9bbcf7 !important;
     border-radius:8px !important;
-    background:#f7faff !important;
     display: flex; align-items: center; justify-content: center; flex-direction: row;
     margin: 0 !important;
 }}
@@ -441,10 +439,24 @@ div.element-container:has(.compact-uploader) + div.element-container [data-testi
 }}
 
 /* -------------------------------- */
-/* BUTTON STYLE */
+/* PRIMARY BUTTONS (GENERATE/REGISTER) */
 /* -------------------------------- */
+button[kind="primary"] {{
+    background: linear-gradient(90deg, #2563eb, #3b82f6) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 12px 24px !important;
+    font-weight: bold !important;
+    transition: all 0.2s ease !important;
+}}
+button[kind="primary"]:hover {{
+    background: linear-gradient(90deg, #1d4ed8, #2563eb) !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
+}}
 
-.stButton>button {{
+/* GENERAL BUTTON STYLE */
+.stButton>button:not([kind="primary"]) {{
     border-radius:10px;
     padding:10px 18px;
     font-weight:600;
@@ -454,26 +466,19 @@ div.element-container:has(.compact-uploader) + div.element-container [data-testi
 /* -------------------------------- */
 /* BEAUTIFUL INFO CARDS */
 /* -------------------------------- */
-
 .info-card {{
     border-radius:14px;
     padding:18px;
     margin-bottom:14px;
-    border:1px solid #e3e8f0;
-    background:linear-gradient(180deg,#f9fbff,#ffffff);
     box-shadow:0 3px 8px rgba(0,0,0,0.05);
 }}
-
 .info-card-title {{
     font-weight:700;
     font-size:16px;
     margin-bottom:6px;
-    color: #1a3a5c;
 }}
-
 .info-card-text {{
     font-size:14px;
-    color:#5a6b85;
     line-height:1.5;
 }}
 
@@ -488,78 +493,75 @@ div[data-testid="stRadio"] div[role="radio"] {{ display: none !important; }}
 
 light_css = css_core + """
 <style>
+/* LIGHT BLUE THEME (Instead of White/Grey) */
+.stApp { background: #f0f7ff !important; }
+h1, h2, h3, h4, h5, h6 { color: #0c335e !important; }
+p, span, label, div, li { color: #1e293b !important; }
 
-.stApp{
-    background:#ffffff;
+.stButton>button:not([kind="primary"]) {
+    background: #e0efff !important;
+    color: #0c335e !important;
+    border: 1px solid #b6d4f0 !important;
+}
+.stButton>button:not([kind="primary"]):hover {
+    background: #cce4ff !important;
 }
 
-.stButton>button{
-    background:#e7ecf3;
-    color:#1f2d3d;
-    border:1px solid #cfd8e3;
-}
+[data-testid='stDownloadButton']>button { background: #2ea043 !important; color: white !important; border: none !important; }
 
-.stButton>button:hover{
-    background:#dbe3ef;
-}
+/* Info Cards & Uploaders */
+.info-card { background: #ffffff !important; border: 1px solid #d1e4f9 !important; }
+.info-card-title { color: #0c335e !important; }
+.info-card-text { color: #475569 !important; }
 
-[data-testid='stDownloadButton']>button{
-    background:#2ea043;
-    color:white;
-    border:none;
-}
+[data-testid="stFileUploadDropzone"] { background: #ffffff !important; border-color: #8bb4e5 !important; }
+[data-testid="stFileUploadDropzone"]:hover { background: #f4f9ff !important; }
+div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] { background: #ffffff !important; border-color: #8bb4e5 !important; }
 
-div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #f1f3f4 !important; border: none !important; }
-div[data-testid="stRadio"] div[role="radiogroup"] label { color: #5f6368 !important; }
+/* Segmented */
+div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #e0efff !important; border: none !important; }
+div[data-testid="stRadio"] div[role="radiogroup"] label { color: #0c335e !important; }
 div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) { background-color: #ffffff !important; color: #1a1a1a !important; box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important; font-weight: 600 !important; }
-
 </style>
 """
 
 dark_css = css_core + """
 <style>
+/* DEEP BLUE THEME (Instead of Black/Dark Grey) */
+.stApp { background: #0a192f !important; }
+h1, h2, h3, h4, h5, h6 { color: #8bb4e5 !important; }
+p, span, label, div, li { color: #cbd5e1 !important; }
 
-.stApp{
-    background:#0c1424;
-    color:#d8e6ff;
+[data-testid='block-container'], [data-testid='stVerticalBlock'], section[data-testid='stSidebar'] { background-color: #0a192f !important; }
+
+.stButton>button:not([kind="primary"]) {
+    background: #112240 !important;
+    color: #8bb4e5 !important;
+    border: 1px solid #233554 !important;
+}
+.stButton>button:not([kind="primary"]):hover {
+    background: #233554 !important;
+    color: #ffffff !important;
 }
 
-h1,h2,h3{
-    color:#eaf2ff;
-}
+[data-testid='stDownloadButton']>button { background: #238636 !important; color: #fff !important; border: 1px solid #2ea043 !important; }
 
-/* Light blue buttons */
-.stButton>button{
-    background:#1b2a46;
-    color:#d7e7ff;
-    border:1px solid #2f7df6;
-}
+/* Info Cards & Uploaders */
+.info-card { background: linear-gradient(180deg, #112240, #0a192f) !important; border: 1px solid #233554 !important; }
+.info-card-title { color: #8bb4e5 !important; }
+.info-card-text { color: #a8b2d1 !important; }
 
-.stButton>button:hover{
-    background:#2f7df6;
-    color:white;
-}
+[data-testid="stFileUploadDropzone"] { background: #112240 !important; border-color: #4ea1ff !important; }
+[data-testid="stFileUploadDropzone"]:hover { background: #1a2f52 !important; }
+div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] { background: #112240 !important; border-color: #233554 !important; }
 
-/* Upload background */
-[data-testid="stFileUploadDropzone"]{
-    background:#111b33 !important;
-    border:2px dashed #4ea1ff !important;
-}
+/* Inputs */
+input, textarea, select, [data-testid='stSelectbox']>div>div { background-color: #112240 !important; color: #cbd5e1 !important; border: 1px solid #233554 !important; }
 
-[data-testid="stFileUploadDropzone"]:hover{
-    background:#152142 !important;
-}
-
-/* Info card override for dark mode */
-.info-card { background: linear-gradient(180deg, #152142, #111b33) !important; border-color: #1e3a5f !important; }
-.info-card-title { color: #eaf2ff !important; }
-.info-card-text { color: #9bbcf7 !important; }
-
-/* Segmented override for dark mode */
-div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #0f1c34 !important; border: 1px solid #1d3354 !important; }
-div[data-testid="stRadio"] div[role="radiogroup"] label { color: #64748b !important; }
-div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) { background-color: #4a90e2 !important; color: #ffffff !important; box-shadow: 0 2px 5px rgba(0,0,0,0.3) !important; font-weight: 600 !important; }
-
+/* Segmented */
+div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #112240 !important; border: 1px solid #233554 !important; }
+div[data-testid="stRadio"] div[role="radiogroup"] label { color: #8bb4e5 !important; }
+div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) { background-color: #2563eb !important; color: #ffffff !important; box-shadow: 0 2px 5px rgba(0,0,0,0.3) !important; font-weight: 600 !important; }
 </style>
 """
 
@@ -767,10 +769,11 @@ def render_live_uploader(label, key, loc_preview, is_locked):
         text = extract_text(f)
         wc = count_wc(text)
         with st.expander(f"👀 {loc_preview} ({wc})"):
-            # Clean, non-interfering preview window
-            bg_color = "#152142" if st.session_state.theme == "dark" else "#f8f9fa"
-            border_color = "#1e3a5f" if st.session_state.theme == "dark" else "#e9ecef"
-            st.markdown(f"<div style='max-height:180px; overflow-y:auto; font-size:13px; opacity:0.9; padding:12px; background:{bg_color}; border:1px solid {border_color}; border-radius:8px;'>{text}</div>", unsafe_allow_html=True)
+            # Deep blue preview for dark mode, clean white/lightblue for light mode
+            bg_color = "#112240" if st.session_state.theme == "dark" else "#ffffff"
+            border_color = "#233554" if st.session_state.theme == "dark" else "#d1e4f9"
+            text_color = "#cbd5e1" if st.session_state.theme == "dark" else "#475569"
+            st.markdown(f"<div style='max-height:180px; overflow-y:auto; font-size:13px; color:{text_color}; opacity:0.9; padding:12px; background:{bg_color}; border:1px solid {border_color}; border-radius:8px;'>{text}</div>", unsafe_allow_html=True)
     return f
 
 # ----------------- TABS NAVIGATION -----------------
@@ -934,7 +937,8 @@ if app_mode == l["nav_gen"]:
                               disabled=is_locked)
                 if not is_locked:
                     # AUTO-NUMBERING PREVIEW
-                    st.markdown(f"<div style='font-size:12px; color:#64748b; margin-top:-10px; margin-bottom:10px; padding-left:5px;'>↳ <i>{curr_fig_prefix} {i+1}. {fig_cap_val if fig_cap_val else '[...]'}</i></div>", unsafe_allow_html=True)
+                    text_color = "#8bb4e5" if st.session_state.theme == "dark" else "#0c335e"
+                    st.markdown(f"<div style='font-size:12px; color:{text_color}; margin-top:-10px; margin-bottom:10px; padding-left:5px;'>↳ <i>{curr_fig_prefix} {i+1}. {fig_cap_val if fig_cap_val else '[...]'}</i></div>", unsafe_allow_html=True)
 
             with cf3:
                 st.markdown('<div class="compact-uploader"></div>',
@@ -983,7 +987,8 @@ if app_mode == l["nav_gen"]:
                               disabled=is_locked)
                 if not is_locked:
                     # AUTO-NUMBERING PREVIEW
-                    st.markdown(f"<div style='font-size:12px; color:#64748b; margin-top:-10px; margin-bottom:10px; padding-left:5px;'>↳ <i>{curr_tab_prefix} {i+1}. {tab_cap_val if tab_cap_val else '[...]'}</i></div>", unsafe_allow_html=True)
+                    text_color = "#8bb4e5" if st.session_state.theme == "dark" else "#0c335e"
+                    st.markdown(f"<div style='font-size:12px; color:{text_color}; margin-top:-10px; margin-bottom:10px; padding-left:5px;'>↳ <i>{curr_tab_prefix} {i+1}. {tab_cap_val if tab_cap_val else '[...]'}</i></div>", unsafe_allow_html=True)
 
             with ct3:
                 st.markdown('<div class="compact-uploader"></div>',
@@ -1124,9 +1129,9 @@ if app_mode == l["nav_gen"]:
         filled_fields = sum(bool(f) for f in tracked_fields)
         pct = int((filled_fields / len(tracked_fields)) * 100)
         
-        prog_color = "#da3633" if pct <= 40 else "#d29922" if pct <= 90 else "#2ea043"
-        track_bg = "#111b33" if st.session_state.theme == "dark" else "#e3e8f0"
-        title_color = "#eaf2ff" if st.session_state.theme == "dark" else "#1a3a5c"
+        prog_color = "#da3633" if pct <= 40 else "#d29922" if pct <= 90 else "#2563eb"
+        track_bg = "#112240" if st.session_state.theme == "dark" else "#e0efff"
+        title_color = "#8bb4e5" if st.session_state.theme == "dark" else "#0c335e"
         
         progress_html = f"""
         <div class="info-card" style="margin-bottom: 24px; margin-top: 10px;">
@@ -1137,7 +1142,7 @@ if app_mode == l["nav_gen"]:
             <div style="background:{track_bg}; border-radius:10px; height:8px; width:100%; overflow:hidden;">
                 <div style="background:{prog_color}; height:100%; width:{pct}%; transition:width 0.4s ease;"></div>
             </div>
-            <div style="font-size:12px; color:#64748b; margin-top:8px;">{l['prog_text'].format(pct=pct)}</div>
+            <div style="font-size:12px; color:#a8b2d1; margin-top:8px;">{l['prog_text'].format(pct=pct)}</div>
         </div>
         """
         progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
