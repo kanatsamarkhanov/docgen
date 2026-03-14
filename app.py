@@ -11,6 +11,8 @@ import io
 import pandas as pd
 import docx
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+import tempfile
+import subprocess
 
 # Беттің баптаулары
 st.set_page_config(page_title="Smart Paper Generator", page_icon="📝", layout="wide")
@@ -24,6 +26,12 @@ if "is_registered" not in st.session_state:
     st.session_state.is_registered = False
 if "ui_font" not in st.session_state:
     st.session_state.ui_font = "System Default"
+
+# Динамические счетчики для строк Рисунков и Таблиц
+if "fig_count" not in st.session_state:
+    st.session_state.fig_count = 1
+if "tab_count" not in st.session_state:
+    st.session_state.tab_count = 1
 
 # Аудармалар сөздігі
 locales = {
@@ -60,8 +68,8 @@ locales = {
         "lbl_ref_style": "Стиль цитирования",
         "lbl_fig_manager": "📊 Менеджер рисунков",
         "lbl_tab_manager": "📋 Менеджер таблиц",
-        "lbl_fig_upload": "🖼️ Загрузить рисунки (PNG, JPG)",
-        "lbl_tab_upload": "📝 Загрузить таблицы (Excel, Word, CSV)",
+        "lbl_add_fig": "➕ Добавить рисунок",
+        "lbl_add_tab": "➕ Добавить таблицу",
         "lbl_samples": "📥 Скачать шаблоны файлов",
         "sec_backmatter": "4. Дополнительная информация (Back Matter)",
         "lbl_supp": "6. Supplementary Materials",
@@ -77,8 +85,10 @@ locales = {
         "succ_abs_len": "Слов в аннотации: {count}/300",
         "err_fill_req": "Пожалуйста, заполните хотя бы Название и Авторов.",
         "err_gen": "Произошла ошибка при генерации: ",
-        "succ_gen": "✅ Документ успешно сгенерирован! Загрузка начнется автоматически.",
-        "btn_dl": "⬇️ Скачать .docx файл вручную",
+        "succ_gen": "✅ Документ успешно сгенерирован!",
+        "btn_dl_docx": "⬇️ Скачать .docx",
+        "btn_dl_pdf": "⬇️ Скачать .pdf",
+        "err_pdf": "⚠️ Не удалось сгенерировать PDF (требуется LibreOffice на сервере). Доступен DOCX файл.",
         "reg_header": "📝 Регистрация исследователя",
         "reg_name": "ФИО (Полностью)",
         "reg_email": "Ваш Email",
@@ -93,8 +103,8 @@ locales = {
         "f_author": "Канат Самарханов / Kanat Samarkhanov",
         "f_license": "Лицензия",
         "f_univ": "ЕНУ им. Л.Н. Гумилева",
-        "browse_files": "Выбрать файлы",
-        "drag_drop": "Перетащите файлы сюда",
+        "browse_files": "Выберите файл или перетащите его сюда",
+        "drag_drop": "Поддерживаемые форматы: txt, docx, png, jpg, xlsx, csv",
         "limit": "Лимит 200MB",
         "fig_prefix": "Рисунок",
         "tab_prefix": "Таблица"
@@ -132,8 +142,8 @@ locales = {
         "lbl_ref_style": "Дәйексөз стилі",
         "lbl_fig_manager": "📊 Суреттер менеджері",
         "lbl_tab_manager": "📋 Кестелер менеджері",
-        "lbl_fig_upload": "🖼️ Суреттерді жүктеу (PNG, JPG)",
-        "lbl_tab_upload": "📝 Кестелерді жүктеу (Excel, Word, CSV)",
+        "lbl_add_fig": "➕ Сурет қосу",
+        "lbl_add_tab": "➕ Кесте қосу",
         "lbl_samples": "📥 Файл үлгілерін жүктеп алу",
         "sec_backmatter": "4. Қосымша ақпарат (Back Matter)",
         "lbl_supp": "6. Supplementary Materials",
@@ -149,8 +159,10 @@ locales = {
         "succ_abs_len": "Аңдатпадағы сөз саны: {count}/300",
         "err_fill_req": "Кем дегенде Атауын және Авторларын толтырыңыз.",
         "err_gen": "Генерация кезінде қате пайда болды: ",
-        "succ_gen": "✅ Құжат сәтті генерацияланды! Жүктеп алу автоматты түрде басталады.",
-        "btn_dl": "⬇️ .docx файлын қолмен жүктеп алу",
+        "succ_gen": "✅ Құжат сәтті генерацияланды!",
+        "btn_dl_docx": "⬇️ .docx жүктеу",
+        "btn_dl_pdf": "⬇️ .pdf жүктеу",
+        "err_pdf": "⚠️ PDF жасау мүмкін болмады (серверде LibreOffice қажет). Тек DOCX файлы қолжетімді.",
         "reg_header": "📝 Зерттеушіні тіркеу",
         "reg_name": "Аты-жөні (Толық)",
         "reg_email": "Сіздің Email",
@@ -165,8 +177,8 @@ locales = {
         "f_author": "Канат Самарханов / Kanat Samarkhanov",
         "f_license": "Лицензия",
         "f_univ": "Л.Н. Гумилев атындағы ЕҰУ",
-        "browse_files": "Файлдарды таңдау",
-        "drag_drop": "Файлдарды осында сүйреңіз",
+        "browse_files": "Файлды таңдаңыз немесе осында сүйреңіз",
+        "drag_drop": "Қолдау көрсетілетін форматтар: txt, docx, png, jpg, xlsx",
         "limit": "Шектеу 200MB",
         "fig_prefix": "Сурет",
         "tab_prefix": "Кесте"
@@ -204,8 +216,8 @@ locales = {
         "lbl_ref_style": "Citation Style",
         "lbl_fig_manager": "📊 Figure Manager",
         "lbl_tab_manager": "📋 Table Manager",
-        "lbl_fig_upload": "🖼️ Upload Figures (PNG, JPG)",
-        "lbl_tab_upload": "📝 Upload Tables (Excel, Word, CSV)",
+        "lbl_add_fig": "➕ Add Figure",
+        "lbl_add_tab": "➕ Add Table",
         "lbl_samples": "📥 Download Sample Files",
         "sec_backmatter": "4. Additional Information (Back Matter)",
         "lbl_supp": "6. Supplementary Materials",
@@ -221,8 +233,10 @@ locales = {
         "succ_abs_len": "Words in abstract: {count}/300",
         "err_fill_req": "Please fill in at least the Title and Authors.",
         "err_gen": "An error occurred during generation: ",
-        "succ_gen": "✅ Document successfully generated! Downloading automatically...",
-        "btn_dl": "⬇️ Download .docx file manually",
+        "succ_gen": "✅ Document successfully generated!",
+        "btn_dl_docx": "⬇️ Download .docx",
+        "btn_dl_pdf": "⬇️ Download .pdf",
+        "err_pdf": "⚠️ Failed to generate PDF (requires LibreOffice on the server). DOCX is available.",
         "reg_header": "📝 Researcher Registration",
         "reg_name": "Full Name",
         "reg_email": "Your Email",
@@ -237,8 +251,8 @@ locales = {
         "f_author": "Kanat Samarkhanov",
         "f_license": "License",
         "f_univ": "L.N. Gumilyov ENU",
-        "browse_files": "Browse files",
-        "drag_drop": "Drag and drop files here",
+        "browse_files": "Choose a file or drag and drop it here",
+        "drag_drop": "Supported formats: txt, docx, png, jpg, xlsx, csv",
         "limit": "Limit 200MB",
         "fig_prefix": "Figure",
         "tab_prefix": "Table"
@@ -257,27 +271,70 @@ font_mapping = {
 selected_css_font = font_mapping.get(st.session_state.ui_font, "sans-serif")
 
 # ------------ CSS Дизайн ------------
-# This CSS ensures fonts, text alignment, translation of the dropzone, AND removes the annoying vertical lines from selectboxes
+# Styling the Upload Dropzone exactly like the screenshot
 file_uploader_i18n = f"""
 <style>
 /* Font family and Text Justify distribution */
 * {{ font-family: {selected_css_font} !important; }}
 .stApp p, .stApp div[data-testid="stMarkdownContainer"] {{ text-align: justify !important; }}
 
-/* Translate File Uploader Dropzone */
-[data-testid="stFileUploadDropzone"] button {{ color: transparent !important; position: relative; }}
-[data-testid="stFileUploadDropzone"] button::after {{
-    content: "{l['browse_files']}"; color: #ffffff !important; position: absolute;
-    left: 50%; top: 50%; transform: translate(-50%, -50%); visibility: visible; font-weight: 600;
+/* Customize File Uploader to look like the Screenshot */
+[data-testid="stFileUploadDropzone"] {{
+    border: 2px dashed #a0aec0 !important;
+    border-radius: 12px !important;
+    padding: 24px !important;
+    text-align: center !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }}
+/* Cloud Icon Injection */
+[data-testid="stFileUploadDropzone"]::before {{
+    content: "☁️";
+    font-size: 40px;
+    display: block;
+    margin-bottom: 8px;
+}}
+/* Hide original generic icon */
+[data-testid="stFileUploadDropzone"] svg {{ display: none !important; }}
+
+/* Translate and Style the Button inside Uploader */
+[data-testid="stFileUploadDropzone"] button {{ 
+    color: transparent !important; 
+    position: relative; 
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin-top: 10px;
+}}
+[data-testid="stFileUploadDropzone"] button::after {{
+    content: "{l['browse_files']}"; 
+    color: #3b82f6 !important; 
+    position: absolute;
+    left: 50%; top: 50%; transform: translate(-50%, -50%); 
+    visibility: visible; 
+    font-weight: 600;
+    font-size: 16px;
+    white-space: nowrap;
+    text-decoration: underline;
+}}
+[data-testid="stFileUploadDropzone"] button:hover::after {{ color: #2563eb !important; }}
+
+/* Translate Subtext */
 [data-testid="stFileUploadDropzone"] div[data-testid="stText"] span {{ display: none !important; }}
 [data-testid="stFileUploadDropzone"] div[data-testid="stText"]::before {{
-    content: "{l['drag_drop']}\\A {l['limit']}"; white-space: pre-wrap; color: #888888 !important; display: block; text-align: center; font-size: 0.9rem;
+    content: "{l['drag_drop']}\\A {l['limit']}"; 
+    white-space: pre-wrap; 
+    color: #64748b !important; 
+    display: block; 
+    text-align: center; 
+    font-size: 0.85rem;
+    margin-top: 5px;
 }}
 
-/* УБИРАЕМ ВЕРТИКАЛЬНЫЕ ЛИНИИ (SEPARATORS) В КНОПКАХ И СЕЛЕКТАХ ВО ВСЕХ ЯЗЫКАХ */
+/* УБИРАЕМ ВЕРТИКАЛЬНЫЕ ЛИНИИ В СЕЛЕКТАХ */
 [data-baseweb="select"] input {{ caret-color: transparent !important; }}
-/* Находим разделитель внутри выпадающего списка и прячем его */
 div[data-baseweb="select"] > div > div:nth-child(2) {{ width: 0 !important; display: none !important; border: none !important; }}
 div[data-baseweb="select"] div[aria-hidden="true"] {{ background-color: transparent !important; width: 0 !important; border: none !important; display: none !important; }}
 div[data-baseweb="select"] * {{ border-left: none !important; border-right: none !important; }}
@@ -296,20 +353,23 @@ input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled
 button[kind="primary"] { background-color: #2563eb !important; color: #ffffff !important; border: 1px solid #1d4ed8 !important; border-radius: 6px !important; font-weight: 600 !important; }
 button[kind="primary"]:hover { background-color: #1d4ed8 !important; border-color: #1e40af !important; box-shadow: 0 0 8px rgba(37, 99, 235, 0.4) !important; }
 
-/* Переключатели навигации (Segmented Control) */
+/* Segmented Control */
 div[data-testid="stRadio"] { display: flex; justify-content: center; margin-bottom: 1rem; }
 div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #f1f3f4 !important; border-radius: 20px !important; padding: 4px !important; display: inline-flex !important; gap: 4px !important; border: none !important; }
 div[data-testid="stRadio"] div[role="radiogroup"] label { background-color: transparent !important; padding: 8px 24px !important; border-radius: 16px !important; color: #5f6368 !important; font-weight: 500 !important; cursor: pointer !important; border: none !important; transition: all 0.2s; margin:0 !important; }
 div[data-testid="stRadio"] div[role="radiogroup"] label:hover { background-color: rgba(0,0,0,0.05) !important; }
 div[data-testid="stRadio"] div[role="radio"] { display: none !important; }
 div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) { background-color: #ffffff !important; color: #1a1a1a !important; box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important; font-weight: 600 !important; }
+
+/* Custom light theme uploader dropzone */
+[data-testid="stFileUploadDropzone"] { background-color: #f8fafc !important; }
+[data-testid="stFileUploadDropzone"]:hover { border-color: #3b82f6 !important; background-color: #eff6ff !important; }
 </style>
 """
 
-# Глубокий Ночной режим, соответствующий скриншотам (Deep Navy & Dark Blue)
 dark_css = """
 <style>
-.stApp { background-color: #0b1426 !important; } /* Deepest Navy Background */
+.stApp { background-color: #0b1426 !important; }
 [data-testid="stSidebar"] { background-color: #0f1c34 !important; border-right: 1px solid #1d3354 !important; }
 [data-testid="stMarkdownContainer"] h1, [data-testid="stMarkdownContainer"] h2, [data-testid="stMarkdownContainer"] h3 { color: #f8fafc !important; }
 p, span, label { color: #cbd5e1 !important; }
@@ -317,22 +377,22 @@ hr { border-color: #1d3354 !important; }
 input, textarea, [data-baseweb="select"] > div { background-color: #132440 !important; color: #f8fafc !important; border: 1px solid #284470 !important; box-shadow: 0 0 4px rgba(46, 92, 184, 0.2) !important; border-radius: 6px !important; }
 input:focus, textarea:focus, [data-baseweb="select"] > div:focus-within { border: 1px solid #3b82f6 !important; box-shadow: 0 0 6px rgba(59, 130, 246, 0.6) !important; }
 input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled="true"] { background-color: #0f1c34 !important; color: #64748b !important; -webkit-text-fill-color: #64748b !important; border: 1px solid #1d3354 !important; box-shadow: none !important; }
-
-/* Primary Buttons */
 button[kind="primary"] { background-color: #3b82f6 !important; color: #ffffff !important; border: 1px solid #2563eb !important; border-radius: 6px !important; font-weight: 600 !important; }
 button[kind="primary"]:hover { background-color: #60a5fa !important; border-color: #3b82f6 !important; box-shadow: 0 0 8px rgba(96, 165, 250, 0.4) !important; }
-
-/* Secondary Buttons (Theme Toggle) */
 button[kind="secondary"] { background-color: #132440 !important; color: #cbd5e1 !important; border: 1px solid #284470 !important; }
 button[kind="secondary"]:hover { border-color: #3b82f6 !important; color: #ffffff !important; }
 
-/* Segmented Control (Nav Bar in Dark Mode) */
+/* Segmented Control */
 div[data-testid="stRadio"] { display: flex; justify-content: center; margin-bottom: 1rem; }
 div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #0f1c34 !important; border-radius: 20px !important; padding: 4px !important; display: inline-flex !important; gap: 4px !important; border: 1px solid #1d3354 !important; }
 div[data-testid="stRadio"] div[role="radiogroup"] label { background-color: transparent !important; padding: 8px 24px !important; border-radius: 16px !important; color: #64748b !important; font-weight: 500 !important; cursor: pointer !important; border: none !important; transition: all 0.2s; margin:0 !important; }
 div[data-testid="stRadio"] div[role="radiogroup"] label:hover { background-color: rgba(255,255,255,0.05) !important; color: #cbd5e1 !important;}
 div[data-testid="stRadio"] div[role="radio"] { display: none !important; }
 div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) { background-color: #2563eb !important; color: #ffffff !important; box-shadow: 0 2px 5px rgba(0,0,0,0.3) !important; font-weight: 600 !important; }
+
+/* Custom dark theme uploader dropzone */
+[data-testid="stFileUploadDropzone"] { background-color: #132440 !important; border-color: #284470 !important; }
+[data-testid="stFileUploadDropzone"]:hover { border-color: #3b82f6 !important; background-color: #1d3354 !important; }
 </style>
 """
 
@@ -340,14 +400,6 @@ st.markdown(file_uploader_i18n, unsafe_allow_html=True)
 st.markdown(dark_css if st.session_state.theme == "dark" else light_css, unsafe_allow_html=True)
 
 # ------------ Helpers ------------
-def auto_download(bio, filename):
-    b64 = base64.b64encode(bio.getvalue()).decode()
-    custom_html = f"""
-        <a id="auto_download_link" href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64}" download="{filename}"></a>
-        <script> document.getElementById('auto_download_link').click(); </script>
-    """
-    components.html(custom_html, height=0)
-
 def extract_text(uploaded_file):
     if not uploaded_file: return ""
     try:
@@ -365,10 +417,8 @@ def create_sample_docx(section_title):
     p = doc.add_paragraph(f"Here is sample content for {section_title}. Delete this and paste your text. ")
     p.add_run("All paragraphs here are justified. ").bold = True
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    
     p2 = doc.add_paragraph("Example of tagging: The results shown in [@fig1] are summarized in [@tab1]. Relevant literature supports this [@ref1].")
     p2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    
     bio = BytesIO()
     doc.save(bio)
     return bio.getvalue()
@@ -414,13 +464,35 @@ def log_registration(name, email, phone, org, pos):
     header = ["Уақыты (Timestamp)", "Аты-жөні (Full Name)", "Email", "Телефон (Phone)", "Ұйым (Organization)", "Лауазымы (Position)"]
     append_to_github_csv("registered_users.csv", row, header)
 
+def convert_to_pdf(docx_path, pdf_path):
+    """Оболочка для конвертации DOCX -> PDF через LibreOffice или docx2pdf"""
+    try:
+        # Для Linux/Серверов с LibreOffice
+        subprocess.run(['soffice', '--headless', '--convert-to', 'pdf', docx_path, '--outdir', os.path.dirname(pdf_path)], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if os.path.exists(pdf_path): return True
+    except: pass
+    
+    try:
+        # Запасной вариант вызова (некоторые дистрибутивы Linux)
+        subprocess.run(['libreoffice', '--headless', '--convert-to', 'pdf', docx_path, '--outdir', os.path.dirname(pdf_path)], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if os.path.exists(pdf_path): return True
+    except: pass
+
+    try:
+        # Для локальных машин Windows/Mac с установленным MS Word
+        from docx2pdf import convert
+        convert(docx_path, pdf_path)
+        if os.path.exists(pdf_path): return True
+    except: pass
+
+    return False
+
 # ------------ Header ------------
 hc1, hc2, hc3 = st.columns([6, 1.8, 1.8])
 with hc1:
     st.title(l["title"])
     st.caption(l["subtitle"])
 with hc2:
-    # Языковые кнопки с флагами и полным названием!
     _lang_labels = {"kz": "🇰🇿 Қазақша", "ru": "🇷🇺 Русский", "en": "🇬🇧 English"}
     _lang_keys = list(_lang_labels.keys())
     _sel = st.selectbox("lang", _lang_keys, index=_lang_keys.index(st.session_state.lang), format_func=lambda x: _lang_labels[x], label_visibility="collapsed")
@@ -485,7 +557,6 @@ if app_mode == l["nav_gen"]:
 
     keywords = st.text_input(l["lbl_kw"], help=l["lbl_kw_help"], disabled=is_locked)
     
-    # --- Загрузка шаблонов (Sample Files Download) ---
     st.markdown("##### " + l["lbl_samples"])
     col_dl1, col_dl2, col_dl3, col_dl4, col_dl5 = st.columns(5)
     with col_dl1: st.download_button("📥 Intro", create_sample_docx("Introduction"), file_name="sample_intro.docx", use_container_width=True, disabled=is_locked)
@@ -495,7 +566,6 @@ if app_mode == l["nav_gen"]:
     with col_dl5: st.download_button("📥 Conclusion", create_sample_docx("Conclusion"), file_name="sample_conclusion.docx", use_container_width=True, disabled=is_locked)
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # --- IMRAD Файлдарды жүктеу (File Uploaders with Discussion) ---
     col_i1, col_i2, col_i3 = st.columns([1,1,1])
     with col_i1:
         file_intro = st.file_uploader(l["lbl_intro"], type=["txt", "docx"], disabled=is_locked)
@@ -506,35 +576,59 @@ if app_mode == l["nav_gen"]:
     with col_i3:
         file_conclusion = st.file_uploader(l["lbl_conclusion"], type=["txt", "docx"], disabled=is_locked)
 
-    # --- Раздельные Менеджеры: Суреттер мен Кестелер ---
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<br><hr>", unsafe_allow_html=True)
+    
+    # --- ДИНАМИЧЕСКИЕ МЕНЕДЖЕРЫ (Рисунки и Таблицы на каждой линии) ---
     col_ft1, col_ft2 = st.columns(2)
+    
+    # --- ФОРМА РИСУНКОВ ---
     with col_ft1:
         st.header(l["lbl_fig_manager"])
         with st.expander("💡 Подсказка для сложных графиков (Complicated Figures)"):
-            st.markdown("""
-            Если ваш рисунок состоит из нескольких частей (например, a, b, c), используйте **один тег** `[@fig1]` для всей группы в тексте статьи.
-            В подписи (Caption) опишите каждую часть: *Figure 1. Main title: (a) chart one; (b) chart two.*
-            """)
-        file_figs = st.file_uploader(l["lbl_fig_upload"], type=["png", "jpg", "jpeg"], accept_multiple_files=True, disabled=is_locked)
-        fig_df = pd.DataFrame([{"Tag in text": "[@fig1]", "Caption": ""}])
-        if not is_locked:
-            edited_figs = st.data_editor(fig_df, num_rows="dynamic", use_container_width=True, key="fig_editor")
-        else: st.dataframe(fig_df, use_container_width=True)
+            st.markdown("Используйте **один тег** `[@fig1]` для группы. В подписи опишите каждую часть: *Figure 1. Main title: (a) chart one; (b) chart two.*")
+        
+        # Заголовки таблицы Рисунков
+        hf1, hf2, hf3 = st.columns([1, 2, 2])
+        hf1.markdown("**Tag**")
+        hf2.markdown("**Caption**")
+        hf3.markdown("**File Upload**")
 
+        for i in range(st.session_state.fig_count):
+            cf1, cf2, cf3 = st.columns([1, 2, 2])
+            with cf1: st.text_input(f"fig_tag_{i}", value=f"[@fig{i+1}]", key=f"f_tag_{i}", label_visibility="collapsed", disabled=is_locked)
+            with cf2: st.text_input(f"fig_cap_{i}", placeholder="Название рисунка...", key=f"f_cap_{i}", label_visibility="collapsed", disabled=is_locked)
+            with cf3: st.file_uploader(f"fig_file_{i}", type=["png", "jpg", "jpeg"], key=f"f_file_{i}", label_visibility="collapsed", disabled=is_locked)
+            
+        if st.button(l["lbl_add_fig"], disabled=is_locked):
+            st.session_state.fig_count += 1
+            st.rerun()
+
+    # --- ФОРМА ТАБЛИЦ ---
     with col_ft2:
         st.header(l["lbl_tab_manager"])
-        file_tabs = st.file_uploader(l["lbl_tab_upload"], type=["xlsx", "csv", "docx", "txt"], accept_multiple_files=True, disabled=is_locked)
-        tab_df = pd.DataFrame([{"Tag in text": "[@tab1]", "Caption": ""}])
-        if not is_locked:
-            edited_tabs = st.data_editor(tab_df, num_rows="dynamic", use_container_width=True, key="tab_editor")
-        else: st.dataframe(tab_df, use_container_width=True)
+        st.markdown("<br><br>", unsafe_allow_html=True) # Выравнивание высоты с expander'ом рисунков
+        
+        # Заголовки таблицы Таблиц
+        ht1, ht2, ht3 = st.columns([1, 2, 2])
+        ht1.markdown("**Tag**")
+        ht2.markdown("**Caption**")
+        ht3.markdown("**File Upload**")
+
+        for i in range(st.session_state.tab_count):
+            ct1, ct2, ct3 = st.columns([1, 2, 2])
+            with ct1: st.text_input(f"tab_tag_{i}", value=f"[@tab{i+1}]", key=f"t_tag_{i}", label_visibility="collapsed", disabled=is_locked)
+            with ct2: st.text_input(f"tab_cap_{i}", placeholder="Название таблицы...", key=f"t_cap_{i}", label_visibility="collapsed", disabled=is_locked)
+            with ct3: st.file_uploader(f"tab_file_{i}", type=["xlsx", "csv", "docx", "txt"], key=f"t_file_{i}", label_visibility="collapsed", disabled=is_locked)
+            
+        if st.button(l["lbl_add_tab"], disabled=is_locked):
+            st.session_state.tab_count += 1
+            st.rerun()
 
     # --- Әдебиеттер менеджері (Smart Reference Manager) ---
+    st.markdown("<hr>", unsafe_allow_html=True)
     st.header(l["lbl_ref_manager"])
     ref_style = st.selectbox(l["lbl_ref_style"], ["GOST", "APA", "IEEE"], disabled=is_locked)
     ref_df = pd.DataFrame([{"Tag in text": "[@ref1]", "Author(s)": "", "Year": "", "Title": "", "Journal/Publisher": "", "Volume/Pages": ""}])
-    
     if not is_locked:
         edited_refs = st.data_editor(ref_df, num_rows="dynamic", use_container_width=True)
     else:
@@ -542,8 +636,6 @@ if app_mode == l["nav_gen"]:
 
     # --- Дополнительная информация (Back Matter) ---
     st.header(l["sec_backmatter"])
-    st.info("Пожалуйста, заполните необходимые разделы ниже. В случае отсутствия информации (например, финансирования), оставьте стандартную фразу.")
-    
     val_supp = st.text_area(l["lbl_supp"], value="No supplementary material.", height=68, disabled=is_locked)
     val_contrib = st.text_area(l["lbl_contrib"], value="Conceptualization, X.X. and Y.Y.; methodology, X.X.; software, X.X.; validation, X.X., Y.Y. and Z.Z.; formal analysis, X.X.; investigation, X.X.; resources, X.X.; data curation, X.X.; writing—original draft preparation, X.X.; writing—review and editing, X.X.; visualisation, X.X.; supervision, X.X.; project administration, X.X.; funding acquisition, Y.Y. All authors have read and agreed to the published version of the manuscript.", height=120, disabled=is_locked)
     val_auth_info = st.text_area(l["lbl_auth_info"], value="Beisembayev, Adil Sayatuly - researcher, L.N. Gumilyov Eurasian National University, Kazhymukan st., 13, Astana, Kazakhstan, 010000; email: beisembayev_as@enu.kz, https://orcid.org/0001-0003-2203-9099", height=80, disabled=is_locked)
@@ -578,112 +670,134 @@ if app_mode == l["nav_gen"]:
         if abstract_word_count > 300: st.error(l["err_abs_len"].format(count=abstract_word_count))
         elif not title or not authors: st.warning(l["err_fill_req"])
         else:
-            try:
-                # 1. Мәтіндерді жинақтау (Compile IMRAD text)
-                main_text_compiled = ""
-                if file_intro: main_text_compiled += "1. INTRODUCTION\n" + extract_text(file_intro) + "\n\n"
-                if file_methods: main_text_compiled += "2. MATERIALS AND METHODS\n" + extract_text(file_methods) + "\n\n"
-                if file_results: main_text_compiled += "3. RESULTS\n" + extract_text(file_results) + "\n\n"
-                if file_discussion: main_text_compiled += "4. DISCUSSION\n" + extract_text(file_discussion) + "\n\n"
-                if file_conclusion: main_text_compiled += "5. CONCLUSION\n" + extract_text(file_conclusion) + "\n\n"
-                
-                # 2. Суреттер (Figures)
-                fig_text_compiled = ""
-                fig_counter = 1
-                for _, row in edited_figs.iterrows():
-                    c_tag = str(row.get("Tag in text", "")).strip()
-                    c_cap = str(row.get("Caption", "")).strip()
-                    if c_cap and c_cap != "nan":
-                        fig_label = f"{l['fig_prefix']} {fig_counter}"
-                        fig_text_compiled += f"{fig_label}. {c_cap}\n"
-                        if c_tag and c_tag != "nan": main_text_compiled = main_text_compiled.replace(c_tag, fig_label)
-                        fig_counter += 1
-
-                # 3. Кестелер (Tables)
-                tab_text_compiled = ""
-                tab_counter = 1
-                for _, row in edited_tabs.iterrows():
-                    c_tag = str(row.get("Tag in text", "")).strip()
-                    c_cap = str(row.get("Caption", "")).strip()
-                    if c_cap and c_cap != "nan":
-                        tab_label = f"{l['tab_prefix']} {tab_counter}"
-                        tab_text_compiled += f"{tab_label}. {c_cap}\n"
-                        if c_tag and c_tag != "nan": main_text_compiled = main_text_compiled.replace(c_tag, tab_label)
-                        tab_counter += 1
-                
-                if fig_text_compiled or tab_text_compiled:
-                    main_text_compiled += "\n\n--- FIGURES & TABLES ---\n" + fig_text_compiled + "\n" + tab_text_compiled
-
-                # 4. Дополнительная информация (Back Matter)
-                back_matter = ""
-                if val_supp: back_matter += f"6. Supplementary Materials\n{val_supp}\n\n"
-                if val_contrib: back_matter += f"7. Author Contributions\n{val_contrib}\n\n"
-                if val_auth_info: back_matter += f"8. Author Information\n{val_auth_info}\n\n"
-                if val_funding: back_matter += f"9. Funding\n{val_funding}\n\n"
-                if val_ack: back_matter += f"10. Acknowledgements\n{val_ack}\n\n"
-                if val_coi: back_matter += f"11. Conflicts of Interest\n{val_coi}\n\n"
-
-                main_text_compiled += "\n\n" + back_matter
-
-                # 5. Әдебиеттер (References)
-                refs_compiled = []
-                ref_counter = 1
-                for _, row in edited_refs.iterrows():
-                    r_tag = str(row.get("Tag in text", "")).strip()
-                    r_author = str(row.get("Author(s)", "")).strip()
-                    r_year = str(row.get("Year", "")).strip()
-                    r_title = str(row.get("Title", "")).strip()
-                    r_journal = str(row.get("Journal/Publisher", "")).strip()
-                    r_vol = str(row.get("Volume/Pages", "")).strip()
+            with st.spinner("Генерация документов..."):
+                try:
+                    # 1. Мәтіндерді жинақтау
+                    main_text_compiled = ""
+                    if file_intro: main_text_compiled += "1. INTRODUCTION\n" + extract_text(file_intro) + "\n\n"
+                    if file_methods: main_text_compiled += "2. MATERIALS AND METHODS\n" + extract_text(file_methods) + "\n\n"
+                    if file_results: main_text_compiled += "3. RESULTS\n" + extract_text(file_results) + "\n\n"
+                    if file_discussion: main_text_compiled += "4. DISCUSSION\n" + extract_text(file_discussion) + "\n\n"
+                    if file_conclusion: main_text_compiled += "5. CONCLUSION\n" + extract_text(file_conclusion) + "\n\n"
                     
-                    if r_author == "nan" or not r_author: continue
-                    
-                    if ref_style == "APA":
-                        ref_entry = f"{r_author} ({r_year}). {r_title}. {r_journal}, {r_vol}."
-                        first_author = r_author.split(',')[0].strip()
-                        in_text_citation = f"({first_author} et al., {r_year})"
-                    elif ref_style == "IEEE":
-                        ref_entry = f"[{ref_counter}] {r_author}, \"{r_title},\" {r_journal}, {r_vol}, {r_year}."
-                        in_text_citation = f"[{ref_counter}]"
-                    else: # GOST
-                        ref_entry = f"{ref_counter}. {r_author} {r_title} // {r_journal}. - {r_year}. - {r_vol}."
-                        in_text_citation = f"[{ref_counter}]"
+                    # 2. Обработка динамических Рисунков
+                    fig_text_compiled = ""
+                    fig_counter = 1
+                    for i in range(st.session_state.fig_count):
+                        c_tag = st.session_state.get(f"f_tag_{i}", "").strip()
+                        c_cap = st.session_state.get(f"f_cap_{i}", "").strip()
+                        c_file = st.session_state.get(f"f_file_{i}") # File is kept strictly for backend processing if needed
                         
-                    refs_compiled.append(ref_entry)
-                    if r_tag and r_tag != "nan": main_text_compiled = main_text_compiled.replace(r_tag, in_text_citation)
-                    ref_counter += 1
-                
-                final_references = "\n".join(refs_compiled)
+                        if c_cap:
+                            fig_label = f"{l['fig_prefix']} {fig_counter}"
+                            fig_text_compiled += f"{fig_label}. {c_cap}\n"
+                            if c_tag: main_text_compiled = main_text_compiled.replace(c_tag, fig_label)
+                            fig_counter += 1
 
-                # Шаблон таңдау
-                template_filename = "Russian_template_2025.docx"
-                if primary_lang == "Русский": template_filename = "Russian_template_2025.docx"
-                elif primary_lang == "Қазақша": template_filename = "Kazakh_template_2025.docx"
-                elif primary_lang == "English": template_filename = "English_template_2025.docx"
+                    # 3. Обработка динамических Таблиц
+                    tab_text_compiled = ""
+                    tab_counter = 1
+                    for i in range(st.session_state.tab_count):
+                        c_tag = st.session_state.get(f"t_tag_{i}", "").strip()
+                        c_cap = st.session_state.get(f"t_cap_{i}", "").strip()
+                        
+                        if c_cap:
+                            tab_label = f"{l['tab_prefix']} {tab_counter}"
+                            tab_text_compiled += f"{tab_label}. {c_cap}\n"
+                            if c_tag: main_text_compiled = main_text_compiled.replace(c_tag, tab_label)
+                            tab_counter += 1
+                    
+                    if fig_text_compiled or tab_text_compiled:
+                        main_text_compiled += "\n\n--- FIGURES & TABLES ---\n" + fig_text_compiled + "\n" + tab_text_compiled
 
-                context = {
-                    "mrnti": mrnti, "section": section, "paper_type": paper_type,
-                    "title": title, "authors": authors, "affiliations": affiliations, "corr_email": corr_email,
-                    "abstract": abstract, "keywords": keywords,
-                    "main_text": main_text_compiled, "references": final_references,
-                    "t1_title": t1_title, "t1_authors": t1_authors, "t1_abstract": t1_abstract, "t1_keywords": t1_keywords,
-                    "t2_title": t2_title, "t2_authors": t2_authors, "t2_abstract": t2_abstract, "t2_keywords": t2_keywords,
-                }
+                    # 4. Back Matter
+                    back_matter = ""
+                    if val_supp: back_matter += f"6. Supplementary Materials\n{val_supp}\n\n"
+                    if val_contrib: back_matter += f"7. Author Contributions\n{val_contrib}\n\n"
+                    if val_auth_info: back_matter += f"8. Author Information\n{val_auth_info}\n\n"
+                    if val_funding: back_matter += f"9. Funding\n{val_funding}\n\n"
+                    if val_ack: back_matter += f"10. Acknowledgements\n{val_ack}\n\n"
+                    if val_coi: back_matter += f"11. Conflicts of Interest\n{val_coi}\n\n"
+                    main_text_compiled += "\n\n" + back_matter
 
-                doc = DocxTemplate(template_filename)
-                doc.render(context)
-                bio = BytesIO()
-                doc.save(bio)
-                st.success(l["succ_gen"])
+                    # 5. References
+                    refs_compiled = []
+                    ref_counter = 1
+                    for _, row in edited_refs.iterrows():
+                        r_tag = str(row.get("Tag in text", "")).strip()
+                        r_author = str(row.get("Author(s)", "")).strip()
+                        r_year = str(row.get("Year", "")).strip()
+                        r_title = str(row.get("Title", "")).strip()
+                        r_journal = str(row.get("Journal/Publisher", "")).strip()
+                        r_vol = str(row.get("Volume/Pages", "")).strip()
+                        
+                        if r_author == "nan" or not r_author: continue
+                        
+                        if ref_style == "APA":
+                            ref_entry = f"{r_author} ({r_year}). {r_title}. {r_journal}, {r_vol}."
+                            first_author = r_author.split(',')[0].strip()
+                            in_text_citation = f"({first_author} et al., {r_year})"
+                        elif ref_style == "IEEE":
+                            ref_entry = f"[{ref_counter}] {r_author}, \"{r_title},\" {r_journal}, {r_vol}, {r_year}."
+                            in_text_citation = f"[{ref_counter}]"
+                        else: # GOST
+                            ref_entry = f"{ref_counter}. {r_author} {r_title} // {r_journal}. - {r_year}. - {r_vol}."
+                            in_text_citation = f"[{ref_counter}]"
+                            
+                        refs_compiled.append(ref_entry)
+                        if r_tag and r_tag != "nan": main_text_compiled = main_text_compiled.replace(r_tag, in_text_citation)
+                        ref_counter += 1
+                    final_references = "\n".join(refs_compiled)
 
-                with st.spinner("Деректер сақталуда..."):
+                    # Шаблон
+                    template_filename = "Russian_template_2025.docx"
+                    if primary_lang == "Русский": template_filename = "Russian_template_2025.docx"
+                    elif primary_lang == "Қазақша": template_filename = "Kazakh_template_2025.docx"
+                    elif primary_lang == "English": template_filename = "English_template_2025.docx"
+
+                    context = {
+                        "mrnti": mrnti, "section": section, "paper_type": paper_type,
+                        "title": title, "authors": authors, "affiliations": affiliations, "corr_email": corr_email,
+                        "abstract": abstract, "keywords": keywords,
+                        "main_text": main_text_compiled, "references": final_references,
+                        "t1_title": t1_title, "t1_authors": t1_authors, "t1_abstract": t1_abstract, "t1_keywords": t1_keywords,
+                        "t2_title": t2_title, "t2_authors": t2_authors, "t2_abstract": t2_abstract, "t2_keywords": t2_keywords,
+                    }
+
+                    doc = DocxTemplate(template_filename)
+                    doc.render(context)
+                    
+                    # Генерация файлов через TemporaryDirectory для безопасной конвертации PDF
+                    with tempfile.TemporaryDirectory() as tmpdir:
+                        docx_path = os.path.join(tmpdir, "Formatted_Article.docx")
+                        pdf_path = os.path.join(tmpdir, "Formatted_Article.pdf")
+                        
+                        doc.save(docx_path)
+                        with open(docx_path, "rb") as f:
+                            docx_bytes = f.read()
+
+                        pdf_success = convert_to_pdf(docx_path, pdf_path)
+                        pdf_bytes = None
+                        if pdf_success:
+                            with open(pdf_path, "rb") as f:
+                                pdf_bytes = f.read()
+                    
+                    st.success(l["succ_gen"])
                     log_generation(title, authors, primary_lang)
 
-                auto_download(bio, "Formatted_Article.docx")
-                st.download_button(label=l["btn_dl"], data=bio.getvalue(), file_name="Formatted_Article.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document", type="secondary")
-            except Exception as e:
-                st.error(f"{l['err_gen']} {e}")
-                st.info("💡 Ескерту: 'Russian_template_2025.docx', 'Kazakh_template_2025.docx' және 'English_template_2025.docx' файлдары бумада болуы тиіс.")
+                    # Отображение кнопок скачивания
+                    dcol1, dcol2 = st.columns(2)
+                    with dcol1:
+                        st.download_button(label=l["btn_dl_docx"], data=docx_bytes, file_name="Formatted_Article.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document", type="primary", use_container_width=True)
+                    with dcol2:
+                        if pdf_bytes:
+                            st.download_button(label=l["btn_dl_pdf"], data=pdf_bytes, file_name="Formatted_Article.pdf", mime="application/pdf", type="primary", use_container_width=True)
+                        else:
+                            st.warning(l["err_pdf"])
+                            
+                except Exception as e:
+                    st.error(f"{l['err_gen']} {e}")
+                    st.info("💡 Ескерту: 'Russian_template_2025.docx', 'Kazakh_template_2025.docx' және 'English_template_2025.docx' файлдары бумада болуы тиіс.")
 
 # ==========================================
 # РЕЖИМ: РЕГИСТРАЦИЯ
