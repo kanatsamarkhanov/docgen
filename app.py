@@ -187,6 +187,90 @@ LOCALES = {
         "fb_text": "Ұсыныстар",
         "fb_btn": "Жіберу",
         "fb_succ": "Рақмет!"
+    },
+    "en": {
+        "title": "📝 Smart Paper Generator",
+        "subtitle": "L.N. Gumilyov ENU Bulletin · 2025",
+        "btn_theme_dark": "🌙 Dark mode",
+        "btn_theme_light": "☀️ Light mode",
+        "nav_gen": "📄 Generator",
+        "nav_reg": "👤 Registration",
+        "sidebar_title": "⚙️ Settings",
+        "lbl_lang": "Language",
+        "lbl_sec": "Section",
+        "lbl_type": "Type",
+        "lbl_mrnti": "IRSTI",
+        "sec_meta": "1. Metadata",
+        "lbl_title": "Title",
+        "lbl_authors": "Authors",
+        "lbl_authors_help": "E.g. John Doe1",
+        "lbl_affil": "Affiliation",
+        "lbl_affil_help": "University, City",
+        "lbl_email": "Email",
+        "sec_text": "2. Main Text",
+        "lbl_abstract": "Abstract",
+        "lbl_kw": "Keywords",
+        "lbl_kw_help": "3-10 words",
+        "lbl_intro": "Introduction",
+        "lbl_methods": "Methods",
+        "lbl_results": "Results",
+        "lbl_discussion": "Discussion",
+        "lbl_conclusion": "Conclusion",
+        "lbl_ref_manager": "📚 References",
+        "lbl_ref_style": "Style",
+        "lbl_fig_manager": "📊 Figures",
+        "lbl_tab_manager": "📋 Tables",
+        "lbl_eq_manager": "➗ Equations",
+        "lbl_add_fig": "➕ Add Figure",
+        "lbl_add_tab": "➕ Add Table",
+        "lbl_add_eq": "➕ Add Equation",
+        "btn_upload_short": "📎 Upload",
+        "lbl_fig_hint_title": "💡 Figures Hint",
+        "lbl_fig_hint_text": "Use tag [@fig1] in text.",
+        "lbl_tab_hint_title": "💡 Tables Hint",
+        "lbl_tab_hint_text": "Upload .docx for complex tables.",
+        "lbl_eq_hint_title": "💡 Equations Hint",
+        "lbl_eq_hint_text": "Use tag [@eq1].",
+        "btn_sample_table": "📥 Table Sample",
+        "lbl_samples": "📥 Sample Files",
+        "sec_backmatter": "4. Back Matter",
+        "lbl_supp": "6. Supplementary",
+        "lbl_contrib": "7. Contributions",
+        "lbl_auth_info": "8. Info",
+        "lbl_funding": "9. Funding",
+        "lbl_ack": "10. Acknowledgements",
+        "lbl_coi": "11. Conflicts",
+        "sec_trans": "3. Translations",
+        "trans_info": "Provide title/abstract in 2 other languages.",
+        "gen_btn": "🚀 Generate",
+        "err_abs_len": "⚠️ Abstract too long!",
+        "succ_abs_len": "Words: {count}/300",
+        "err_fill_req": "Fill Title and Authors.",
+        "err_gen": "Error: ",
+        "succ_gen": "✅ Success ({time}s)!",
+        "btn_dl_docx": "⬇️ .docx",
+        "btn_dl_pdf": "⬇️ .pdf",
+        "err_pdf": "⚠️ PDF error.",
+        "reg_header": "📝 Registration",
+        "reg_name": "Full Name",
+        "reg_email": "Email",
+        "reg_phone": "Phone",
+        "reg_org": "Org",
+        "reg_pos": "Position",
+        "reg_submit": "Register",
+        "reg_success": "✅ Registered!",
+        "reg_info": "Go to generator.",
+        "reg_req_msg": "🔒 Please register.",
+        "reg_err_fill": "Fill all fields.",
+        "f_author": "Kanat Samarkhanov",
+        "f_univ": "L.N. Gumilyov ENU",
+        "preview": "Preview",
+        "fig_prefix": "Figure",
+        "tab_prefix": "Table",
+        "fb_header": "💬 Feedback",
+        "fb_text": "Your ideas",
+        "fb_btn": "Send",
+        "fb_succ": "Thanks!"
     }
 }
 
@@ -259,22 +343,39 @@ def convert_to_pdf(docx_path: str, pdf_path: str) -> bool:
 # ----------------- UI COMPONENTS -----------------
 l = LOCALES.get(st.session_state.lang, LOCALES["ru"])
 
-# Стиль вынесен в компактную переменную
+# Updated CSS with lightgrey background for active boxes
 CSS = f"""
 <style>
     .stApp {{ background-color: #f8fafc !important; }}
     [data-testid="stSidebar"] {{ background-color: #f1f5f9 !important; border-right: 1px solid #e2e8f0; }}
     h1, h2, h3 {{ color: #1e293b !important; }}
+    
+    /* Active boxes background: lightgrey */
+    .stTextArea textarea, .stTextInput input, [data-testid="stFileUploader"] {{
+        background-color: #e5e7eb !important; /* lightgrey */
+        border-radius: 8px !important;
+    }}
+    
+    /* Disabled state - keep it slightly different */
+    .stTextArea textarea:disabled, .stTextInput input:disabled {{
+        background-color: #f3f4f6 !important;
+        opacity: 0.6;
+    }}
+
     .stButton>button[kind="primary"] {{ 
         background: linear-gradient(90deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 8px; font-weight: 600;
     }}
-    .compact-uploader [data-testid="stFileUploadDropzone"] {{ padding: 0 !important; min-height: 40px !important; }}
+    .compact-uploader [data-testid="stFileUploadDropzone"] {{ 
+        padding: 0 !important; 
+        min-height: 40px !important; 
+        background-color: #e5e7eb !important;
+    }}
 </style>
 """
 st.markdown(CSS, unsafe_allow_html=True)
 
 def render_manager_row(index: int, prefix: str, type_key: str, is_locked: bool):
-    """Универсальная отрисовка строк менеджеров"""
+    """Universal row rendering for figures, tables, equations"""
     cols = st.columns([1, 3, 3])
     with cols[0]:
         st.text_input(f"{type_key}_tag_{index}", value=f"[@{type_key}{index+1}]", 
@@ -347,17 +448,38 @@ if app_mode == l["nav_gen"]:
         for i, s_name in enumerate(sections):
             sm_cols[i].download_button(f"📥 {s_name[:4]}", get_sample_docx(s_name), f"{s_name}.docx", use_container_width=True)
 
-    # Uploaders
+    # Uploaders with Preview Buttons
+    st.markdown("<br>", unsafe_allow_html=True)
     up_cols = st.columns(3)
     files = {}
+    
     with up_cols[0]:
         files['intro'] = st.file_uploader(l["lbl_intro"], type=["docx", "txt"], disabled=is_locked)
+        if files['intro'] and not is_locked:
+            if st.button(f"👀 {l['preview']} - Intro", key="pre_intro", use_container_width=True):
+                st.info(extract_text(files['intro']))
+        
         files['methods'] = st.file_uploader(l["lbl_methods"], type=["docx", "txt"], disabled=is_locked)
+        if files['methods'] and not is_locked:
+            if st.button(f"👀 {l['preview']} - Methods", key="pre_meth", use_container_width=True):
+                st.info(extract_text(files['methods']))
+                
     with up_cols[1]:
         files['results'] = st.file_uploader(l["lbl_results"], type=["docx", "txt"], disabled=is_locked)
+        if files['results'] and not is_locked:
+            if st.button(f"👀 {l['preview']} - Results", key="pre_res", use_container_width=True):
+                st.info(extract_text(files['results']))
+                
         files['discussion'] = st.file_uploader(l["lbl_discussion"], type=["docx", "txt"], disabled=is_locked)
+        if files['discussion'] and not is_locked:
+            if st.button(f"👀 {l['preview']} - Discussion", key="pre_disc", use_container_width=True):
+                st.info(extract_text(files['discussion']))
+                
     with up_cols[2]:
         files['conclusion'] = st.file_uploader(l["lbl_conclusion"], type=["docx", "txt"], disabled=is_locked)
+        if files['conclusion'] and not is_locked:
+            if st.button(f"👀 {l['preview']} - Conclusion", key="pre_conc", use_container_width=True):
+                st.info(extract_text(files['conclusion']))
 
     # 4. Managers
     st.divider()
@@ -385,27 +507,24 @@ if app_mode == l["nav_gen"]:
         if not title or not authors:
             st.warning(l["err_fill_req"])
         else:
-            with st.spinner("Processing..."):
+            with st.spinner("Generating..."):
                 start_t = time.time()
-                # Сборка текста (оптимизировано через список)
                 content_parts = []
-                order = [('1. INTRO', 'intro'), ('2. METHODS', 'methods'), ('3. RESULTS', 'results'), ('4. DISCUSSION', 'discussion'), ('5. CONCLUSION', 'conclusion')]
+                order = [('1. INTRODUCTION', 'intro'), ('2. MATERIALS AND METHODS', 'methods'), 
+                         ('3. RESULTS', 'results'), ('4. DISCUSSION', 'discussion'), ('5. CONCLUSION', 'conclusion')]
                 for header, key in order:
                     txt = extract_text(files[key])
                     if txt: content_parts.append(f"{header}\n{txt}\n")
                 
-                full_text = "\n".join(content_parts)
-                
-                # Рендеринг (упрощенная заглушка логики)
-                # Здесь должна быть загрузка шаблона и render(context)
-                
+                # Success message with download placeholder
                 st.success(l["succ_gen"].format(time=round(time.time()-start_t, 2)))
-                st.download_button(l["btn_dl_docx"], get_sample_docx("Result"), "Article.docx", type="primary")
+                st.download_button(l["btn_dl_docx"], get_sample_docx("Result"), "Article.docx", type="primary", use_container_width=True)
 
 elif app_mode == l["nav_reg"]:
     st.header(l["reg_header"])
     if st.session_state.is_registered:
         st.success(l["reg_success"])
+        st.info(l["reg_info"])
     else:
         with st.form("reg_form"):
             r_name = st.text_input(l["reg_name"])
