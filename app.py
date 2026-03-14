@@ -172,21 +172,66 @@ l = locales[st.session_state.lang]
 # ------------ CSS Дизайн (Ақ және Қою көк режимдер) ------------
 light_css = """
 <style>
+/* Основной фон и боковая панель */
 .stApp { background-color: #ffffff !important; }
 [data-testid="stSidebar"] { background-color: #f8f9fa !important; border-right: 1px solid #e9ecef !important; }
 [data-testid="stMarkdownContainer"] h1, [data-testid="stMarkdownContainer"] h2, [data-testid="stMarkdownContainer"] h3 { color: #1a3a5c !important; }
 p, span, label { color: #333333 !important; }
 hr { border-color: #e9ecef !important; }
+
+/* Обычные активные поля ввода */
+input, textarea, [data-baseweb="select"] > div {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+    border: 1px solid #cccccc !important;
+}
+
+/* ЗАБЛОКИРОВАННЫЕ поля (до регистрации) - делаем их серыми, а не черными */
+input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled="true"] {
+    background-color: #e9ecef !important;
+    color: #6c757d !important;
+    -webkit-text-fill-color: #6c757d !important;
+    border: 1px solid #dddddd !important;
+}
+
+/* Панели предупреждений и инфо (Alerts) */
+[data-testid="stAlert"] {
+    background-color: #f0f2f6 !important;
+    color: #333333 !important;
+}
 </style>
 """
 
 dark_css = """
 <style>
+/* Основной фон и боковая панель для ночного режима */
 .stApp { background-color: #0d1b2e !important; }
 [data-testid="stSidebar"] { background-color: #0b1727 !important; border-right: 1px solid #1e3a5f !important; }
 [data-testid="stMarkdownContainer"] h1, [data-testid="stMarkdownContainer"] h2, [data-testid="stMarkdownContainer"] h3 { color: #e2edf7 !important; }
 p, span, label { color: #c9d8ee !important; }
 hr { border-color: #1e3a5f !important; }
+
+/* Обычные активные поля ввода */
+input, textarea, [data-baseweb="select"] > div {
+    background-color: #0f2340 !important;
+    color: #e2edf7 !important;
+    border: 1px solid #1e3a5f !important;
+}
+
+/* ЗАБЛОКИРОВАННЫЕ поля в ночном режиме (чуть темнее фона) */
+input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled="true"] {
+    background-color: #0b1727 !important;
+    color: #7b96b8 !important;
+    -webkit-text-fill-color: #7b96b8 !important;
+    border: 1px solid #152b4a !important;
+}
+
+/* Панели предупреждений и инфо (Alerts) */
+[data-testid="stAlert"] {
+    background-color: #0f2340 !important;
+    color: #c9d8ee !important;
+    border: 1px solid #1e3a5f !important;
+}
 </style>
 """
 
