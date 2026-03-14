@@ -303,9 +303,12 @@ font_mapping = {
 }
 selected_css_font = font_mapping.get(st.session_state.ui_font, "sans-serif")
 
-# ------------ CSS Дизайн ------------
-file_uploader_i18n = f"""
+# ------------ CSS Дизайн (Единый блок для предотвращения пустых отступов) ------------
+css_core = f"""
 <style>
+/* Скрываем пустые контейнеры, чтобы убрать артефакты в левом верхнем углу (empty gap) */
+div.element-container:has(style) {{ display: none !important; height: 0 !important; margin: 0 !important; }}
+
 /* Font family and Text Justify distribution */
 * {{ font-family: {selected_css_font} !important; }}
 .stApp p, .stApp div[data-testid="stMarkdownContainer"] {{ text-align: justify !important; }}
@@ -322,71 +325,64 @@ file_uploader_i18n = f"""
 [data-testid="stFileUploadDropzone"]:hover {{
     background-color: rgba(74, 144, 226, 0.1) !important;
 }}
-/* Прячем оригинальную иконку и добавляем облако */
 [data-testid="stFileUploadDropzone"] > div > svg {{ display: none !important; }}
 [data-testid="stFileUploadDropzone"]::before {{ 
     content: "☁️"; font-size: 44px; display: block; margin-bottom: 5px; 
 }}
 
-/* Скрываем оригинальный текст Streamlit полностью */
 [data-testid="stFileUploadDropzone"] div[data-testid="stText"] {{ font-size: 0 !important; }}
 [data-testid="stFileUploadDropzone"] div[data-testid="stText"]::after {{
     content: "{l['drag_drop']}"; 
-    font-size: 14px !important; 
-    color: #888888 !important; 
-    display: block; 
-    white-space: pre-wrap; 
-    margin-top: 5px;
-    margin-bottom: 15px;
+    font-size: 14px !important; color: #888888 !important; 
+    display: block; white-space: pre-wrap; margin-top: 5px; margin-bottom: 15px;
 }}
 
-/* Дизайн кнопки "Browse Files" внутри загрузчика */
 [data-testid="stFileUploadDropzone"] button {{ 
-    color: transparent !important; 
-    position: relative; 
-    background-color: transparent !important;
-    border: 1px solid #4a90e2 !important; 
-    border-radius: 6px !important;
-    box-shadow: none !important; 
-    padding: 5px 20px !important;
-    min-height: 38px !important;
+    color: transparent !important; position: relative; background-color: transparent !important;
+    border: 1px solid #4a90e2 !important; border-radius: 6px !important;
+    box-shadow: none !important; padding: 5px 20px !important; min-height: 38px !important;
 }}
 [data-testid="stFileUploadDropzone"] button::after {{
-    content: "{l['browse_files']}"; 
-    color: #4a90e2 !important; 
-    position: absolute;
-    left: 50%; top: 50%; transform: translate(-50%, -50%); 
-    visibility: visible; 
-    font-weight: 600; font-size: 14px; white-space: nowrap; 
+    content: "{l['browse_files']}"; color: #4a90e2 !important; 
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); 
+    visibility: visible; font-weight: 600; font-size: 14px; white-space: nowrap; 
 }}
 [data-testid="stFileUploadDropzone"] button:hover {{ background-color: #4a90e2 !important; }}
 [data-testid="stFileUploadDropzone"] button:hover::after {{ color: #ffffff !important; }}
 
-/* УБИРАЕМ ВЕРТИКАЛЬНЫЕ ЛИНИИ В СЕЛЕКТАХ */
+/* ИСПРАВЛЕНИЕ ЛЕВОГО ВЕРХНЕГО УГЛА (Selectbox) - сохраняем стрелочку */
 [data-baseweb="select"] input {{ caret-color: transparent !important; }}
-div[data-baseweb="select"] > div > div:nth-child(2) {{ width: 0 !important; display: none !important; border: none !important; }}
-div[data-baseweb="select"] div[aria-hidden="true"] {{ background-color: transparent !important; width: 0 !important; border: none !important; display: none !important; }}
-div[data-baseweb="select"] * {{ border-left: none !important; border-right: none !important; }}
+/* Убираем только разделительную линию, но не саму стрелку */
+div[data-baseweb="select"] > div > div > div[style*="width: 1px"],
+div[data-baseweb="select"] > div > div > div[style*="background-color"] {{ display: none !important; }}
 
-/* 2. КОМПАКТНЫЕ ЗАГРУЗЧИКИ ДЛЯ ТАБЛИЦ И РИСУНКОВ (Точное нацеливание) */
+/* 2. КОМПАКТНЫЕ ЗАГРУЗЧИКИ ДЛЯ ТАБЛИЦ И РИСУНКОВ (Исправление каши и съезжания) */
+/* Схлопываем невидимый маркер в 0px, чтобы он не сдвигал элементы вниз */
+div.element-container:has(.compact-uploader) {{
+    display: none !important;
+    height: 0px !important;
+    margin: 0px !important;
+    padding: 0px !important;
+}}
+/* Стилизуем идущий следом за маркером загрузчик файлов */
 div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] {{
     padding: 0 !important;
-    min-height: 40px !important;
-    height: 40px !important;
-    border: 1px dashed #94a3b8 !important;
-    border-radius: 6px !important;
+    min-height: 40px !important; height: 40px !important;
+    border: 1px dashed #94a3b8 !important; border-radius: 6px !important;
     display: flex; align-items: center; justify-content: center; flex-direction: row;
-    background-color: transparent !important;
+    background-color: transparent !important; margin: 0 !important;
 }}
 div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"]::before {{ display: none !important; }}
 div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] div[data-testid="stText"] {{ display: none !important; }}
 div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] button {{ 
-    margin: 0 !important; width: 100% !important; height: 100% !important; display: block; 
-    background: transparent !important; border: none !important; 
+    margin: 0 !important; width: 100% !important; height: 100% !important; 
+    display: flex !important; align-items: center !important; justify-content: center !important;
+    background: transparent !important; border: none !important; padding: 0 !important;
 }}
 div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] button::after {{
     content: "{l['btn_upload_short']}" !important;
     font-size: 13px !important; color: #64748b !important; font-weight: 500 !important;
+    position: static !important; transform: none !important;
 }}
 div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"]:hover {{ border-color: #4a90e2 !important; background-color: rgba(74, 144, 226, 0.05) !important; }}
 div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"]:hover button::after {{ color: #4a90e2 !important; }}
@@ -405,7 +401,6 @@ input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled
 button[kind="primary"] { background-color: #4a90e2 !important; color: #ffffff !important; border: 1px solid #357abd !important; border-radius: 6px !important; font-weight: 600 !important; }
 button[kind="primary"]:hover { background-color: #357abd !important; border-color: #2a6296 !important; box-shadow: 0 0 8px rgba(74, 144, 226, 0.4) !important; }
 
-/* Segmented Control */
 div[data-testid="stRadio"] { display: flex; justify-content: center; margin-bottom: 1rem; }
 div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #f1f3f4 !important; border-radius: 20px !important; padding: 4px !important; display: inline-flex !important; gap: 4px !important; border: none !important; }
 div[data-testid="stRadio"] div[role="radiogroup"] label { background-color: transparent !important; padding: 8px 24px !important; border-radius: 16px !important; color: #5f6368 !important; font-weight: 500 !important; cursor: pointer !important; border: none !important; transition: all 0.2s; margin:0 !important; }
@@ -430,7 +425,6 @@ button[kind="primary"]:hover { background-color: #5da0eb !important; border-colo
 button[kind="secondary"] { background-color: #132440 !important; color: #cbd5e1 !important; border: 1px solid #284470 !important; }
 button[kind="secondary"]:hover { border-color: #4a90e2 !important; color: #ffffff !important; }
 
-/* Segmented Control */
 div[data-testid="stRadio"] { display: flex; justify-content: center; margin-bottom: 1rem; }
 div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #0f1c34 !important; border-radius: 20px !important; padding: 4px !important; display: inline-flex !important; gap: 4px !important; border: 1px solid #1d3354 !important; }
 div[data-testid="stRadio"] div[role="radiogroup"] label { background-color: transparent !important; padding: 8px 24px !important; border-radius: 16px !important; color: #64748b !important; font-weight: 500 !important; cursor: pointer !important; border: none !important; transition: all 0.2s; margin:0 !important; }
@@ -440,8 +434,8 @@ div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="tr
 </style>
 """
 
-st.markdown(file_uploader_i18n, unsafe_allow_html=True)
-st.markdown(dark_css if st.session_state.theme == "dark" else light_css, unsafe_allow_html=True)
+# Внедряем CSS единым блоком
+st.markdown(css_core + (dark_css if st.session_state.theme == "dark" else light_css), unsafe_allow_html=True)
 
 # ------------ Helpers ------------
 def extract_text(uploaded_file):
@@ -658,6 +652,7 @@ if app_mode == l["nav_gen"]:
             with cf1: st.text_input(f"fig_tag_{i}", value=f"[@fig{i+1}]", key=f"f_tag_{i}", label_visibility="collapsed", disabled=is_locked)
             with cf2: st.text_input(f"fig_cap_{i}", placeholder="Caption...", key=f"f_cap_{i}", label_visibility="collapsed", disabled=is_locked)
             with cf3: 
+                # Строго скрытый контейнер, который теперь не будет сдвигать выравнивание таблицы
                 st.markdown('<div class="compact-uploader"></div>', unsafe_allow_html=True)
                 st.file_uploader(f"fig_file_{i}", type=["png", "jpg", "jpeg"], key=f"f_file_{i}", label_visibility="collapsed", disabled=is_locked)
             
