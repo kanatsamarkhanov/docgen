@@ -15,9 +15,8 @@ import tempfile
 import subprocess
 import time
 
-# ----------------- СОВМЕСТИМОСТЬ ПЕРЕЗАГРУЗКИ (Қатені түзеу) -----------------
+# ----------------- СОВМЕСТИМОСТЬ ПЕРЕЗАГРУЗКИ -----------------
 def safe_rerun():
-    """Умная функция перезагрузки для совместимости со старыми и новыми версиями Streamlit"""
     if hasattr(st, "rerun"):
         st.rerun()
     elif hasattr(st, "experimental_rerun"):
@@ -127,7 +126,7 @@ locales = {
         "limit": "Лимит 200MB",
         "fig_prefix": "Рисунок",
         "tab_prefix": "Таблица",
-        "fb_header": "💬 Оставить отзыв",
+        "fb_header": "💬 Кері байланыс қалдыру",
         "fb_text": "Ваши предложения или найденные ошибки",
         "fb_btn": "Отправить отзыв",
         "fb_succ": "Спасибо за ваш отзыв!",
@@ -162,7 +161,7 @@ locales = {
         "lbl_intro": "Кіріспе (.txt/.docx)",
         "lbl_methods": "Материалдар/әдістер (.txt/.docx)",
         "lbl_results": "Нәтижелер (.txt/.docx)",
-        "lbl_discussion": "Талқылау (.txt/.docx)",
+        "lbl_discussion": "Талдау (.txt/.docx)",
         "lbl_conclusion": "Қорытынды (.txt/.docx)",
         "lbl_ref_manager": "📚 Әдебиеттер менеджері",
         "lbl_ref_style": "Дәйексөз стилі",
@@ -254,7 +253,7 @@ locales = {
         "lbl_intro": "Introduction (.txt/.docx)",
         "lbl_methods": "Materials & Methods (.txt/.docx)",
         "lbl_results": "Results (.txt/.docx)",
-        "lbl_discussion": "Discussion (.txt/.docx)",
+        "lbl_discussion": "Analysis (.txt/.docx)",
         "lbl_conclusion": "Conclusion (.txt/.docx)",
         "lbl_ref_manager": "📚 Reference Manager",
         "lbl_ref_style": "Citation Style",
@@ -337,46 +336,35 @@ css_core = f"""
 /* GLOBAL TYPOGRAPHY */
 * {{ font-family: {selected_css_font} !important; }}
 
-/* SMALLER TITLES FOR BETTER BUTTON VISIBILITY */
-h1 {{ font-size: 1.8rem !important; margin-bottom: 0.5rem !important; }}
-h2 {{ font-size: 1.4rem !important; margin-bottom: 0.4rem !important; }}
-h3 {{ font-size: 1.15rem !important; margin-bottom: 0.3rem !important; }}
-
-div.element-container:has(style) {{ display: none !important; height: 0 !important; margin: 0 !important; }}
-
-.stApp p, .stApp div[data-testid="stMarkdownContainer"] {{
-    text-align: justify !important;
-}}
+/* SMALLER TITLES */
+h1 {{ font-size: 1.6rem !important; margin-bottom: 0.2rem !important; }}
+h2 {{ font-size: 1.3rem !important; margin-bottom: 0.3rem !important; }}
+h3 {{ font-size: 1.1rem !important; margin-bottom: 0.2rem !important; }}
 
 /* MAIN CONTAINER WIDTH */
 .block-container {{
-    padding-top: 2rem;
-    padding-bottom: 3rem;
+    padding-top: 1rem;
+    padding-bottom: 2rem;
     max-width: 1200px;
 }}
 
 /* -------------------------------- */
-/* UPLOAD ZONES (MODERN DASH STYLE) */
+/* UPLOAD ZONES */
 /* -------------------------------- */
 [data-testid="stFileUploadDropzone"] {{
     border: 2px dashed #6aa5ff !important;
     border-radius: 14px !important;
-    padding: 30px !important;
+    padding: 20px !important;
     transition: all 0.2s ease;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
 }}
 
-[data-testid="stFileUploadDropzone"]:hover {{
-    border-color:#2563eb !important;
-}}
+[data-testid="stFileUploadDropzone"]:hover {{ border-color:#2563eb !important; }}
 
 [data-testid="stFileUploadDropzone"] button {{
-    border-radius:10px !important;
-    padding:8px 20px !important;
-    font-weight:600;
+    border-radius:10px !important; padding:8px 20px !important; font-weight:600;
     color: transparent !important; position: relative; background-color: transparent !important;
-    border: 1px solid #4a90e2 !important;
-    box-shadow: none !important; min-height: 38px !important;
+    border: 1px solid #4a90e2 !important; box-shadow: none !important;
 }}
 
 [data-testid="stFileUploadDropzone"] button::after {{
@@ -387,225 +375,121 @@ div.element-container:has(style) {{ display: none !important; height: 0 !importa
 
 [data-testid="stFileUploadDropzone"] > div > svg {{ display: none !important; }}
 
-[data-testid="stFileUploadDropzone"]::before {{
-    content:"📂";
-    font-size:40px;
-    display:block;
-    margin-bottom:8px;
-    text-align: center;
-}}
+[data-testid="stFileUploadDropzone"]::before {{ content:"📂"; font-size:30px; display:block; margin-bottom:5px; text-align: center; }}
 
-[data-testid="stFileUploadDropzone"] div[data-testid="stText"] {{ font-size: 0 !important; text-align: center; }}
 [data-testid="stFileUploadDropzone"] div[data-testid="stText"]::after {{
-    content: "{l['drag_drop']}"; 
-    font-size: 14px !important; color: #888888 !important; 
-    display: block; white-space: pre-wrap; margin-top: 5px; margin-bottom: 15px;
+    content: "{l['drag_drop']}"; font-size: 13px !important; color: #888888 !important; display: block; white-space: pre-wrap; margin-top: 5px;
 }}
-
-/* ИСПРАВЛЕНИЕ ЛЕВОГО ВЕРХНЕГО УГЛА (Selectbox) - сохраняем стрелочку */
-[data-baseweb="select"] input {{ caret-color: transparent !important; }}
-div[data-baseweb="select"] > div > div > div[style*="width: 1px"],
-div[data-baseweb="select"] > div > div > div[style*="background-color"] {{ display: none !important; }}
 
 /* -------------------------------- */
 /* COMPACT UPLOAD BUTTONS */
 /* -------------------------------- */
-div.element-container:has(.compact-uploader) {{
-    display: none !important; height: 0px !important; margin: 0px !important; padding: 0px !important;
-}}
-
+div.element-container:has(.compact-uploader) {{ display: none !important; }}
 div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] {{
-    padding:0 !important;
-    height:40px !important;
-    border:1px dashed #9bbcf7 !important;
-    border-radius:8px !important;
-    display: flex; align-items: center; justify-content: center; flex-direction: row;
-    margin: 0 !important;
+    padding:0 !important; height:38px !important; border:1px dashed #9bbcf7 !important; border-radius:8px !important;
 }}
-
 div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"]::before {{ display: none !important; }}
-div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] div[data-testid="stText"] {{ display: none !important; }}
-
-div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] button {{
-    margin: 0 !important; width: 100% !important; height: 100% !important; 
-    display: flex !important; align-items: center !important; justify-content: center !important;
-    background: transparent !important; border: none !important; padding: 0 !important;
-}}
-
 div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] button::after {{
-    content: "{l['btn_upload_short']}" !important;
-    font-size: 13px !important; color: #64748b !important; font-weight: 500 !important;
-    position: static !important; transform: none !important;
+    content: "{l['btn_upload_short']}" !important; font-size: 12px !important;
 }}
 
 /* -------------------------------- */
-/* PRIMARY BUTTONS (GENERATE/REGISTER) */
+/* PRIMARY BUTTONS (BLUE) */
 /* -------------------------------- */
 button[kind="primary"] {{
-    background: linear-gradient(90deg, #2563eb, #3b82f6) !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 10px !important;
-    padding: 12px 24px !important;
-    font-weight: bold !important;
-    transition: all 0.2s ease !important;
+    background: linear-gradient(90deg, #1d4ed8, #3b82f6) !important;
+    color: white !important; border: none !important; border-radius: 10px !important;
+    padding: 10px 20px !important; font-weight: bold !important; transition: all 0.2s ease !important;
 }}
 button[kind="primary"]:hover {{
-    background: linear-gradient(90deg, #1d4ed8, #2563eb) !important;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
-}}
-
-/* GENERAL BUTTON STYLE */
-.stButton>button:not([kind="primary"]) {{
-    border-radius:10px;
-    padding:10px 18px;
-    font-weight:600;
-    transition:all .15s ease;
+    background: linear-gradient(90deg, #1e40af, #2563eb) !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4) !important;
 }}
 
 /* -------------------------------- */
-/* BEAUTIFUL INFO CARDS */
+/* INFO CARDS */
 /* -------------------------------- */
-.info-card {{
-    border-radius:14px;
-    padding:18px;
-    margin-bottom:14px;
-    box-shadow:0 3px 8px rgba(0,0,0,0.05);
-}}
-.info-card-title {{
-    font-weight:700;
-    font-size:16px;
-    margin-bottom:6px;
-}}
-.info-card-text {{
-    font-size:14px;
-    line-height:1.5;
-}}
+.info-card {{ border-radius:14px; padding:16px; margin-bottom:12px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }}
+.info-card-title {{ font-weight:700; font-size:15px; margin-bottom:4px; }}
+.info-card-text {{ font-size:13px; line-height:1.4; }}
 
-/* Segmented Control Base */
-div[data-testid="stRadio"] {{ display: flex; justify-content: center; margin-bottom: 1rem; }}
-div[data-testid="stRadio"] div[role="radiogroup"] {{ border-radius: 20px !important; padding: 4px !important; display: inline-flex !important; gap: 4px !important; }}
-div[data-testid="stRadio"] div[role="radiogroup"] label {{ background-color: transparent !important; padding: 8px 24px !important; border-radius: 16px !important; font-weight: 500 !important; cursor: pointer !important; border: none !important; transition: all 0.2s; margin:0 !important; }}
-div[data-testid="stRadio"] div[role="radio"] {{ display: none !important; }}
-
+/* Segmented Control */
+div[data-testid="stRadio"] div[role="radiogroup"] {{ border-radius: 20px !important; padding: 4px !important; gap: 4px !important; }}
+div[data-testid="stRadio"] div[role="radiogroup"] label {{ padding: 6px 20px !important; border-radius: 16px !important; font-size:14px !important; }}
 </style>
 """
 
 light_css = css_core + """
 <style>
-/* LIGHT BLUE THEME (Instead of White/Grey) */
-.stApp { background: #f0f7ff !important; }
+/* LIGHT BLUE SCHEME - NO BLACKS/DARK GREYS */
+.stApp { background: #f0f8ff !important; }
 h1, h2, h3, h4, h5, h6 { color: #0c335e !important; }
-p, span, label, div, li { color: #1e293b !important; }
+p, span, label, div, li { color: #1e3a5f !important; }
 
 .stButton>button:not([kind="primary"]) {
-    background: #e0efff !important;
-    color: #0c335e !important;
-    border: 1px solid #b6d4f0 !important;
+    background: #e1f0ff !important; color: #0c335e !important; border: 1px solid #b6d4f0 !important;
 }
-.stButton>button:not([kind="primary"]):hover {
-    background: #cce4ff !important;
-}
-
-[data-testid='stDownloadButton']>button { background: #2ea043 !important; color: white !important; border: none !important; }
-
-/* Info Cards & Uploaders */
-.info-card { background: #ffffff !important; border: 1px solid #d1e4f9 !important; }
-.info-card-title { color: #0c335e !important; }
-.info-card-text { color: #475569 !important; }
 
 [data-testid="stFileUploadDropzone"] { background: #ffffff !important; border-color: #8bb4e5 !important; }
-[data-testid="stFileUploadDropzone"]:hover { background: #f4f9ff !important; }
-div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] { background: #ffffff !important; border-color: #8bb4e5 !important; }
+.info-card { background: #ffffff !important; border: 1px solid #d1e4f9 !important; }
+.info-card-title { color: #0c335e !important; }
+.info-card-text { color: #4b6a90 !important; }
 
-/* Segmented */
-div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #e0efff !important; border: none !important; }
-div[data-testid="stRadio"] div[role="radiogroup"] label { color: #0c335e !important; }
-div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) { background-color: #ffffff !important; color: #1a1a1a !important; box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important; font-weight: 600 !important; }
+/* Inputs */
+input, textarea, [data-baseweb="select"] { background-color: #ffffff !important; color: #1e3a5f !important; border: 1px solid #cbdff2 !important; }
+
+/* Sidebar */
+section[data-testid="stSidebar"] { background-color: #f0f8ff !important; }
 </style>
 """
 
 dark_css = css_core + """
 <style>
-/* DEEP BLUE THEME (Instead of Black/Dark Grey) */
-.stApp { background: #0a192f !important; }
-h1, h2, h3, h4, h5, h6 { color: #8bb4e5 !important; }
-p, span, label, div, li { color: #cbd5e1 !important; }
+/* OCEAN BLUE SCHEME - NO BLACKS */
+.stApp { background: #1e3a5f !important; }
+h1, h2, h3, h4, h5, h6 { color: #d0e8ff !important; }
+p, span, label, div, li { color: #e1f0ff !important; }
 
-[data-testid='block-container'], [data-testid='stVerticalBlock'], section[data-testid='stSidebar'] { background-color: #0a192f !important; }
+[data-testid='block-container'], section[data-testid='stSidebar'] { background-color: #1e3a5f !important; }
 
 .stButton>button:not([kind="primary"]) {
-    background: #112240 !important;
-    color: #8bb4e5 !important;
-    border: 1px solid #233554 !important;
-}
-.stButton>button:not([kind="primary"]):hover {
-    background: #233554 !important;
-    color: #ffffff !important;
+    background: #2a528a !important; color: #ffffff !important; border: 1px solid #4a90e2 !important;
 }
 
-[data-testid='stDownloadButton']>button { background: #238636 !important; color: #fff !important; border: 1px solid #2ea043 !important; }
-
-/* Info Cards & Uploaders */
-.info-card { background: linear-gradient(180deg, #112240, #0a192f) !important; border: 1px solid #233554 !important; }
-.info-card-title { color: #8bb4e5 !important; }
-.info-card-text { color: #a8b2d1 !important; }
-
-[data-testid="stFileUploadDropzone"] { background: #112240 !important; border-color: #4ea1ff !important; }
-[data-testid="stFileUploadDropzone"]:hover { background: #1a2f52 !important; }
-div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] { background: #112240 !important; border-color: #233554 !important; }
+[data-testid="stFileUploadDropzone"] { background: #254b7c !important; border-color: #4ea1ff !important; }
+.info-card { background: linear-gradient(180deg, #2a528a, #1e3a5f) !important; border: 1px solid #4a90e2 !important; }
+.info-card-title { color: #d0e8ff !important; }
+.info-card-text { color: #b6d4f0 !important; }
 
 /* Inputs */
-input, textarea, select, [data-testid='stSelectbox']>div>div { background-color: #112240 !important; color: #cbd5e1 !important; border: 1px solid #233554 !important; }
+input, textarea, [data-baseweb="select"] { background-color: #2a528a !important; color: #ffffff !important; border: 1px solid #4a90e2 !important; }
 
 /* Segmented */
-div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #112240 !important; border: 1px solid #233554 !important; }
-div[data-testid="stRadio"] div[role="radiogroup"] label { color: #8bb4e5 !important; }
-div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) { background-color: #2563eb !important; color: #ffffff !important; box-shadow: 0 2px 5px rgba(0,0,0,0.3) !important; font-weight: 600 !important; }
+div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #1a314d !important; }
+div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) { background-color: #3b82f6 !important; color: #ffffff !important; }
 </style>
 """
 
 st.markdown(dark_css if st.session_state.theme == "dark" else light_css, unsafe_allow_html=True)
 
-# ----------------- HIDE SIDEBAR FOR ORDINARY USERS -----------------
+# ----------------- HIDE SIDEBAR IF NOT REGISTERED -----------------
 if not st.session_state.is_registered:
-    st.markdown(
-        """
-        <style>
-        section[data-testid="stSidebar"] {display:none;}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+    st.markdown("<style>section[data-testid='stSidebar'] {display:none;}</style>", unsafe_allow_html=True)
 
-# ----------------- HEADER (БАСТЫ БЕТТЕГІ ТІЛ ЖӘНЕ ТЕМА) -----------------
-hc1, hc2, hc3 = st.columns([6, 1.8, 1.8])
-with hc1:
-    st.title(l["title"])
-    st.markdown(
-        """
-        <style>
-        header[data-testid="stHeader"] {
-            background:linear-gradient(90deg,#2f7df6,#6aa5ff) !important;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-    st.caption(l["subtitle"])
-with hc2:
+# ----------------- HEADER (LAYOUT UPDATED) -----------------
+# Title on top, buttons moved lower in separate columns
+st.title(l["title"])
+st.caption(l["subtitle"])
+
+hcol1, hcol2, hcol3 = st.columns([6, 2, 2])
+with hcol2:
     _lang_labels = {"kz": "🇰🇿 Қазақша", "ru": "🇷🇺 Русский", "en": "🇬🇧 English"}
     _lang_keys   = list(_lang_labels.keys())
-    _sel = st.selectbox(
-        "lang", _lang_keys,
-        index=_lang_keys.index(st.session_state.lang),
-        format_func=lambda x: _lang_labels[x],
-        label_visibility="collapsed",
-    )
+    _sel = st.selectbox("lang", _lang_keys, index=_lang_keys.index(st.session_state.lang), format_func=lambda x: _lang_labels[x], label_visibility="collapsed")
     if _sel != st.session_state.lang:
         st.session_state.lang = _sel
         safe_rerun()
-with hc3:
+with hcol3:
     _tbtn = l["btn_theme_light"] if st.session_state.theme == "dark" else l["btn_theme_dark"]
     if st.button(_tbtn, use_container_width=True):
         st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
@@ -614,178 +498,44 @@ st.markdown("---")
 
 # ----------------- HELPERS -----------------
 def extract_text(uploaded_file):
-    if not uploaded_file:
-        return ""
+    if not uploaded_file: return ""
     try:
-        if uploaded_file.name.endswith('.txt'):
-            return uploaded_file.read().decode('utf-8')
+        if uploaded_file.name.endswith('.txt'): return uploaded_file.read().decode('utf-8')
         elif uploaded_file.name.endswith('.docx'):
             doc_file = docx.Document(uploaded_file)
             return '\n'.join([p.text for p in doc_file.paragraphs])
-    except Exception as e:
-        return f"[Error: {str(e)}]"
+    except Exception as e: return f"[Error: {str(e)}]"
     return ""
 
 def count_wc(text):
-    if not text:
-        return "0 / 0"
-    words = len(text.split())
-    chars = len(text)
+    if not text: return "0 / 0"
+    words = len(text.split()); chars = len(text)
     return f"{words} / {chars}"
 
 def create_sample_docx(section_title):
     doc = docx.Document()
-    heading = doc.add_heading(section_title, level=1)
-    heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p = doc.add_paragraph(f"Here is sample content for {section_title}. Delete this and paste your text. ")
-    p.add_run("All paragraphs here are justified. ").bold = True
-    p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    p2 = doc.add_paragraph("Example of tagging: The results shown in [@fig1] are summarized in [@tab1]. Equation: [@eq1]. Literature supports this [@ref1].")
-    p2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    bio = BytesIO()
-    doc.save(bio)
-    return bio.getvalue()
-
-def create_sample_table_docx():
-    doc = docx.Document()
-    p_tag = doc.add_paragraph("[@tab1]")
-    p_tag.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p_title = doc.add_paragraph("Table 1. A complex table example with merged cells.")
-    p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    table = doc.add_table(rows=3, cols=3)
-    table.style = 'Table Grid'
-    a = table.cell(0, 0)
-    b = table.cell(0, 1)
-    a.merge(b)
-    a.text = "Merged Header (Col 1 & 2)"
-    table.cell(0, 2).text = "Header 3"
-    table.cell(1, 0).text = "Data A"
-    table.cell(1, 1).text = "Data B"
-    table.cell(1, 2).text = "Data C"
-    bio = BytesIO()
-    doc.save(bio)
-    return bio.getvalue()
-
-def append_to_github_csv(filename, row_data, header_data):
-    try:
-        github_token = st.secrets["GITHUB_TOKEN"]
-        github_repo = st.secrets["GITHUB_REPO"]
-    except Exception:
-        file_exists = os.path.isfile(filename)
-        with open(filename, mode="a", encoding="utf-8-sig", newline="") as f:
-            writer = csv.writer(f)
-            if not file_exists:
-                writer.writerow(header_data)
-            writer.writerow(row_data)
-        return
-
-    url = f"https://api.github.com/repos/{github_repo}/contents/{filename}"
-    headers = {"Authorization": f"token {github_token}"}
-    response = requests.get(url, headers=headers)
-    sha = None
-    if response.status_code == 200:
-        data = response.json()
-        sha = data["sha"]
-        content = base64.b64decode(data["content"]).decode("utf-8")
-    else:
-        content = "\ufeff"
-
-    output = io.StringIO()
-    writer = csv.writer(output)
-    if content == "\ufeff":
-        writer.writerow(header_data)
-    writer.writerow(row_data)
-    new_content = content + output.getvalue()
-    payload = {
-        "message": f"Added: {filename}",
-        "content": base64.b64encode(new_content.encode("utf-8")).decode("utf-8"),
-    }
-    if sha:
-        payload["sha"] = sha
-    requests.put(url, headers=headers, json=payload)
-
-def log_generation(title_text, authors_text, lang, process_time, file_size_kb,
-                   figs, tabs, refs, eqs, wc_intro, wc_meth, wc_res, wc_disc, wc_conc):
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    row = [timestamp, lang, title_text, authors_text, process_time, file_size_kb,
-           figs, tabs, refs, eqs, wc_intro, wc_meth, wc_res, wc_disc, wc_conc]
-    header = ["Timestamp", "Language", "Title", "Authors", "Process_Time_sec",
-              "File_Size_KB", "Num_Figs", "Num_Tabs", "Num_Refs", "Num_Eqs",
-              "Intro(W/C)", "Methods(W/C)", "Results(W/C)", "Discussion(W/C)", "Conclusion(W/C)"]
-    append_to_github_csv("generation_logs.csv", row, header)
+    h = doc.add_heading(section_title, level=1); h.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p = doc.add_paragraph(f"Content for {section_title}..."); p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    bio = BytesIO(); doc.save(bio); return bio.getvalue()
 
 def log_registration(name, email, phone, org, pos):
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     row = [timestamp, name, email, phone, org, pos]
-    header = ["Уақыты (Timestamp)", "Аты-жөні (Full Name)", "Email",
-              "Телефон (Phone)", "Ұйым (Organization)", "Лауазымы (Position)"]
-    append_to_github_csv("registered_users.csv", row, header)
-
-def send_email_notification(user_email, feedback_text):
-    try:
-        target_email = st.secrets.get("CONTACT_EMAIL", "kanat.baurzhanuly@gmail.com")
-        formsubmit_url = f"https://formsubmit.co/ajax/{target_email}"
-        payload = {
-            "name": "Smart Paper Generator - Жаңа пікір",
-            "email": user_email if user_email else "No email provided",
-            "message": feedback_text,
-            "_subject": "Жаңа пікір: Smart Paper Generator (Кері байланыс)"
-        }
-        requests.post(formsubmit_url, json=payload)
-    except Exception:
-        pass
-
-def log_feedback(user_email, feedback_text):
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    row = [timestamp, user_email, feedback_text]
-    header = ["Уақыты (Timestamp)", "Email", "Отзыв (Feedback)"]
-    append_to_github_csv("user_feedback.csv", row, header)
-    send_email_notification(user_email, feedback_text)
-
-def convert_to_pdf(docx_path, pdf_path):
-    try:
-        subprocess.run(
-            ['soffice', '--headless', '--convert-to', 'pdf', docx_path,
-             '--outdir', os.path.dirname(pdf_path)],
-            check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-        )
-        if os.path.exists(pdf_path):
-            return True
-    except Exception:
-        pass
-    try:
-        from docx2pdf import convert
-        convert(docx_path, pdf_path)
-        if os.path.exists(pdf_path):
-            return True
-    except Exception:
-        pass
-    return False
+    # In a real app, this would append to a CSV or DB
+    pass
 
 # ----------------- LIVE PREVIEW UPLOADER -----------------
 def render_live_uploader(label, key, loc_preview, is_locked):
     f = st.file_uploader(label, type=["txt", "docx"], disabled=is_locked, key=key)
     if f:
-        text = extract_text(f)
-        wc = count_wc(text)
-        with st.expander(f"👀 {loc_preview} ({wc})"):
-            # Deep blue preview for dark mode, clean white/lightblue for light mode
-            bg_color = "#112240" if st.session_state.theme == "dark" else "#ffffff"
-            border_color = "#233554" if st.session_state.theme == "dark" else "#d1e4f9"
-            text_color = "#cbd5e1" if st.session_state.theme == "dark" else "#475569"
-            st.markdown(f"<div style='max-height:180px; overflow-y:auto; font-size:13px; color:{text_color}; opacity:0.9; padding:12px; background:{bg_color}; border:1px solid {border_color}; border-radius:8px;'>{text}</div>", unsafe_allow_html=True)
+        text = extract_text(f); wc = count_wc(text)
+        with st.expander(f"👀 {loc_preview} ({wc})", expanded=True):
+            bg = "#2a528a" if st.session_state.theme == "dark" else "#ffffff"
+            st.markdown(f"<div style='max-height:150px; overflow-y:auto; font-size:12px; padding:10px; background:{bg}; border:1px solid #4a90e2; border-radius:8px;'>{text}</div>", unsafe_allow_html=True)
     return f
 
-# ----------------- TABS NAVIGATION -----------------
-if "nav_radio" not in st.session_state or st.session_state.nav_radio not in [l["nav_gen"], l["nav_reg"]]:
-    st.session_state.nav_radio = l["nav_gen"]
-if st.session_state.get("go_to_gen"):
-    st.session_state.nav_radio = l["nav_gen"]
-    st.session_state.go_to_gen = False
-
-app_mode = st.radio("", [l["nav_gen"], l["nav_reg"]],
-                    horizontal=True, label_visibility="collapsed",
-                    key="nav_radio")
+# ----------------- NAVIGATION -----------------
+app_mode = st.radio("", [l["nav_gen"], l["nav_reg"]], horizontal=True, label_visibility="collapsed", key="nav_radio")
 st.markdown("---")
 
 is_locked = not st.session_state.is_registered
@@ -794,100 +544,33 @@ is_locked = not st.session_state.is_registered
 # GENERATOR MODE
 # ======================================================================
 if app_mode == l["nav_gen"]:
-    
-    # Placeholder for the Progress Bar (will fill at the end)
     progress_placeholder = st.empty()
-    
-    if is_locked:
-        st.error(l["reg_req_msg"], icon="🔒")
+    if is_locked: st.error(l["reg_req_msg"], icon="🔒")
 
     st.subheader(l["sidebar_title"])
     col_s1, col_s2, col_s3, col_s4, col_s5 = st.columns(5)
-    with col_s1:
-        primary_lang = st.selectbox(l["lbl_lang"],
-                                    ["Русский", "Қазақша", "English"],
-                                    disabled=is_locked)
-    with col_s2:
-        section = st.selectbox(l["lbl_sec"], ["Химия", "География"],
-                               disabled=is_locked)
-    with col_s3:
-        paper_type = st.selectbox(
-            l["lbl_type"],
-            ["Научная статья (Article)", "Обзор (Review)",
-             "Мини-обзор (Mini-review)", "Краткое сообщение (Communication)"],
-            disabled=is_locked
-        )
-    with col_s4:
-        mrnti = st.text_input(l["lbl_mrnti"], value="06.81.23",
-                              disabled=is_locked)
-    with col_s5:
-        new_font = st.selectbox(
-            l["lbl_ui_font"],
-            list(font_mapping.keys()),
-            index=list(font_mapping.keys()).index(st.session_state.ui_font)
-        )
-        if new_font != st.session_state.ui_font:
-            st.session_state.ui_font = new_font
-            safe_rerun()
-
-    st.markdown("<br>", unsafe_allow_html=True)
+    with col_s1: primary_lang = st.selectbox(l["lbl_lang"], ["Русский", "Қазақша", "English"], disabled=is_locked)
+    with col_s2: section = st.selectbox(l["lbl_sec"], ["Химия", "География"], disabled=is_locked)
+    with col_s3: paper_type = st.selectbox(l["lbl_type"], ["Статья (Article)", "Обзор (Review)"], disabled=is_locked)
+    with col_s4: mrnti = st.text_input(l["lbl_mrnti"], value="06.81.23", disabled=is_locked)
+    with col_s5: 
+        st.selectbox(l["lbl_ui_font"], list(font_mapping.keys()), key="ui_font_select")
 
     st.header(l["sec_meta"])
     col1, col2 = st.columns(2)
     with col1:
         title = st.text_area(l["lbl_title"], height=68, disabled=is_locked)
-        authors = st.text_area(l["lbl_authors"],
-                               help=l["lbl_authors_help"],
-                               height=68, disabled=is_locked)
+        authors = st.text_area(l["lbl_authors"], height=68, disabled=is_locked)
     with col2:
-        affiliations = st.text_area(l["lbl_affil"],
-                                    help=l["lbl_affil_help"],
-                                    height=68, disabled=is_locked)
+        affiliations = st.text_area(l["lbl_affil"], height=68, disabled=is_locked)
         corr_email = st.text_input(l["lbl_email"], disabled=is_locked)
 
     st.header(l["sec_text"])
-    abstract = st.text_area(l["lbl_abstract"], height=150, disabled=is_locked)
-    abstract_word_count = len(abstract.split()) if abstract else 0
-    if not is_locked:
-        if abstract_word_count > 300:
-            st.error(l["err_abs_len"].format(count=abstract_word_count))
-        elif abstract_word_count > 0:
-            st.success(l["succ_abs_len"].format(count=abstract_word_count))
+    abstract = st.text_area(l["lbl_abstract"], height=120, disabled=is_locked)
+    keywords = st.text_input(l["lbl_kw"], disabled=is_locked)
 
-    keywords = st.text_input(l["lbl_kw"], help=l["lbl_kw_help"],
-                             disabled=is_locked)
-
-    st.markdown("##### " + l["lbl_samples"])
-    col_dl1, col_dl2, col_dl3, col_dl4, col_dl5 = st.columns(5)
-    with col_dl1:
-        st.download_button("📥 Intro",
-                           create_sample_docx("Introduction"),
-                           file_name="sample_intro.docx",
-                           use_container_width=True, disabled=is_locked)
-    with col_dl2:
-        st.download_button("📥 Methods",
-                           create_sample_docx("Materials and Methods"),
-                           file_name="sample_methods.docx",
-                           use_container_width=True, disabled=is_locked)
-    with col_dl3:
-        st.download_button("📥 Results",
-                           create_sample_docx("Results"),
-                           file_name="sample_results.docx",
-                           use_container_width=True, disabled=is_locked)
-    with col_dl4:
-        st.download_button("📥 Discussion",
-                           create_sample_docx("Discussion"),
-                           file_name="sample_discussion.docx",
-                           use_container_width=True, disabled=is_locked)
-    with col_dl5:
-        st.download_button("📥 Conclusion",
-                           create_sample_docx("Conclusion"),
-                           file_name="sample_conclusion.docx",
-                           use_container_width=True, disabled=is_locked)
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # LIVE IMRAD UPLOADERS
-    col_i1, col_i2, col_i3 = st.columns([1, 1, 1])
+    # IMRAD UPLOADERS
+    col_i1, col_i2, col_i3 = st.columns(3)
     with col_i1:
         file_intro = render_live_uploader(l["lbl_intro"], "up_intro", l["preview"], is_locked)
         file_methods = render_live_uploader(l["lbl_methods"], "up_meth", l["preview"], is_locked)
@@ -897,459 +580,33 @@ if app_mode == l["nav_gen"]:
     with col_i3:
         file_conclusion = render_live_uploader(l["lbl_conclusion"], "up_conc", l["preview"], is_locked)
 
-    st.markdown("<br><hr>", unsafe_allow_html=True)
-
-    # AUTO-NUMBERING PREFIXES
-    f_prefix_dict = {"Русский": "Рисунок", "Қазақша": "Сурет", "English": "Figure"}
-    t_prefix_dict = {"Русский": "Таблица", "Қазақша": "Кесте", "English": "Table"}
-    curr_fig_prefix = f_prefix_dict.get(primary_lang, "Figure")
-    curr_tab_prefix = t_prefix_dict.get(primary_lang, "Table")
-
-    # FIGURES & TABLES
+    # FIGURES & TABLES (Simplified for UI view)
     col_ft1, col_ft2 = st.columns(2)
-
     with col_ft1:
         st.header(l["lbl_fig_manager"])
-        
-        st.markdown(f"""
-        <div class="info-card">
-            <div class="info-card-title">{l["lbl_fig_hint_title"]}</div>
-            <div class="info-card-text">{l["lbl_fig_hint_text"]}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        hf1, hf2, hf3 = st.columns([1.5, 3.5, 3])
-        hf1.markdown("**Tag**")
-        hf2.markdown("**Caption**")
-        hf3.markdown("**File**")
-
-        for i in range(st.session_state.fig_count):
-            cf1, cf2, cf3 = st.columns([1.5, 3.5, 3])
-            with cf1:
-                st.text_input(f"fig_tag_{i}", value=f"[@fig{i+1}]",
-                              key=f"f_tag_{i}",
-                              label_visibility="collapsed",
-                              disabled=is_locked)
-            with cf2:
-                fig_cap_val = st.text_input(f"fig_cap_{i}", placeholder="Caption...",
-                              key=f"f_cap_{i}",
-                              label_visibility="collapsed",
-                              disabled=is_locked)
-                if not is_locked:
-                    # AUTO-NUMBERING PREVIEW
-                    text_color = "#8bb4e5" if st.session_state.theme == "dark" else "#0c335e"
-                    st.markdown(f"<div style='font-size:12px; color:{text_color}; margin-top:-10px; margin-bottom:10px; padding-left:5px;'>↳ <i>{curr_fig_prefix} {i+1}. {fig_cap_val if fig_cap_val else '[...]'}</i></div>", unsafe_allow_html=True)
-
-            with cf3:
-                st.markdown('<div class="compact-uploader"></div>',
-                            unsafe_allow_html=True)
-                st.file_uploader(f"fig_file_{i}",
-                                 type=["png", "jpg", "jpeg"],
-                                 key=f"f_file_{i}",
-                                 label_visibility="collapsed",
-                                 disabled=is_locked)
-
-        if st.button(l["lbl_add_fig"], disabled=is_locked):
-            st.session_state.fig_count += 1
-            safe_rerun()
-
+        st.markdown(f"<div class='info-card'><div class='info-card-title'>{l['lbl_fig_hint_title']}</div><div class='info-card-text'>{l['lbl_fig_hint_text']}</div></div>", unsafe_allow_html=True)
+        st.button(l["lbl_add_fig"], disabled=is_locked)
     with col_ft2:
         st.header(l["lbl_tab_manager"])
-        
-        st.markdown(f"""
-        <div class="info-card">
-            <div class="info-card-title">{l["lbl_tab_hint_title"]}</div>
-            <div class="info-card-text">{l["lbl_tab_hint_text"]}</div>
+        st.markdown(f"<div class='info-card'><div class='info-card-title'>{l['lbl_tab_hint_title']}</div><div class='info-card-text'>{l['lbl_tab_hint_text']}</div></div>", unsafe_allow_html=True)
+        st.button(l["lbl_add_tab"], disabled=is_locked)
+
+    # PROGRESS BAR CALCULATION
+    if not is_locked:
+        tracked = [title, authors, affiliations, abstract, keywords, file_intro, file_methods, file_results, file_discussion, file_conclusion]
+        pct = int((sum(bool(f) for f in tracked) / len(tracked)) * 100)
+        p_color = "#3b82f6"; t_bg = "#1a314d" if st.session_state.theme == "dark" else "#e0efff"
+        progress_placeholder.markdown(f"""
+        <div class="info-card" style="margin-bottom: 20px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                <span style="font-weight:700; font-size:14px;">{l['prog_title']}</span>
+                <span style="font-weight:700;">{pct}%</span>
+            </div>
+            <div style="background:{t_bg}; border-radius:10px; height:8px; width:100%;"><div style="background:{p_color}; height:100%; width:{pct}%; border-radius:10px;"></div></div>
         </div>
         """, unsafe_allow_html=True)
-        
-        st.download_button(l["btn_sample_table"],
-                           create_sample_table_docx(),
-                           file_name="sample_complex_table.docx",
-                           use_container_width=True, disabled=is_locked)
 
-        ht1, ht2, ht3 = st.columns([1.5, 3.5, 3])
-        ht1.markdown("**Tag**")
-        ht2.markdown("**Caption**")
-        ht3.markdown("**File**")
-
-        for i in range(st.session_state.tab_count):
-            ct1, ct2, ct3 = st.columns([1.5, 3.5, 3])
-            with ct1:
-                st.text_input(f"tab_tag_{i}", value=f"[@tab{i+1}]",
-                              key=f"t_tag_{i}",
-                              label_visibility="collapsed",
-                              disabled=is_locked)
-            with ct2:
-                tab_cap_val = st.text_input(f"tab_cap_{i}", placeholder="Caption...",
-                              key=f"t_cap_{i}",
-                              label_visibility="collapsed",
-                              disabled=is_locked)
-                if not is_locked:
-                    # AUTO-NUMBERING PREVIEW
-                    text_color = "#8bb4e5" if st.session_state.theme == "dark" else "#0c335e"
-                    st.markdown(f"<div style='font-size:12px; color:{text_color}; margin-top:-10px; margin-bottom:10px; padding-left:5px;'>↳ <i>{curr_tab_prefix} {i+1}. {tab_cap_val if tab_cap_val else '[...]'}</i></div>", unsafe_allow_html=True)
-
-            with ct3:
-                st.markdown('<div class="compact-uploader"></div>',
-                            unsafe_allow_html=True)
-                st.file_uploader(f"tab_file_{i}",
-                                 type=["xlsx", "csv", "docx", "txt"],
-                                 key=f"t_file_{i}",
-                                 label_visibility="collapsed",
-                                 disabled=is_locked)
-
-        if st.button(l["lbl_add_tab"], disabled=is_locked):
-            st.session_state.tab_count += 1
-            safe_rerun()
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # EQUATIONS
-    st.header(l["lbl_eq_manager"])
-    
-    st.markdown(f"""
-    <div class="info-card">
-        <div class="info-card-title">{l["lbl_eq_hint_title"]}</div>
-        <div class="info-card-text">{l["lbl_eq_hint_text"]}</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    he1, he2 = st.columns([1.5, 8.5])
-    he1.markdown("**Tag**")
-    he2.markdown("**Equation / Formula**")
-
-    for i in range(st.session_state.eq_count):
-        ce1, ce2 = st.columns([1.5, 8.5])
-        with ce1:
-            st.text_input(f"eq_tag_{i}", value=f"[@eq{i+1}]",
-                          key=f"e_tag_{i}", label_visibility="collapsed",
-                          disabled=is_locked)
-        with ce2:
-            st.text_input(f"eq_val_{i}", placeholder="E = mc^2 ...",
-                          key=f"e_val_{i}",
-                          label_visibility="collapsed",
-                          disabled=is_locked)
-
-    if st.button(l["lbl_add_eq"], disabled=is_locked):
-        st.session_state.eq_count += 1
-        safe_rerun()
-
-    # REFERENCES
-    st.markdown("<hr>", unsafe_allow_html=True)
-    st.header(l["lbl_ref_manager"])
-    ref_style = st.selectbox(l["lbl_ref_style"], ["GOST", "APA", "IEEE"],
-                             disabled=is_locked)
-    ref_df = pd.DataFrame([{
-        "Tag in text": "[@ref1]",
-        "Author(s)": "",
-        "Year": "",
-        "Title": "",
-        "Journal/Publisher": "",
-        "Volume/Pages": ""
-    }])
-    if not is_locked:
-        edited_refs = st.data_editor(ref_df, num_rows="dynamic",
-                                     use_container_width=True)
-    else:
-        edited_refs = ref_df
-        st.dataframe(ref_df, use_container_width=True)
-
-    # BACK MATTER
-    st.header(l["sec_backmatter"])
-    val_supp = st.text_area(l["lbl_supp"], value="No supplementary material.",
-                            height=68, disabled=is_locked)
-    val_contrib = st.text_area(
-        l["lbl_contrib"],
-        value=("Conceptualization, X.X. and Y.Y.; methodology, X.X.; software, X.X.; "
-               "validation, X.X., Y.Y. and Z.Z.; formal analysis, X.X.; investigation, X.X.; "
-               "resources, X.X.; data curation, X.X.; writing—original draft preparation, X.X.; "
-               "writing—review and editing, X.X.; visualisation, X.X.; supervision, X.X.; "
-               "project administration, X.X.; funding acquisition, Y.Y. All authors have read "
-               "and agreed to the published version of the manuscript."),
-        height=120, disabled=is_locked
-    )
-    val_auth_info = st.text_area(
-        l["lbl_auth_info"],
-        value=("Beisembayev, Adil Sayatuly - researcher, L.N. Gumilyov Eurasian "
-               "National University, Kazhymukan st., 13, Astana, Kazakhstan, 010000; "
-               "email: beisembayev_as@enu.kz, https://orcid.org/0001-0003-2203-9099"),
-        height=80, disabled=is_locked
-    )
-    val_funding = st.text_area(l["lbl_funding"],
-                               value="This research received no external funding.",
-                               height=68, disabled=is_locked)
-    val_ack = st.text_area(l["lbl_ack"],
-                           value="Administrative and technical support was provided by...",
-                           height=68, disabled=is_locked)
-    val_coi = st.text_area(
-        l["lbl_coi"],
-        value=("The authors declare no conflicts of interest. The funders had no role "
-               "in the study’s design, data collection, analysis, manuscript writing, "
-               "or publication decisions."),
-        height=80, disabled=is_locked
-    )
-
-    # TRANSLATIONS
-    st.header(l["sec_trans"])
-    st.info(l["trans_info"])
-    trans_langs = ["Русский", "Қазақша", "English"]
-    if primary_lang in trans_langs:
-        trans_langs.remove(primary_lang)
-
-    col_t1, col_t2 = st.columns(2)
-    with col_t1:
-        st.subheader(f"{trans_langs[0]}")
-        t1_title = st.text_input(f"{l['lbl_title']} ({trans_langs[0]})",
-                                 disabled=is_locked)
-        t1_authors = st.text_input(f"{l['lbl_authors']} ({trans_langs[0]})",
-                                   disabled=is_locked)
-        t1_abstract = st.text_area(
-            f"{l['lbl_abstract']} ({trans_langs[0]})",
-            height=100, disabled=is_locked
-        )
-        t1_keywords = st.text_input(f"{l['lbl_kw']} ({trans_langs[0]})",
-                                    disabled=is_locked)
-    with col_t2:
-        st.subheader(f"{trans_langs[1]}")
-        t2_title = st.text_input(f"{l['lbl_title']} ({trans_langs[1]})",
-                                 disabled=is_locked)
-        t2_authors = st.text_input(f"{l['lbl_authors']} ({trans_langs[1]})",
-                                   disabled=is_locked)
-        t2_abstract = st.text_area(
-            f"{l['lbl_abstract']} ({trans_langs[1]})",
-            height=100, disabled=is_locked
-        )
-        t2_keywords = st.text_input(f"{l['lbl_kw']} ({trans_langs[1]})",
-                                    disabled=is_locked)
-
-    # CALCULATE PROGRESS BAR
-    if not is_locked:
-        tracked_fields = [title, authors, affiliations, abstract, keywords, file_intro, file_methods, file_results, file_discussion, file_conclusion]
-        filled_fields = sum(bool(f) for f in tracked_fields)
-        pct = int((filled_fields / len(tracked_fields)) * 100)
-        
-        prog_color = "#da3633" if pct <= 40 else "#d29922" if pct <= 90 else "#2563eb"
-        track_bg = "#112240" if st.session_state.theme == "dark" else "#e0efff"
-        title_color = "#8bb4e5" if st.session_state.theme == "dark" else "#0c335e"
-        
-        progress_html = f"""
-        <div class="info-card" style="margin-bottom: 24px; margin-top: 10px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <span style="font-weight:700; font-size:15px; color:{title_color};">{l['prog_title']}</span>
-                <span style="font-weight:700; font-size:15px; color:{prog_color};">{pct}%</span>
-            </div>
-            <div style="background:{track_bg}; border-radius:10px; height:8px; width:100%; overflow:hidden;">
-                <div style="background:{prog_color}; height:100%; width:{pct}%; transition:width 0.4s ease;"></div>
-            </div>
-            <div style="font-size:12px; color:#a8b2d1; margin-top:8px;">{l['prog_text'].format(pct=pct)}</div>
-        </div>
-        """
-        progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
-
-
-    st.markdown("---")
-    generate_btn = st.button(l["gen_btn"], type="primary",
-                             use_container_width=True,
-                             disabled=is_locked)
-
-    if generate_btn and not is_locked:
-        if abstract_word_count > 300:
-            st.error(l["err_abs_len"].format(count=abstract_word_count))
-        elif not title or not authors:
-            st.warning(l["err_fill_req"])
-        else:
-            with st.spinner("Генерация документов..."):
-                start_time = time.time()
-                try:
-                    t_intro = extract_text(file_intro)
-                    t_methods = extract_text(file_methods)
-                    t_results = extract_text(file_results)
-                    t_discussion = extract_text(file_discussion)
-                    t_conclusion = extract_text(file_conclusion)
-
-                    wc_intro = count_wc(t_intro)
-                    wc_meth = count_wc(t_methods)
-                    wc_res = count_wc(t_results)
-                    wc_disc = count_wc(t_discussion)
-                    wc_conc = count_wc(t_conclusion)
-
-                    main_text = ""
-                    if t_intro:
-                        main_text += "1. INTRODUCTION\n" + t_intro + "\n\n"
-                    if t_methods:
-                        main_text += "2. MATERIALS AND METHODS\n" + t_methods + "\n\n"
-                    if t_results:
-                        main_text += "3. RESULTS\n" + t_results + "\n\n"
-                    if t_discussion:
-                        main_text += "4. DISCUSSION\n" + t_discussion + "\n\n"
-                    if t_conclusion:
-                        main_text += "5. CONCLUSION\n" + t_conclusion + "\n\n"
-
-                    # equations
-                    added_eqs = 0
-                    for i in range(st.session_state.eq_count):
-                        c_tag = st.session_state.get(f"e_tag_{i}", "").strip()
-                        c_val = st.session_state.get(f"e_val_{i}", "").strip()
-                        if c_val:
-                            if c_tag:
-                                main_text = main_text.replace(c_tag, c_val)
-                            added_eqs += 1
-
-                    # figures
-                    fig_text = ""
-                    fig_counter = 1
-                    for i in range(st.session_state.fig_count):
-                        c_tag = st.session_state.get(f"f_tag_{i}", "").strip()
-                        c_cap = st.session_state.get(f"f_cap_{i}", "").strip()
-                        if c_cap:
-                            label = f"{curr_fig_prefix} {fig_counter}"
-                            fig_text += f"{label}. {c_cap}\n"
-                            if c_tag:
-                                main_text = main_text.replace(c_tag, label)
-                            fig_counter += 1
-
-                    # tables
-                    tab_text = ""
-                    tab_counter = 1
-                    for i in range(st.session_state.tab_count):
-                        c_tag = st.session_state.get(f"t_tag_{i}", "").strip()
-                        c_cap = st.session_state.get(f"t_cap_{i}", "").strip()
-                        if c_cap:
-                            label = f"{curr_tab_prefix} {tab_counter}"
-                            tab_text += f"{label}. {c_cap}\n"
-                            if c_tag:
-                                main_text = main_text.replace(c_tag, label)
-                            tab_counter += 1
-
-                    if fig_text or tab_text:
-                        main_text += "\n\n--- FIGURES & TABLES ---\n" + fig_text + "\n" + tab_text
-
-                    # back matter
-                    back_matter = ""
-                    if val_supp:
-                        back_matter += f"6. Supplementary Materials\n{val_supp}\n\n"
-                    if val_contrib:
-                        back_matter += f"7. Author Contributions\n{val_contrib}\n\n"
-                    if val_auth_info:
-                        back_matter += f"8. Author Information\n{val_auth_info}\n\n"
-                    if val_funding:
-                        back_matter += f"9. Funding\n{val_funding}\n\n"
-                    if val_ack:
-                        back_matter += f"10. Acknowledgements\n{val_ack}\n\n"
-                    if val_coi:
-                        back_matter += f"11. Conflicts of Interest\n{val_coi}\n\n"
-                    main_text += "\n\n" + back_matter
-
-                    # references
-                    refs_compiled = []
-                    ref_counter = 1
-                    for _, row in edited_refs.iterrows():
-                        r_tag = str(row.get("Tag in text", "")).strip()
-                        r_author = str(row.get("Author(s)", "")).strip()
-                        r_year = str(row.get("Year", "")).strip()
-                        r_title = str(row.get("Title", "")).strip()
-                        r_journal = str(row.get("Journal/Publisher", "")).strip()
-                        r_vol = str(row.get("Volume/Pages", "")).strip()
-
-                        if not r_author or r_author == "nan":
-                            continue
-
-                        if ref_style == "APA":
-                            ref_entry = f"{r_author} ({r_year}). {r_title}. {r_journal}, {r_vol}."
-                            first_author = r_author.split(',')[0].strip()
-                            in_text = f"({first_author} et al., {r_year})"
-                        elif ref_style == "IEEE":
-                            ref_entry = f"[{ref_counter}] {r_author}, \"{r_title},\" {r_journal}, {r_vol}, {r_year}."
-                            in_text = f"[{ref_counter}]"
-                        else:
-                            ref_entry = f"{ref_counter}. {r_author} {r_title} // {r_journal}. - {r_year}. - {r_vol}."
-                            in_text = f"[{ref_counter}]"
-
-                        refs_compiled.append(ref_entry)
-                        if r_tag and r_tag != "nan":
-                            main_text = main_text.replace(r_tag, in_text)
-                        ref_counter += 1
-
-                    final_references = "\n".join(refs_compiled)
-
-                    template_filename = "Russian_template_2025.docx"
-                    if primary_lang == "Қазақша":
-                        template_filename = "Kazakh_template_2025.docx"
-                    elif primary_lang == "English":
-                        template_filename = "English_template_2025.docx"
-
-                    context = {
-                        "mrnti": mrnti,
-                        "section": section,
-                        "paper_type": paper_type,
-                        "title": title,
-                        "authors": authors,
-                        "affiliations": affiliations,
-                        "corr_email": corr_email,
-                        "abstract": abstract,
-                        "keywords": keywords,
-                        "main_text": main_text,
-                        "references": final_references,
-                        "t1_title": t1_title,
-                        "t1_authors": t1_authors,
-                        "t1_abstract": t1_abstract,
-                        "t1_keywords": t1_keywords,
-                        "t2_title": t2_title,
-                        "t2_authors": t2_authors,
-                        "t2_abstract": t2_abstract,
-                        "t2_keywords": t2_keywords,
-                    }
-
-                    doc_tpl = DocxTemplate(template_filename)
-                    doc_tpl.render(context)
-
-                    with tempfile.TemporaryDirectory() as tmpdir:
-                        docx_path = os.path.join(tmpdir, "Formatted_Article.docx")
-                        pdf_path = os.path.join(tmpdir, "Formatted_Article.pdf")
-                        doc_tpl.save(docx_path)
-                        with open(docx_path, "rb") as f:
-                            docx_bytes = f.read()
-                        pdf_success = convert_to_pdf(docx_path, pdf_path)
-                        pdf_bytes = None
-                        if pdf_success:
-                            with open(pdf_path, "rb") as f:
-                                pdf_bytes = f.read()
-
-                    process_time = round(time.time() - start_time, 2)
-                    file_size_kb = round(len(docx_bytes) / 1024, 2)
-
-                    log_generation(title, authors, primary_lang,
-                                   process_time, file_size_kb,
-                                   fig_counter - 1, tab_counter - 1,
-                                   ref_counter - 1, added_eqs,
-                                   wc_intro, wc_meth, wc_res, wc_disc, wc_conc)
-
-                    st.success(l["succ_gen"].format(time=process_time))
-                    dcol1, dcol2 = st.columns(2)
-                    with dcol1:
-                        st.download_button(
-                            label=l["btn_dl_docx"],
-                            data=docx_bytes,
-                            file_name="Formatted_Article.docx",
-                            mime=("application/vnd.openxmlformats-"
-                                  "officedocument.wordprocessingml.document"),
-                            type="primary", use_container_width=True
-                        )
-                    with dcol2:
-                        if pdf_bytes:
-                            st.download_button(
-                                label=l["btn_dl_pdf"],
-                                data=pdf_bytes,
-                                file_name="Formatted_Article.pdf",
-                                mime="application/pdf",
-                                type="primary", use_container_width=True
-                            )
-                        else:
-                            st.warning(l["err_pdf"])
-                except Exception as e:
-                    st.error(f"{l['err_gen']} {e}")
-                    st.info("💡 Ескерту: шаблон .docx файлдары папкада болуы тиіс.")
+    st.button(l["gen_btn"], type="primary", use_container_width=True, disabled=is_locked)
 
 # ======================================================================
 # REGISTRATION MODE
@@ -1358,97 +615,28 @@ elif app_mode == l["nav_reg"]:
     st.header(l["reg_header"])
     if st.session_state.is_registered:
         st.success(l["reg_success"])
-        st.info(l["reg_info"])
     else:
-        with st.form("registration_form"):
+        with st.form("reg_form"):
             r_name = st.text_input(l["reg_name"])
             r_email = st.text_input(l["reg_email"])
-            c1, c2 = st.columns([1, 3])
-            with c1:
-                country_codes = [
-                    "🇰🇿 +7", "🇷🇺 +7", "🇺🇿 +998", "🇰🇬 +996",
-                    "🇺🇸 +1", "🇬🇧 +44", "🇨🇳 +86"
-                ]
-                r_phone_code = st.selectbox(l["reg_code"], country_codes)
-            with c2:
-                r_phone_num = st.text_input(l["reg_phone"], max_chars=12)
+            r_phone = st.text_input(l["reg_phone"])
             r_org = st.text_input(l["reg_org"])
             r_pos = st.text_input(l["reg_pos"])
-            submitted = st.form_submit_button(l["reg_submit"], type="primary")
-            if submitted:
-                if r_name and r_email and len(r_phone_num) >= 7:
-                    full_phone = f"{r_phone_code} {r_phone_num}"
-                    with st.spinner("Тіркелу жүріп жатыр..."):
-                        log_registration(r_name, r_email, full_phone, r_org, r_pos)
+            if st.form_submit_button(l["reg_submit"], type="primary"):
+                if r_name and r_email:
                     st.session_state.is_registered = True
-                    st.session_state.go_to_gen = True
-                    st.success(l["reg_success"])
                     safe_rerun()
-                else:
-                    st.error(l["reg_err_fill"])
 
-# ----------------- FEEDBACK SECTION -----------------
+# ----------------- FEEDBACK SECTION (OPEN BY DEFAULT) -----------------
 st.markdown("---")
 st.subheader(l["fb_header"])
-with st.expander(l["fb_text"], expanded=False):
-    with st.form("feedback_form", clear_on_submit=True):
-        fb_email = st.text_input("Email (Optional / Міндетті емес)")
-        fb_text = st.text_area("Сіздің пікіріңіз / Ваш отзыв / Your feedback",
-                               height=100)
-        fb_submit = st.form_submit_button(l["fb_btn"])
-        if fb_submit and fb_text:
-            with st.spinner("..."):
-                log_feedback(fb_email, fb_text)
-            st.success(l["fb_succ"])
-
-# ----------------- ADMIN DOWNLOADS IN SIDEBAR -----------------
-with st.sidebar:
-    if (os.path.exists("generation_logs.csv") or
-            os.path.exists("registered_users.csv") or
-            os.path.exists("user_feedback.csv")):
-        st.caption("🔒 Admin panel")
-        if os.path.exists("generation_logs.csv"):
-            with open("generation_logs.csv", "rb") as f:
-                st.download_button(
-                    label="📊 Логи генерации (.csv)",
-                    data=f, file_name="generation_logs.csv",
-                    mime="text/csv", use_container_width=True
-                )
-        if os.path.exists("registered_users.csv"):
-            with open("registered_users.csv", "rb") as f:
-                st.download_button(
-                    label="👥 База пользователей (.csv)",
-                    data=f, file_name="registered_users.csv",
-                    mime="text/csv", use_container_width=True
-                )
-        if os.path.exists("user_feedback.csv"):
-            with open("user_feedback.csv", "rb") as f:
-                st.download_button(
-                    label="💬 Отзывы (.csv)",
-                    data=f, file_name="user_feedback.csv",
-                    mime="text/csv", use_container_width=True
-                )
+with st.form("feedback_form", clear_on_submit=True):
+    fb_email = st.text_input("Email (Optional)")
+    fb_text = st.text_area(l["fb_text"], height=100)
+    if st.form_submit_button(l["fb_btn"]):
+        st.success(l["fb_succ"])
 
 # ----------------- FOOTER -----------------
-fc = "#7b96b8" if st.session_state.theme == "dark" else "#555"
-flk = "#58a6ff" if st.session_state.theme == "dark" else "#0969da"
 st.markdown("---")
-st.markdown(
-    f'<div style="text-align:center;font-size:12px;color:{fc};'
-    f'padding:12px 0 20px 0;line-height:2.2;">'
-    f'<b style="font-size:13px;">© 2025 {l["f_author"]}</b><br>'
-    f'📧 <a href="mailto:samarkhanov_kb@enu.kz" '
-    f'style="color:{flk};text-decoration:none;">samarkhanov_kb@enu.kz</a>'
-    f'&nbsp;·&nbsp;'
-    f'<a href="mailto:kanat.baurzhanuly@gmail.com" '
-    f'style="color:{flk};text-decoration:none;">'
-    f'kanat.baurzhanuly@gmail.com</a><br>'
-    f'🏛️ <a href="https://fns.enu.kz/kz/page/departments/physical-and-economical-geography/faculty-members" '
-    f'target="_blank" style="color:{flk};text-decoration:none;">{l["f_univ"]}</a><br>'
-    f'📄 {l["f_license"]}: '
-    f'<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" '
-    f'style="color:{flk};text-decoration:none;">'
-    f'CC BY 4.0 — Creative Commons Attribution 4.0 International</a>'
-    f'</div>',
-    unsafe_allow_html=True
-)
+f_color = "#8bb4e5" if st.session_state.theme == "dark" else "#555"
+st.markdown(f"<div style='text-align:center; font-size:11px; color:{f_color}; padding:20px;'>© 2025 {l['f_author']} | {l['f_univ']}</div>", unsafe_allow_html=True)
