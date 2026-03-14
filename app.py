@@ -134,6 +134,12 @@ locales = {
         "preview": "Предпросмотр",
         "prog_title": "Готовность статьи",
         "prog_text": "Заполнено: {pct}%",
+        "col_tag": "Тег в тексте",
+        "col_author": "Автор(ы)",
+        "col_year": "Год",
+        "col_title": "Название",
+        "col_journal": "Журнал/Издательство",
+        "col_vol": "Том/Стр"
     },
     "kz": {
         "title": "Ғылыми мақалалардың ақылды генераторы",
@@ -226,6 +232,12 @@ locales = {
         "preview": "Алдын ала көру",
         "prog_title": "Мақаланың дайындығы",
         "prog_text": "Толтырылды: {pct}%",
+        "col_tag": "Мәтіндегі тег",
+        "col_author": "Автор(лар)",
+        "col_year": "Жыл",
+        "col_title": "Атауы",
+        "col_journal": "Журнал/Баспа",
+        "col_vol": "Том/Бет"
     },
     "en": {
         "title": "Smart Paper Generator",
@@ -318,6 +330,12 @@ locales = {
         "preview": "Preview",
         "prog_title": "Readiness",
         "prog_text": "Completed: {pct}%",
+        "col_tag": "Tag in text",
+        "col_author": "Author(s)",
+        "col_year": "Year",
+        "col_title": "Title",
+        "col_journal": "Journal/Publisher",
+        "col_vol": "Volume/Pages"
     }
 }
 
@@ -371,6 +389,8 @@ div.element-container:has(style) {{ display: none !important; height: 0 !importa
 
 /* REMOVE BLACKS - BLUE SCHEME */
 .stApp {{ background: #f4f9ff !important; }}
+h1, h2, h3, h4, h5, h6, label, p, span, div, li {{ color: #0c335e !important; }}
+
 input, textarea, [data-baseweb="select"] {{ background-color: #ffffff !important; color: #1e3a5f !important; border: 1px solid #cbdff2 !important; }}
 
 /* BUTTON STYLES FROM SCREENSHOT */
@@ -380,6 +400,10 @@ input, textarea, [data-baseweb="select"] {{ background-color: #ffffff !important
     border: 1px solid #cbdff2 !important;
     border-radius: 8px !important;
     font-size: 14px !important;
+}}
+.stButton>button:not([kind="primary"]):hover {{
+    border-color: #3b82f6 !important;
+    background: #f0f7ff !important;
 }}
 
 button[kind="primary"] {{
@@ -392,6 +416,13 @@ button[kind="primary"] {{
 .info-card {{ background: white; border-radius:12px; padding:15px; margin-bottom:12px; border: 1px solid #d1e4f9; }}
 .info-card-title {{ font-weight:700; font-size:14px; color: #0c335e; }}
 .info-card-text {{ font-size:12.5px; color: #475569; }}
+
+/* Table Data Editor Fixes */
+div[data-testid="stDataEditor"] {{
+    border: 1px solid #cbdff2 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+}}
 </style>
 """
 
@@ -399,7 +430,7 @@ if st.session_state.theme == "dark":
     st.markdown(css_core + """
     <style>
     .stApp { background: #0a192f !important; }
-    h1, h2, h3, label, p, span { color: #d0e8ff !important; }
+    h1, h2, h3, h4, h5, h6, label, p, span, div, li { color: #d0e8ff !important; }
     .stButton>button:not([kind="primary"]) { background: #112240 !important; color: #8bb4e5 !important; border: 1px solid #233554 !important; }
     input, textarea, [data-baseweb="select"] { background-color: #112240 !important; color: #cbd5e1 !important; border: 1px solid #233554 !important; }
     .info-card { background: #112240 !important; border-color: #233554 !important; }
@@ -485,13 +516,32 @@ if app_mode == l["nav_gen"]:
 
     i1, i2, i3 = st.columns(3)
     with i1:
-        f_intro = render_live_uploader(l["lbl_intro"], "up_i", l["preview"], is_locked)
-        f_meth = render_live_uploader(l["lbl_methods"], "up_m", l["preview"], is_locked)
+        render_live_uploader(l["lbl_intro"], "up_i", l["preview"], is_locked)
+        render_live_uploader(l["lbl_methods"], "up_m", l["preview"], is_locked)
     with i2:
-        f_res = render_live_uploader(l["lbl_results"], "up_r", l["preview"], is_locked)
-        f_disc = render_live_uploader(l["lbl_discussion"], "up_d", l["preview"], is_locked)
+        render_live_uploader(l["lbl_results"], "up_r", l["preview"], is_locked)
+        render_live_uploader(l["lbl_discussion"], "up_d", l["preview"], is_locked)
     with i3:
-        f_conc = render_live_uploader(l["lbl_conclusion"], "up_c", l["preview"], is_locked)
+        render_live_uploader(l["lbl_conclusion"], "up_c", l["preview"], is_locked)
+
+    # REFERENCES SECTION OPTIMIZATION
+    st.header(l["lbl_ref_manager"])
+    ref_style = st.selectbox(l["lbl_ref_style"], ["GOST", "APA", "IEEE"], disabled=is_locked)
+    
+    # Translated columns for data editor
+    ref_df = pd.DataFrame([{
+        l["col_tag"]: "[@ref1]",
+        l["col_author"]: "",
+        l["col_year"]: "",
+        l["col_title"]: "",
+        l["col_journal"]: "",
+        l["col_vol"]: ""
+    }])
+    
+    if not is_locked:
+        st.data_editor(ref_df, num_rows="dynamic", use_container_width=True, key="ref_editor")
+    else:
+        st.dataframe(ref_df, use_container_width=True)
 
     if not is_locked:
         pct = 35 # Mock
