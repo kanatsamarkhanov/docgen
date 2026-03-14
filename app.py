@@ -179,14 +179,19 @@ light_css = """
 p, span, label { color: #333333 !important; }
 hr { border-color: #e9ecef !important; }
 
-/* Обычные активные поля ввода */
+/* Обычные активные поля ввода (Светло-голубой фон как на скриншоте) */
 input, textarea, [data-baseweb="select"] > div {
-    background-color: #ffffff !important;
-    color: #333333 !important;
-    border: 1px solid #cccccc !important;
+    background-color: #eaf4fc !important;
+    color: #1a3a5c !important;
+    border: 1px solid #bcdcfa !important;
+    border-radius: 6px !important;
+}
+input:focus, textarea:focus, [data-baseweb="select"] > div:focus-within {
+    border-color: #58a6ff !important;
+    box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2) !important;
 }
 
-/* ЗАБЛОКИРОВАННЫЕ поля (до регистрации) - делаем их серыми, а не черными */
+/* ЗАБЛОКИРОВАННЫЕ поля (до регистрации) - серые */
 input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled="true"] {
     background-color: #e9ecef !important;
     color: #6c757d !important;
@@ -211,19 +216,26 @@ dark_css = """
 p, span, label { color: #c9d8ee !important; }
 hr { border-color: #1e3a5f !important; }
 
-/* Обычные активные поля ввода */
+/* Обычные активные поля ввода (Светящийся контур как на скриншоте 2) */
 input, textarea, [data-baseweb="select"] > div {
-    background-color: #0f2340 !important;
+    background-color: #0d1b2e !important;
     color: #e2edf7 !important;
-    border: 1px solid #1e3a5f !important;
+    border: 1px solid #3b82f6 !important;
+    box-shadow: 0 0 6px rgba(59, 130, 246, 0.6) !important;
+    border-radius: 6px !important;
+}
+input:focus, textarea:focus, [data-baseweb="select"] > div:focus-within {
+    border: 1px solid #60a5fa !important;
+    box-shadow: 0 0 10px rgba(96, 165, 250, 0.9) !important;
 }
 
-/* ЗАБЛОКИРОВАННЫЕ поля в ночном режиме (чуть темнее фона) */
+/* ЗАБЛОКИРОВАННЫЕ поля в ночном режиме (без свечения) */
 input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled="true"] {
     background-color: #0b1727 !important;
     color: #7b96b8 !important;
     -webkit-text-fill-color: #7b96b8 !important;
     border: 1px solid #152b4a !important;
+    box-shadow: none !important;
 }
 
 /* Панели предупреждений и инфо (Alerts) */
