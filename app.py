@@ -82,11 +82,11 @@ locales = {
         "lbl_add_eq": "➕ Добавить формулу",
         "btn_upload_short": "📎 Загрузить",
         "lbl_fig_hint_title": "💡 Подсказка для графиков",
-        "lbl_fig_hint_text": "Если рисунок состоит из нескольких частей (a, b, c), используйте **один тег** `[@fig1]` для всей группы.",
+        "lbl_fig_hint_text": "Если рисунок состоит из нескольких частей (a, b, c), используйте <b>один тег</b> <code>[@fig1]</code> для всей группы.",
         "lbl_tab_hint_title": "💡 Инструкция для сложных таблиц",
-        "lbl_tab_hint_text": "Для таблиц с объединенными ячейками загружайте их в формате **.docx**, чтобы сохранить форматирование.",
+        "lbl_tab_hint_text": "Для таблиц с объединенными ячейками загружайте их в формате <b>.docx</b>, чтобы сохранить форматирование.",
         "lbl_eq_hint_title": "💡 Подсказка для формул",
-        "lbl_eq_hint_text": "Введите формулу. Разместите тег `[@eq1]` в тексте статьи.",
+        "lbl_eq_hint_text": "Введите формулу. Разместите тег <code>[@eq1]</code> в тексте статьи.",
         "btn_sample_table": "📥 Скачать образец сложной таблицы",
         "lbl_samples": "📥 Скачать шаблоны файлов",
         "sec_backmatter": "4. Дополнительная информация (Back Matter)",
@@ -130,7 +130,10 @@ locales = {
         "fb_header": "💬 Оставить отзыв",
         "fb_text": "Ваши предложения или найденные ошибки",
         "fb_btn": "Отправить отзыв",
-        "fb_succ": "Спасибо за ваш отзыв!"
+        "fb_succ": "Спасибо за ваш отзыв!",
+        "preview": "Предпросмотр",
+        "prog_title": "Готовность статьи",
+        "prog_text": "Заполнено: {pct}% (Рекомендуется 100% перед генерацией)",
     },
     "kz": {
         "title": "📝 Ғылыми мақалалардың ақылды генераторы",
@@ -171,11 +174,11 @@ locales = {
         "lbl_add_eq": "➕ Формула қосу",
         "btn_upload_short": "📎 Жүктеу",
         "lbl_fig_hint_title": "💡 Күрделі суреттер нұсқаулығы",
-        "lbl_fig_hint_text": "Егер сурет бірнеше бөліктен (a, b, c) тұрса, бүкіл топ үшін **бір тегті** `[@fig1]` пайдаланыңыз.",
+        "lbl_fig_hint_text": "Егер сурет бірнеше бөліктен (a, b, c) тұрса, бүкіл топ үшін <b>бір тегті</b> <code>[@fig1]</code> пайдаланыңыз.",
         "lbl_tab_hint_title": "💡 Күрделі кестелер нұсқаулығы",
-        "lbl_tab_hint_text": "Кестеңіз өте кең болса немесе біріктірілген ұяшықтары болса, пішімдеуді сақтау үшін оны **.docx** форматында жүктеңіз.",
+        "lbl_tab_hint_text": "Кестеңіз өте кең болса немесе біріктірілген ұяшықтары болса, пішімдеуді сақтау үшін оны <b>.docx</b> форматында жүктеңіз.",
         "lbl_eq_hint_title": "💡 Формулалар нұсқаулығы",
-        "lbl_eq_hint_text": "Формуланы енгізіңіз. Мәтінге `[@eq1]` тегін қойыңыз.",
+        "lbl_eq_hint_text": "Формуланы енгізіңіз. Мәтінге <code>[@eq1]</code> тегін қойыңыз.",
         "btn_sample_table": "📥 Күрделі кесте үлгісін жүктеу",
         "lbl_samples": "📥 Файл үлгілерін жүктеп алу",
         "sec_backmatter": "4. Қосымша ақпарат (Back Matter)",
@@ -219,7 +222,10 @@ locales = {
         "fb_header": "💬 Кері байланыс қалдыру",
         "fb_text": "Сіздің ұсыныстарыңыз немесе табылған қателер",
         "fb_btn": "Пікір жіберу",
-        "fb_succ": "Пікіріңіз үшін рақмет!"
+        "fb_succ": "Пікіріңіз үшін рақмет!",
+        "preview": "Алдын ала көру",
+        "prog_title": "Мақаланың дайындығы",
+        "prog_text": "Толтырылды: {pct}% (Генерация алдында 100% ұсынылады)",
     },
     "en": {
         "title": "📝 Smart Paper Generator",
@@ -260,11 +266,11 @@ locales = {
         "lbl_add_eq": "➕ Add Equation",
         "btn_upload_short": "📎 Upload",
         "lbl_fig_hint_title": "💡 Hint for Figures",
-        "lbl_fig_hint_text": "If a figure has multiple parts (a, b, c), use a **single tag** `[@fig1]`.",
+        "lbl_fig_hint_text": "If a figure has multiple parts (a, b, c), use a <b>single tag</b> <code>[@fig1]</code>.",
         "lbl_tab_hint_title": "💡 Instruction for Complex Tables",
-        "lbl_tab_hint_text": "For wide tables or tables with merged cells, please upload a **.docx** file.",
+        "lbl_tab_hint_text": "For wide tables or tables with merged cells, please upload a <b>.docx</b> file.",
         "lbl_eq_hint_title": "💡 Equation Hint",
-        "lbl_eq_hint_text": "Enter your equation. Place the tag `[@eq1]` in your text.",
+        "lbl_eq_hint_text": "Enter your equation. Place the tag <code>[@eq1]</code> in your text.",
         "btn_sample_table": "📥 Download Complex Table Sample",
         "lbl_samples": "📥 Download Sample Files",
         "sec_backmatter": "4. Additional Information (Back Matter)",
@@ -308,7 +314,10 @@ locales = {
         "fb_header": "💬 Leave Feedback",
         "fb_text": "Your suggestions or found bugs",
         "fb_btn": "Submit Feedback",
-        "fb_succ": "Thank you for your feedback!"
+        "fb_succ": "Thank you for your feedback!",
+        "preview": "Preview",
+        "prog_title": "Article Readiness",
+        "prog_text": "Completed: {pct}% (100% recommended before generation)",
     }
 }
 
@@ -325,41 +334,71 @@ selected_css_font = font_mapping.get(st.session_state.ui_font, font_mapping["Sys
 
 css_core = f"""
 <style>
-/* Global Font */
+
+/* GLOBAL TYPOGRAPHY */
 * {{ font-family: {selected_css_font} !important; }}
 
-/* Скрываем пустые контейнеры, чтобы убрать артефакты в левом верхнем углу (empty gap) */
 div.element-container:has(style) {{ display: none !important; height: 0 !important; margin: 0 !important; }}
 
-.stApp p, .stApp div[data-testid="stMarkdownContainer"] {{ text-align: justify !important; }}
+.stApp p, .stApp div[data-testid="stMarkdownContainer"] {{
+    text-align: justify !important;
+}}
 
-/* 1. БОЛЬШИЕ ЗАГРУЗЧИКИ ДЛЯ IMRAD */
+/* MAIN CONTAINER WIDTH */
+.block-container {{
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+    max-width: 1200px;
+}}
+
+/* -------------------------------- */
+/* UPLOAD ZONES (MODERN DASH STYLE) */
+/* -------------------------------- */
+
 [data-testid="stFileUploadDropzone"] {{
-    border: 2px dashed #4a90e2 !important; 
-    border-radius: 12px !important;
-    padding: 24px !important; 
-    text-align: center !important;
+    border: 2px dashed #6aa5ff !important;
+    border-radius: 14px !important;
+    padding: 30px !important;
+    background: linear-gradient(180deg,#f8fbff,#ffffff);
+    transition: all 0.2s ease;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
 }}
-[data-testid="stFileUploadDropzone"] > div > svg {{ display: none !important; }}
-[data-testid="stFileUploadDropzone"]::before {{ 
-    content: "☁️"; font-size: 44px; display: block; margin-bottom: 5px; 
+
+[data-testid="stFileUploadDropzone"]:hover {{
+    border-color:#2f7df6 !important;
+    background:#f2f7ff;
 }}
-[data-testid="stFileUploadDropzone"] div[data-testid="stText"] {{ font-size: 0 !important; }}
-[data-testid="stFileUploadDropzone"] div[data-testid="stText"]::after {{
-    content: "{l['drag_drop']}"; 
-    font-size: 14px !important; color: #888888 !important; 
-    display: block; white-space: pre-wrap; margin-top: 5px; margin-bottom: 15px;
-}}
-[data-testid="stFileUploadDropzone"] button {{ 
+
+[data-testid="stFileUploadDropzone"] button {{
+    border-radius:10px !important;
+    padding:8px 20px !important;
+    font-weight:600;
     color: transparent !important; position: relative; background-color: transparent !important;
-    border: 1px solid #4a90e2 !important; border-radius: 6px !important;
-    box-shadow: none !important; padding: 5px 20px !important; min-height: 38px !important;
+    border: 1px solid #4a90e2 !important;
+    box-shadow: none !important; min-height: 38px !important;
 }}
+
 [data-testid="stFileUploadDropzone"] button::after {{
     content: "{l['browse_files']}"; color: #4a90e2 !important; 
     position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); 
     visibility: visible; font-weight: 600; font-size: 14px; white-space: nowrap; 
+}}
+
+[data-testid="stFileUploadDropzone"] > div > svg {{ display: none !important; }}
+
+[data-testid="stFileUploadDropzone"]::before {{
+    content:"📂";
+    font-size:40px;
+    display:block;
+    margin-bottom:8px;
+    text-align: center;
+}}
+
+[data-testid="stFileUploadDropzone"] div[data-testid="stText"] {{ font-size: 0 !important; text-align: center; }}
+[data-testid="stFileUploadDropzone"] div[data-testid="stText"]::after {{
+    content: "{l['drag_drop']}"; 
+    font-size: 14px !important; color: #888888 !important; 
+    display: block; white-space: pre-wrap; margin-top: 5px; margin-bottom: 15px;
 }}
 
 /* ИСПРАВЛЕНИЕ ЛЕВОГО ВЕРХНЕГО УГЛА (Selectbox) - сохраняем стрелочку */
@@ -367,27 +406,75 @@ div.element-container:has(style) {{ display: none !important; height: 0 !importa
 div[data-baseweb="select"] > div > div > div[style*="width: 1px"],
 div[data-baseweb="select"] > div > div > div[style*="background-color"] {{ display: none !important; }}
 
-/* 2. КОМПАКТНЫЕ ЗАГРУЗЧИКИ ДЛЯ ТАБЛИЦ И РИСУНКОВ */
+
+/* -------------------------------- */
+/* COMPACT UPLOAD BUTTONS */
+/* -------------------------------- */
+
 div.element-container:has(.compact-uploader) {{
     display: none !important; height: 0px !important; margin: 0px !important; padding: 0px !important;
 }}
+
 div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] {{
-    padding: 0 !important; min-height: 40px !important; height: 40px !important;
-    border: 1px dashed #94a3b8 !important; border-radius: 6px !important;
+    padding:0 !important;
+    height:40px !important;
+    border:1px dashed #9bbcf7 !important;
+    border-radius:8px !important;
+    background:#f7faff !important;
     display: flex; align-items: center; justify-content: center; flex-direction: row;
-    background-color: transparent !important; margin: 0 !important;
+    margin: 0 !important;
 }}
+
 div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"]::before {{ display: none !important; }}
 div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] div[data-testid="stText"] {{ display: none !important; }}
-div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] button {{ 
+
+div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] button {{
     margin: 0 !important; width: 100% !important; height: 100% !important; 
     display: flex !important; align-items: center !important; justify-content: center !important;
     background: transparent !important; border: none !important; padding: 0 !important;
 }}
+
 div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] button::after {{
     content: "{l['btn_upload_short']}" !important;
     font-size: 13px !important; color: #64748b !important; font-weight: 500 !important;
     position: static !important; transform: none !important;
+}}
+
+/* -------------------------------- */
+/* BUTTON STYLE */
+/* -------------------------------- */
+
+.stButton>button {{
+    border-radius:10px;
+    padding:10px 18px;
+    font-weight:600;
+    transition:all .15s ease;
+}}
+
+/* -------------------------------- */
+/* BEAUTIFUL INFO CARDS */
+/* -------------------------------- */
+
+.info-card {{
+    border-radius:14px;
+    padding:18px;
+    margin-bottom:14px;
+    border:1px solid #e3e8f0;
+    background:linear-gradient(180deg,#f9fbff,#ffffff);
+    box-shadow:0 3px 8px rgba(0,0,0,0.05);
+}}
+
+.info-card-title {{
+    font-weight:700;
+    font-size:16px;
+    margin-bottom:6px;
+    color: #1a3a5c;
+}}
+
+.info-card-text {{
+    font-size:14px;
+    color:#5a6b85;
+    line-height:1.5;
 }}
 
 /* Segmented Control Base */
@@ -395,54 +482,114 @@ div[data-testid="stRadio"] {{ display: flex; justify-content: center; margin-bot
 div[data-testid="stRadio"] div[role="radiogroup"] {{ border-radius: 20px !important; padding: 4px !important; display: inline-flex !important; gap: 4px !important; }}
 div[data-testid="stRadio"] div[role="radiogroup"] label {{ background-color: transparent !important; padding: 8px 24px !important; border-radius: 16px !important; font-weight: 500 !important; cursor: pointer !important; border: none !important; transition: all 0.2s; margin:0 !important; }}
 div[data-testid="stRadio"] div[role="radio"] {{ display: none !important; }}
-</style>
-"""
 
-dark_css = css_core + """
-<style>
-html,body,[class*='css'],.stApp{background-color:#0d1b2e !important;color:#c9d8ee !important;}
-h1,h2,h3,h4,h5,h6,[data-testid='stMarkdownContainer'] h1,[data-testid='stMarkdownContainer'] h2,[data-testid='stMarkdownContainer'] h3{color:#e2edf7 !important;font-weight:600 !important;}
-p,span,label,div,li,[data-testid='stMarkdownContainer'] p,[data-testid='stCaptionContainer'],.stCaption{color:#c9d8ee !important;}
-[data-testid='block-container'],[data-testid='stVerticalBlock'],section[data-testid='stSidebar']{background-color:#0d1b2e !important;}
-.stButton>button{background-color:#0f2340 !important;color:#c9d8ee !important;border:1px solid #1e3a5f !important;border-radius:6px !important;}
-.stButton>button:hover{background-color:#1e3a5f !important;color:#e2edf7 !important;}
-[data-testid='stDownloadButton']>button{background-color:#238636 !important;color:#fff !important;border:1px solid #2ea043 !important;}
-[data-testid='stDownloadButton']>button:hover{background-color:#2ea043 !important;}
-[data-testid='stFileUploader']{background-color:#0f2340 !important;}
-[data-testid='stFileUploaderDropzone']{background-color:#0f2340 !important;}
-[data-testid='stFileUploaderDropzone']:hover{background-color:#112850 !important;}
-[data-testid='stFileUploader'] *,[data-testid='stFileUploaderDropzone'] *{color:#c9d8ee !important;}
-[data-testid='stDataFrame'],.stDataFrame iframe{border:1px solid #1e3a5f !important;border-radius:8px !important;}
-input,textarea,select{background-color:#0f2340 !important;color:#c9d8ee !important;border:1px solid #1e3a5f !important;}
-[data-testid='stSelectbox']>div>div{background-color:#0f2340 !important;border:1px solid #1e3a5f !important;border-radius:6px !important;color:#c9d8ee !important;}
-
-/* Segmented control specific dark */
-div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #0f1c34 !important; border: 1px solid #1d3354 !important; }
-div[data-testid="stRadio"] div[role="radiogroup"] label { color: #64748b !important; }
-div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) { background-color: #4a90e2 !important; color: #ffffff !important; box-shadow: 0 2px 5px rgba(0,0,0,0.3) !important; font-weight: 600 !important; }
 </style>
 """
 
 light_css = css_core + """
 <style>
-.stApp { background-color: #ffffff !important; }
-h1,h2,h3{color:#1a3a5c;}
-[data-testid='stDownloadButton']>button{background-color:#2ea043;color:#fff;border-radius:6px;}
-[data-testid='stDataFrame'],.stDataFrame iframe{border:1px solid #d0d7de;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
 
-/* Segmented control specific light */
+.stApp{
+    background:#ffffff;
+}
+
+.stButton>button{
+    background:#e7ecf3;
+    color:#1f2d3d;
+    border:1px solid #cfd8e3;
+}
+
+.stButton>button:hover{
+    background:#dbe3ef;
+}
+
+[data-testid='stDownloadButton']>button{
+    background:#2ea043;
+    color:white;
+    border:none;
+}
+
 div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #f1f3f4 !important; border: none !important; }
 div[data-testid="stRadio"] div[role="radiogroup"] label { color: #5f6368 !important; }
 div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) { background-color: #ffffff !important; color: #1a1a1a !important; box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important; font-weight: 600 !important; }
+
+</style>
+"""
+
+dark_css = css_core + """
+<style>
+
+.stApp{
+    background:#0c1424;
+    color:#d8e6ff;
+}
+
+h1,h2,h3{
+    color:#eaf2ff;
+}
+
+/* Light blue buttons */
+.stButton>button{
+    background:#1b2a46;
+    color:#d7e7ff;
+    border:1px solid #2f7df6;
+}
+
+.stButton>button:hover{
+    background:#2f7df6;
+    color:white;
+}
+
+/* Upload background */
+[data-testid="stFileUploadDropzone"]{
+    background:#111b33 !important;
+    border:2px dashed #4ea1ff !important;
+}
+
+[data-testid="stFileUploadDropzone"]:hover{
+    background:#152142 !important;
+}
+
+/* Info card override for dark mode */
+.info-card { background: linear-gradient(180deg, #152142, #111b33) !important; border-color: #1e3a5f !important; }
+.info-card-title { color: #eaf2ff !important; }
+.info-card-text { color: #9bbcf7 !important; }
+
+/* Segmented override for dark mode */
+div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #0f1c34 !important; border: 1px solid #1d3354 !important; }
+div[data-testid="stRadio"] div[role="radiogroup"] label { color: #64748b !important; }
+div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) { background-color: #4a90e2 !important; color: #ffffff !important; box-shadow: 0 2px 5px rgba(0,0,0,0.3) !important; font-weight: 600 !important; }
+
 </style>
 """
 
 st.markdown(dark_css if st.session_state.theme == "dark" else light_css, unsafe_allow_html=True)
 
+# ----------------- HIDE SIDEBAR FOR ORDINARY USERS -----------------
+if not st.session_state.is_registered:
+    st.markdown(
+        """
+        <style>
+        section[data-testid="stSidebar"] {display:none;}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
 # ----------------- HEADER (БАСТЫ БЕТТЕГІ ТІЛ ЖӘНЕ ТЕМА) -----------------
 hc1, hc2, hc3 = st.columns([6, 1.8, 1.8])
 with hc1:
     st.title(l["title"])
+    st.markdown(
+        """
+        <style>
+        header[data-testid="stHeader"] {
+            background:linear-gradient(90deg,#2f7df6,#6aa5ff) !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
     st.caption(l["subtitle"])
 with hc2:
     _lang_labels = {"kz": "🇰🇿 Қазақша", "ru": "🇷🇺 Русский", "en": "🇬🇧 English"}
@@ -613,6 +760,18 @@ def convert_to_pdf(docx_path, pdf_path):
         pass
     return False
 
+# ----------------- LIVE PREVIEW UPLOADER -----------------
+def render_live_uploader(label, key, loc_preview, is_locked):
+    f = st.file_uploader(label, type=["txt", "docx"], disabled=is_locked, key=key)
+    if f:
+        text = extract_text(f)
+        wc = count_wc(text)
+        with st.expander(f"👀 {loc_preview} ({wc})"):
+            # Clean, non-interfering preview window
+            bg_color = "#152142" if st.session_state.theme == "dark" else "#f8f9fa"
+            border_color = "#1e3a5f" if st.session_state.theme == "dark" else "#e9ecef"
+            st.markdown(f"<div style='max-height:180px; overflow-y:auto; font-size:13px; opacity:0.9; padding:12px; background:{bg_color}; border:1px solid {border_color}; border-radius:8px;'>{text}</div>", unsafe_allow_html=True)
+    return f
 
 # ----------------- TABS NAVIGATION -----------------
 if "nav_radio" not in st.session_state or st.session_state.nav_radio not in [l["nav_gen"], l["nav_reg"]]:
@@ -632,6 +791,10 @@ is_locked = not st.session_state.is_registered
 # GENERATOR MODE
 # ======================================================================
 if app_mode == l["nav_gen"]:
+    
+    # Placeholder for the Progress Bar (will fill at the end)
+    progress_placeholder = st.empty()
+    
     if is_locked:
         st.error(l["reg_req_msg"], icon="🔒")
 
@@ -720,35 +883,37 @@ if app_mode == l["nav_gen"]:
                            use_container_width=True, disabled=is_locked)
     st.markdown("<br>", unsafe_allow_html=True)
 
+    # LIVE IMRAD UPLOADERS
     col_i1, col_i2, col_i3 = st.columns([1, 1, 1])
     with col_i1:
-        file_intro = st.file_uploader(l["lbl_intro"],
-                                      type=["txt", "docx"],
-                                      disabled=is_locked)
-        file_methods = st.file_uploader(l["lbl_methods"],
-                                        type=["txt", "docx"],
-                                        disabled=is_locked)
+        file_intro = render_live_uploader(l["lbl_intro"], "up_intro", l["preview"], is_locked)
+        file_methods = render_live_uploader(l["lbl_methods"], "up_meth", l["preview"], is_locked)
     with col_i2:
-        file_results = st.file_uploader(l["lbl_results"],
-                                        type=["txt", "docx"],
-                                        disabled=is_locked)
-        file_discussion = st.file_uploader(l["lbl_discussion"],
-                                           type=["txt", "docx"],
-                                           disabled=is_locked)
+        file_results = render_live_uploader(l["lbl_results"], "up_res", l["preview"], is_locked)
+        file_discussion = render_live_uploader(l["lbl_discussion"], "up_disc", l["preview"], is_locked)
     with col_i3:
-        file_conclusion = st.file_uploader(l["lbl_conclusion"],
-                                           type=["txt", "docx"],
-                                           disabled=is_locked)
+        file_conclusion = render_live_uploader(l["lbl_conclusion"], "up_conc", l["preview"], is_locked)
 
     st.markdown("<br><hr>", unsafe_allow_html=True)
+
+    # AUTO-NUMBERING PREFIXES
+    f_prefix_dict = {"Русский": "Рисунок", "Қазақша": "Сурет", "English": "Figure"}
+    t_prefix_dict = {"Русский": "Таблица", "Қазақша": "Кесте", "English": "Table"}
+    curr_fig_prefix = f_prefix_dict.get(primary_lang, "Figure")
+    curr_tab_prefix = t_prefix_dict.get(primary_lang, "Table")
 
     # FIGURES & TABLES
     col_ft1, col_ft2 = st.columns(2)
 
     with col_ft1:
         st.header(l["lbl_fig_manager"])
-        with st.expander(l["lbl_fig_hint_title"]):
-            st.markdown(l["lbl_fig_hint_text"])
+        
+        st.markdown(f"""
+        <div class="info-card">
+            <div class="info-card-title">{l["lbl_fig_hint_title"]}</div>
+            <div class="info-card-text">{l["lbl_fig_hint_text"]}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
         hf1, hf2, hf3 = st.columns([1.5, 3.5, 3])
         hf1.markdown("**Tag**")
@@ -763,10 +928,14 @@ if app_mode == l["nav_gen"]:
                               label_visibility="collapsed",
                               disabled=is_locked)
             with cf2:
-                st.text_input(f"fig_cap_{i}", placeholder="Caption...",
+                fig_cap_val = st.text_input(f"fig_cap_{i}", placeholder="Caption...",
                               key=f"f_cap_{i}",
                               label_visibility="collapsed",
                               disabled=is_locked)
+                if not is_locked:
+                    # AUTO-NUMBERING PREVIEW
+                    st.markdown(f"<div style='font-size:12px; color:#64748b; margin-top:-10px; margin-bottom:10px; padding-left:5px;'>↳ <i>{curr_fig_prefix} {i+1}. {fig_cap_val if fig_cap_val else '[...]'}</i></div>", unsafe_allow_html=True)
+
             with cf3:
                 st.markdown('<div class="compact-uploader"></div>',
                             unsafe_allow_html=True)
@@ -782,12 +951,18 @@ if app_mode == l["nav_gen"]:
 
     with col_ft2:
         st.header(l["lbl_tab_manager"])
-        with st.expander(l["lbl_tab_hint_title"]):
-            st.markdown(l["lbl_tab_hint_text"])
-            st.download_button(l["btn_sample_table"],
-                               create_sample_table_docx(),
-                               file_name="sample_complex_table.docx",
-                               use_container_width=True, disabled=is_locked)
+        
+        st.markdown(f"""
+        <div class="info-card">
+            <div class="info-card-title">{l["lbl_tab_hint_title"]}</div>
+            <div class="info-card-text">{l["lbl_tab_hint_text"]}</div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.download_button(l["btn_sample_table"],
+                           create_sample_table_docx(),
+                           file_name="sample_complex_table.docx",
+                           use_container_width=True, disabled=is_locked)
 
         ht1, ht2, ht3 = st.columns([1.5, 3.5, 3])
         ht1.markdown("**Tag**")
@@ -802,10 +977,14 @@ if app_mode == l["nav_gen"]:
                               label_visibility="collapsed",
                               disabled=is_locked)
             with ct2:
-                st.text_input(f"tab_cap_{i}", placeholder="Caption...",
+                tab_cap_val = st.text_input(f"tab_cap_{i}", placeholder="Caption...",
                               key=f"t_cap_{i}",
                               label_visibility="collapsed",
                               disabled=is_locked)
+                if not is_locked:
+                    # AUTO-NUMBERING PREVIEW
+                    st.markdown(f"<div style='font-size:12px; color:#64748b; margin-top:-10px; margin-bottom:10px; padding-left:5px;'>↳ <i>{curr_tab_prefix} {i+1}. {tab_cap_val if tab_cap_val else '[...]'}</i></div>", unsafe_allow_html=True)
+
             with ct3:
                 st.markdown('<div class="compact-uploader"></div>',
                             unsafe_allow_html=True)
@@ -823,8 +1002,13 @@ if app_mode == l["nav_gen"]:
 
     # EQUATIONS
     st.header(l["lbl_eq_manager"])
-    with st.expander(l["lbl_eq_hint_title"]):
-        st.markdown(l["lbl_eq_hint_text"])
+    
+    st.markdown(f"""
+    <div class="info-card">
+        <div class="info-card-title">{l["lbl_eq_hint_title"]}</div>
+        <div class="info-card-text">{l["lbl_eq_hint_text"]}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
     he1, he2 = st.columns([1.5, 8.5])
     he1.markdown("**Tag**")
@@ -934,6 +1118,31 @@ if app_mode == l["nav_gen"]:
         t2_keywords = st.text_input(f"{l['lbl_kw']} ({trans_langs[1]})",
                                     disabled=is_locked)
 
+    # CALCULATE PROGRESS BAR
+    if not is_locked:
+        tracked_fields = [title, authors, affiliations, abstract, keywords, file_intro, file_methods, file_results, file_discussion, file_conclusion]
+        filled_fields = sum(bool(f) for f in tracked_fields)
+        pct = int((filled_fields / len(tracked_fields)) * 100)
+        
+        prog_color = "#da3633" if pct <= 40 else "#d29922" if pct <= 90 else "#2ea043"
+        track_bg = "#111b33" if st.session_state.theme == "dark" else "#e3e8f0"
+        title_color = "#eaf2ff" if st.session_state.theme == "dark" else "#1a3a5c"
+        
+        progress_html = f"""
+        <div class="info-card" style="margin-bottom: 24px; margin-top: 10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-weight:700; font-size:15px; color:{title_color};">{l['prog_title']}</span>
+                <span style="font-weight:700; font-size:15px; color:{prog_color};">{pct}%</span>
+            </div>
+            <div style="background:{track_bg}; border-radius:10px; height:8px; width:100%; overflow:hidden;">
+                <div style="background:{prog_color}; height:100%; width:{pct}%; transition:width 0.4s ease;"></div>
+            </div>
+            <div style="font-size:12px; color:#64748b; margin-top:8px;">{l['prog_text'].format(pct=pct)}</div>
+        </div>
+        """
+        progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
+
+
     st.markdown("---")
     generate_btn = st.button(l["gen_btn"], type="primary",
                              use_container_width=True,
@@ -989,7 +1198,7 @@ if app_mode == l["nav_gen"]:
                         c_tag = st.session_state.get(f"f_tag_{i}", "").strip()
                         c_cap = st.session_state.get(f"f_cap_{i}", "").strip()
                         if c_cap:
-                            label = f"{l['fig_prefix']} {fig_counter}"
+                            label = f"{curr_fig_prefix} {fig_counter}"
                             fig_text += f"{label}. {c_cap}\n"
                             if c_tag:
                                 main_text = main_text.replace(c_tag, label)
@@ -1002,7 +1211,7 @@ if app_mode == l["nav_gen"]:
                         c_tag = st.session_state.get(f"t_tag_{i}", "").strip()
                         c_cap = st.session_state.get(f"t_cap_{i}", "").strip()
                         if c_cap:
-                            label = f"{l['tab_prefix']} {tab_counter}"
+                            label = f"{curr_tab_prefix} {tab_counter}"
                             tab_text += f"{label}. {c_cap}\n"
                             if c_tag:
                                 main_text = main_text.replace(c_tag, label)
