@@ -3,14 +3,14 @@ from docxtpl import DocxTemplate
 from io import BytesIO
 import re
 
-# Битнең көйләүләре (Беттің баптаулары)
+# Беттің баптаулары (Настройка страницы)
 st.set_page_config(page_title="Smart Paper Generator", page_icon="📝", layout="wide")
 
-# Сессия халәтен башлау (Сессия күйлерін бастау)
-if "lang"  not in st.session_state: st.session_state.lang  = "ru"
+# Сессия күйлерін бастау (Инициализация состояния сессии)
+if "lang"  not in st.session_state: st.session_state.lang  = "kz"
 if "theme" not in st.session_state: st.session_state.theme = "light"
 
-# Тәрҗемәләр сүзлеге (Аудармалар сөздігі)
+# Аудармалар сөздігі (Словарь переводов)
 locales = {
     "ru": {
         "title": "📝 Умный генератор научных статей",
@@ -124,7 +124,7 @@ locales = {
 
 l = locales[st.session_state.lang]
 
-# ------------ CSS ТЕМАЛАРЫ (CSS тақырыптары) ------------
+# ------------ CSS тақырыптары (CSS Темы) ------------
 dark_css = (
     "<style>"
     "html,body,[class*='css'],.stApp{background-color:#0d1b2e !important;color:#c9d8ee !important;"
@@ -158,10 +158,10 @@ light_css = (
     "</style>"
 )
 
-# CSS стильләрен куллану (CSS стильдерін қолдану)
+# CSS стильдерін қолдану (Применение CSS стилей)
 st.markdown(dark_css if st.session_state.theme == "dark" else light_css, unsafe_allow_html=True)
 
-# ------------ БАШЛЫК (Тақырып) ------------
+# ------------ Тақырып (Заголовок) ------------
 hc1, hc2, hc3 = st.columns([6, 1.8, 1.8])
 with hc1:
     st.title(l["title"])
@@ -186,7 +186,7 @@ with hc3:
 st.markdown("---")
 
 
-# ------------ ЯНДАГЫ ПАНЕЛЬ (Бүйірлік тақта) ------------
+# ------------ Бүйірлік тақта (Боковая панель) ------------
 with st.sidebar:
     st.header(l["sidebar_title"])
     
@@ -208,7 +208,7 @@ with st.sidebar:
     mrnti = st.text_input(l["lbl_mrnti"], value="06.81.23")
 
 
-# ------------ ТӨП ФОРМАЛАР (Негізгі формалар) ------------
+# ------------ Негізгі формалар (Основные формы) ------------
 st.header(l["sec_meta"])
 col1, col2 = st.columns(2)
 
@@ -235,11 +235,11 @@ main_text = st.text_area(l["lbl_main"], height=300)
 references = st.text_area(l["lbl_refs"], height=200)
 
 
-# ------------ ТӘРҖЕМӘЛӘР (Аудармалар) ------------
+# ------------ Аудармалар (Переводы) ------------
 st.header(l["sec_trans"])
 st.info(l["trans_info"])
 
-# Телләр логикасы (Тілдер логикасы)
+# Тілдер логикасы (Логика языков)
 trans_langs = ["Русский", "Қазақша", "English"]
 if primary_lang in trans_langs:
     trans_langs.remove(primary_lang)
@@ -261,7 +261,7 @@ with col_t2:
     t2_keywords = st.text_input(f"{l['lbl_kw']} ({trans_langs[1]})")
 
 
-# ------------ ГЕНЕРАЦИЯ (Генерациялау) ------------
+# ------------ Генерациялау (Генерация) ------------
 st.markdown("---")
 generate_btn = st.button(l["gen_btn"], type="primary", use_container_width=True)
 
@@ -272,7 +272,7 @@ if generate_btn:
         st.warning(l["err_fill_req"])
     else:
         try:
-            # Шаблонны сайлау (Үлгіні таңдау)
+            # Үлгіні таңдау (Выбор шаблона)
             template_filename = "Russian_template_2025.docx" 
             if primary_lang == "Русский":
                 template_filename = "Russian_template_2025.docx"
@@ -281,7 +281,7 @@ if generate_btn:
             elif primary_lang == "English":
                 template_filename = "English_template_2025.docx"
                 
-            # Сүзлек төзү (Сөздік құру)
+            # Сөздік құру (Создание словаря)
             context = {
                 'mrnti': mrnti,
                 'section': section,
@@ -304,7 +304,7 @@ if generate_btn:
                 't2_keywords': t2_keywords
             }
             
-            # Файлны барлыкка китерү (Файлды жасау)
+            # Файлды жасау (Создание файла)
             doc = DocxTemplate(template_filename)
             doc.render(context)
             
@@ -323,10 +323,10 @@ if generate_btn:
 
         except Exception as e:
             st.error(f"{l['err_gen']} {e}")
-            st.info("💡 Исеге төшерү: Генерация дөрес эшләсен өчен, 'Russian_template_2025.docx', 'Kazakh_template_2025.docx' һәм 'English_template_2025.docx' дигән файллар app.py белән бер папкада булырга тиеш.")
+            st.info("💡 Ескерту: Генерация дұрыс жұмыс істеуі үшін, 'Russian_template_2025.docx', 'Kazakh_template_2025.docx' және 'English_template_2025.docx' деген файлдар app.py орналасқан бумада болуы тиіс.")
 
 
-# ------------ АСКЫ КОЛОНТИТУЛ (Төменгі колонтитул) ------------
+# ------------ Төменгі колонтитул (Нижний колонтитул) ------------
 fc  = "#7b96b8" if st.session_state.theme == "dark" else "#555"
 flk = "#58a6ff"  if st.session_state.theme == "dark" else "#0969da"
 st.markdown("---")
