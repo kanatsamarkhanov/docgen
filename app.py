@@ -13,6 +13,7 @@ import docx
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 import tempfile
 import subprocess
+import time
 
 # Беттің баптаулары
 st.set_page_config(page_title="Smart Paper Generator", page_icon="📝", layout="wide")
@@ -27,11 +28,13 @@ if "is_registered" not in st.session_state:
 if "ui_font" not in st.session_state:
     st.session_state.ui_font = "System Default"
 
-# Динамические счетчики для строк Рисунков и Таблиц
+# Динамические счетчики для строк Рисунков, Таблиц и Формул
 if "fig_count" not in st.session_state:
     st.session_state.fig_count = 1
 if "tab_count" not in st.session_state:
     st.session_state.tab_count = 1
+if "eq_count" not in st.session_state:
+    st.session_state.eq_count = 1
 
 # Аудармалар сөздігі
 locales = {
@@ -68,13 +71,17 @@ locales = {
         "lbl_ref_style": "Стиль цитирования",
         "lbl_fig_manager": "📊 Менеджер рисунков",
         "lbl_tab_manager": "📋 Менеджер таблиц",
+        "lbl_eq_manager": "➗ Менеджер формул",
         "lbl_add_fig": "➕ Добавить рисунок",
         "lbl_add_tab": "➕ Добавить таблицу",
+        "lbl_add_eq": "➕ Добавить формулу",
         "btn_upload_short": "📎 Загрузить",
-        "lbl_fig_hint_title": "💡 Подсказка для сложных графиков",
+        "lbl_fig_hint_title": "💡 Подсказка для графиков",
         "lbl_fig_hint_text": "Если рисунок состоит из нескольких частей (a, b, c), используйте **один тег** `[@fig1]` для всей группы. В подписи подробно опишите каждую часть: *Рисунок 1. Главное название: (a) первый график; (b) второй график.*",
         "lbl_tab_hint_title": "💡 Инструкция для сложных таблиц",
-        "lbl_tab_hint_text": "Для очень широких таблиц или таблиц с объединенными ячейками (merge), пожалуйста, загружайте их в формате **.docx**, чтобы сохранить форматирование. Разместите тег `[@tab1]` в нужном абзаце основного текста.",
+        "lbl_tab_hint_text": "Для таблиц с объединенными ячейками загружайте их в формате **.docx**, чтобы сохранить форматирование. Разместите тег `[@tab1]` в нужном абзаце.",
+        "lbl_eq_hint_title": "💡 Подсказка для формул",
+        "lbl_eq_hint_text": "Введите формулу. Разместите тег `[@eq1]` в тексте статьи, и он будет заменен на вашу формулу.",
         "btn_sample_table": "📥 Скачать образец сложной таблицы",
         "lbl_samples": "📥 Скачать шаблоны файлов",
         "sec_backmatter": "4. Дополнительная информация (Back Matter)",
@@ -91,7 +98,7 @@ locales = {
         "succ_abs_len": "Слов в аннотации: {count}/300",
         "err_fill_req": "Пожалуйста, заполните хотя бы Название и Авторов.",
         "err_gen": "Произошла ошибка при генерации: ",
-        "succ_gen": "✅ Документ успешно сгенерирован!",
+        "succ_gen": "✅ Документ успешно сгенерирован за {time} сек!",
         "btn_dl_docx": "⬇️ Скачать .docx",
         "btn_dl_pdf": "⬇️ Скачать .pdf",
         "err_pdf": "⚠️ Не удалось сгенерировать PDF (требуется LibreOffice на сервере). Доступен DOCX файл.",
@@ -109,8 +116,8 @@ locales = {
         "f_author": "Канат Самарханов / Kanat Samarkhanov",
         "f_license": "Лицензия",
         "f_univ": "ЕНУ им. Л.Н. Гумилева",
-        "browse_files": "Выберите файл или перетащите его сюда",
-        "drag_drop": "Поддерживаемые форматы: txt, docx, png, jpg, xlsx, csv",
+        "browse_files": "Выберите файл",
+        "drag_drop": "Перетащите файл сюда\nПоддерживаемые форматы: txt, docx, png, jpg, xlsx, csv",
         "limit": "Лимит 200MB",
         "fig_prefix": "Рисунок",
         "tab_prefix": "Таблица"
@@ -148,13 +155,17 @@ locales = {
         "lbl_ref_style": "Дәйексөз стилі",
         "lbl_fig_manager": "📊 Суреттер менеджері",
         "lbl_tab_manager": "📋 Кестелер менеджері",
+        "lbl_eq_manager": "➗ Формулалар менеджері",
         "lbl_add_fig": "➕ Сурет қосу",
         "lbl_add_tab": "➕ Кесте қосу",
+        "lbl_add_eq": "➕ Формула қосу",
         "btn_upload_short": "📎 Жүктеу",
-        "lbl_fig_hint_title": "💡 Күрделі суреттерге арналған нұсқаулық",
+        "lbl_fig_hint_title": "💡 Күрделі суреттер нұсқаулығы",
         "lbl_fig_hint_text": "Егер сурет бірнеше бөліктен (a, b, c) тұрса, бүкіл топ үшін **бір тегті** `[@fig1]` пайдаланыңыз. Әр бөлікті сипаттаңыз: *Сурет 1. Негізгі атау: (a) бірінші график; (b) екінші график.*",
-        "lbl_tab_hint_title": "💡 Күрделі кестелерге арналған нұсқаулық",
-        "lbl_tab_hint_text": "Кестеңіз өте кең болса немесе біріктірілген ұяшықтары болса, пішімдеуді сақтау үшін оны **.docx** форматында жүктеуді ұсынамыз. `[@tab1]` тегін мәтініңізге қосуды ұмытпаңыз.",
+        "lbl_tab_hint_title": "💡 Күрделі кестелер нұсқаулығы",
+        "lbl_tab_hint_text": "Кестеңіз өте кең болса немесе біріктірілген ұяшықтары болса, пішімдеуді сақтау үшін оны **.docx** форматында жүктеңіз.",
+        "lbl_eq_hint_title": "💡 Формулалар нұсқаулығы",
+        "lbl_eq_hint_text": "Формуланы енгізіңіз. Мәтінге `[@eq1]` тегін қойыңыз.",
         "btn_sample_table": "📥 Күрделі кесте үлгісін жүктеу",
         "lbl_samples": "📥 Файл үлгілерін жүктеп алу",
         "sec_backmatter": "4. Қосымша ақпарат (Back Matter)",
@@ -171,7 +182,7 @@ locales = {
         "succ_abs_len": "Аңдатпадағы сөз саны: {count}/300",
         "err_fill_req": "Кем дегенде Атауын және Авторларын толтырыңыз.",
         "err_gen": "Генерация кезінде қате пайда болды: ",
-        "succ_gen": "✅ Құжат сәтті генерацияланды!",
+        "succ_gen": "✅ Құжат сәтті генерацияланды ({time} сек)!",
         "btn_dl_docx": "⬇️ .docx жүктеу",
         "btn_dl_pdf": "⬇️ .pdf жүктеу",
         "err_pdf": "⚠️ PDF жасау мүмкін болмады (серверде LibreOffice қажет). Тек DOCX файлы қолжетімді.",
@@ -189,8 +200,8 @@ locales = {
         "f_author": "Канат Самарханов / Kanat Samarkhanov",
         "f_license": "Лицензия",
         "f_univ": "Л.Н. Гумилев атындағы ЕҰУ",
-        "browse_files": "Файлды таңдаңыз немесе осында сүйреңіз",
-        "drag_drop": "Қолдау көрсетілетін форматтар: txt, docx, png, jpg, xlsx, csv",
+        "browse_files": "Файлды таңдаңыз",
+        "drag_drop": "Файлды осында сүйреңіз\nҚолдау көрсетілетін форматтар: txt, docx, png, jpg, xlsx, csv",
         "limit": "Шектеу 200MB",
         "fig_prefix": "Сурет",
         "tab_prefix": "Кесте"
@@ -228,13 +239,17 @@ locales = {
         "lbl_ref_style": "Citation Style",
         "lbl_fig_manager": "📊 Figure Manager",
         "lbl_tab_manager": "📋 Table Manager",
+        "lbl_eq_manager": "➗ Equation Manager",
         "lbl_add_fig": "➕ Add Figure",
         "lbl_add_tab": "➕ Add Table",
+        "lbl_add_eq": "➕ Add Equation",
         "btn_upload_short": "📎 Upload",
         "lbl_fig_hint_title": "💡 Hint for Complicated Figures",
-        "lbl_fig_hint_text": "If a figure has multiple parts (a, b, c), use a **single tag** `[@fig1]` for the entire group. Describe each part in the caption: *Figure 1. Main title: (a) chart one; (b) chart two.*",
+        "lbl_fig_hint_text": "If a figure has multiple parts (a, b, c), use a **single tag** `[@fig1]`. Describe each part in the caption.",
         "lbl_tab_hint_title": "💡 Instruction for Complex Tables",
-        "lbl_tab_hint_text": "For wide tables or tables with merged cells, please upload a **.docx** file containing your table to preserve the formatting perfectly. Make sure to insert the tag `[@tab1]` in the relevant paragraph of your text.",
+        "lbl_tab_hint_text": "For wide tables or tables with merged cells, please upload a **.docx** file.",
+        "lbl_eq_hint_title": "💡 Equation Hint",
+        "lbl_eq_hint_text": "Enter your equation. Place the tag `[@eq1]` in your text where it should appear.",
         "btn_sample_table": "📥 Download Complex Table Sample",
         "lbl_samples": "📥 Download Sample Files",
         "sec_backmatter": "4. Additional Information (Back Matter)",
@@ -251,7 +266,7 @@ locales = {
         "succ_abs_len": "Words in abstract: {count}/300",
         "err_fill_req": "Please fill in at least the Title and Authors.",
         "err_gen": "An error occurred during generation: ",
-        "succ_gen": "✅ Document successfully generated!",
+        "succ_gen": "✅ Document successfully generated in {time} sec!",
         "btn_dl_docx": "⬇️ Download .docx",
         "btn_dl_pdf": "⬇️ Download .pdf",
         "err_pdf": "⚠️ Failed to generate PDF (requires LibreOffice on the server). DOCX is available.",
@@ -269,8 +284,8 @@ locales = {
         "f_author": "Kanat Samarkhanov",
         "f_license": "License",
         "f_univ": "L.N. Gumilyov ENU",
-        "browse_files": "Choose a file or drag and drop it here",
-        "drag_drop": "Supported formats: txt, docx, png, jpg, xlsx, csv",
+        "browse_files": "Browse files",
+        "drag_drop": "Drag & drop files here\nSupported formats: txt, docx, png, jpg, xlsx, csv",
         "limit": "Limit 200MB",
         "fig_prefix": "Figure",
         "tab_prefix": "Table"
@@ -295,29 +310,57 @@ file_uploader_i18n = f"""
 * {{ font-family: {selected_css_font} !important; }}
 .stApp p, .stApp div[data-testid="stMarkdownContainer"] {{ text-align: justify !important; }}
 
-/* 1. БОЛЬШИЕ ЗАГРУЗЧИКИ ДЛЯ IMRAD (ПО УМОЛЧАНИЮ) */
+/* 1. БОЛЬШИЕ ЗАГРУЗЧИКИ ДЛЯ IMRAD (Строго по скриншоту) */
 [data-testid="stFileUploadDropzone"] {{
-    border: 2px dashed #a0aec0 !important; border-radius: 12px !important;
-    padding: 24px !important; text-align: center !important;
+    border: 2px dashed #4a90e2 !important; 
+    border-radius: 12px !important;
+    padding: 24px !important; 
+    text-align: center !important;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background-color: rgba(74, 144, 226, 0.05) !important;
 }}
-[data-testid="stFileUploadDropzone"]::before {{ content: "☁️"; font-size: 40px; display: block; margin-bottom: 8px; }}
-[data-testid="stFileUploadDropzone"] svg {{ display: none !important; }}
+[data-testid="stFileUploadDropzone"]:hover {{
+    background-color: rgba(74, 144, 226, 0.1) !important;
+}}
+/* Прячем оригинальную иконку и добавляем облако */
+[data-testid="stFileUploadDropzone"] > div > svg {{ display: none !important; }}
+[data-testid="stFileUploadDropzone"]::before {{ 
+    content: "☁️"; font-size: 44px; display: block; margin-bottom: 5px; 
+}}
+
+/* Скрываем оригинальный текст Streamlit полностью */
+[data-testid="stFileUploadDropzone"] div[data-testid="stText"] {{ font-size: 0 !important; }}
+[data-testid="stFileUploadDropzone"] div[data-testid="stText"]::after {{
+    content: "{l['drag_drop']}"; 
+    font-size: 14px !important; 
+    color: #888888 !important; 
+    display: block; 
+    white-space: pre-wrap; 
+    margin-top: 5px;
+    margin-bottom: 15px;
+}}
+
+/* Дизайн кнопки "Browse Files" внутри загрузчика */
 [data-testid="stFileUploadDropzone"] button {{ 
-    color: transparent !important; position: relative; background-color: transparent !important;
-    border: none !important; box-shadow: none !important; margin-top: 10px;
+    color: transparent !important; 
+    position: relative; 
+    background-color: transparent !important;
+    border: 1px solid #4a90e2 !important; 
+    border-radius: 6px !important;
+    box-shadow: none !important; 
+    padding: 5px 20px !important;
+    min-height: 38px !important;
 }}
 [data-testid="stFileUploadDropzone"] button::after {{
-    content: "{l['browse_files']}"; color: #3b82f6 !important; position: absolute;
-    left: 50%; top: 50%; transform: translate(-50%, -50%); visibility: visible; 
-    font-weight: 600; font-size: 16px; white-space: nowrap; text-decoration: underline;
+    content: "{l['browse_files']}"; 
+    color: #4a90e2 !important; 
+    position: absolute;
+    left: 50%; top: 50%; transform: translate(-50%, -50%); 
+    visibility: visible; 
+    font-weight: 600; font-size: 14px; white-space: nowrap; 
 }}
-[data-testid="stFileUploadDropzone"] button:hover::after {{ color: #2563eb !important; }}
-[data-testid="stFileUploadDropzone"] div[data-testid="stText"] span {{ display: none !important; }}
-[data-testid="stFileUploadDropzone"] div[data-testid="stText"]::before {{
-    content: "{l['drag_drop']}\\A {l['limit']}"; white-space: pre-wrap; color: #64748b !important; 
-    display: block; text-align: center; font-size: 0.85rem; margin-top: 5px;
-}}
+[data-testid="stFileUploadDropzone"] button:hover {{ background-color: #4a90e2 !important; }}
+[data-testid="stFileUploadDropzone"] button:hover::after {{ color: #ffffff !important; }}
 
 /* УБИРАЕМ ВЕРТИКАЛЬНЫЕ ЛИНИИ В СЕЛЕКТАХ */
 [data-baseweb="select"] input {{ caret-color: transparent !important; }}
@@ -325,9 +368,8 @@ div[data-baseweb="select"] > div > div:nth-child(2) {{ width: 0 !important; disp
 div[data-baseweb="select"] div[aria-hidden="true"] {{ background-color: transparent !important; width: 0 !important; border: none !important; display: none !important; }}
 div[data-baseweb="select"] * {{ border-left: none !important; border-right: none !important; }}
 
-/* 2. КОМПАКТНЫЕ ЗАГРУЗЧИКИ ДЛЯ ТАБЛИЦ И РИСУНКОВ (Фикс проблемы узких колонок) */
-/* Если загрузчик находится ПОСЛЕ невидимого блока #managers-section, мы превращаем его в кнопку */
-div[data-testid="stVerticalBlock"] > div:has(#managers-section) ~ div [data-testid="stFileUploadDropzone"] {{
+/* 2. КОМПАКТНЫЕ ЗАГРУЗЧИКИ ДЛЯ ТАБЛИЦ И РИСУНКОВ (Точное нацеливание) */
+div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] {{
     padding: 0 !important;
     min-height: 40px !important;
     height: 40px !important;
@@ -336,19 +378,18 @@ div[data-testid="stVerticalBlock"] > div:has(#managers-section) ~ div [data-test
     display: flex; align-items: center; justify-content: center; flex-direction: row;
     background-color: transparent !important;
 }}
-/* Прячем облачко и текст в компактной версии */
-div[data-testid="stVerticalBlock"] > div:has(#managers-section) ~ div [data-testid="stFileUploadDropzone"]::before {{ content: none !important; display: none !important; }}
-div[data-testid="stVerticalBlock"] > div:has(#managers-section) ~ div [data-testid="stFileUploadDropzone"] svg {{ display: none !important; }}
-div[data-testid="stVerticalBlock"] > div:has(#managers-section) ~ div [data-testid="stFileUploadDropzone"] div[data-testid="stText"] {{ display: none !important; }}
-div[data-testid="stVerticalBlock"] > div:has(#managers-section) ~ div [data-testid="stFileUploadDropzone"] button {{ margin: 0 !important; width: 100% !important; height: 100% !important; display: block; background: transparent !important; border: none !important; }}
-/* Создаем аккуратную надпись кнопки */
-div[data-testid="stVerticalBlock"] > div:has(#managers-section) ~ div [data-testid="stFileUploadDropzone"] button::after {{
-    content: "{l['btn_upload_short']}" !important;
-    font-size: 13px !important; color: #64748b !important; text-decoration: none !important;
-    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); white-space: nowrap;
+div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"]::before {{ display: none !important; }}
+div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] div[data-testid="stText"] {{ display: none !important; }}
+div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] button {{ 
+    margin: 0 !important; width: 100% !important; height: 100% !important; display: block; 
+    background: transparent !important; border: none !important; 
 }}
-div[data-testid="stVerticalBlock"] > div:has(#managers-section) ~ div [data-testid="stFileUploadDropzone"]:hover {{ border-color: #3b82f6 !important; background-color: rgba(59,130,246,0.05) !important; }}
-div[data-testid="stVerticalBlock"] > div:has(#managers-section) ~ div [data-testid="stFileUploadDropzone"]:hover button::after {{ color: #3b82f6 !important; }}
+div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"] button::after {{
+    content: "{l['btn_upload_short']}" !important;
+    font-size: 13px !important; color: #64748b !important; font-weight: 500 !important;
+}}
+div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"]:hover {{ border-color: #4a90e2 !important; background-color: rgba(74, 144, 226, 0.05) !important; }}
+div.element-container:has(.compact-uploader) + div.element-container [data-testid="stFileUploadDropzone"]:hover button::after {{ color: #4a90e2 !important; }}
 </style>
 """
 
@@ -359,10 +400,10 @@ light_css = """
 [data-testid="stMarkdownContainer"] h1, [data-testid="stMarkdownContainer"] h2, [data-testid="stMarkdownContainer"] h3 { color: #1a3a5c !important; }
 hr { border-color: #e9ecef !important; }
 input, textarea, [data-baseweb="select"] > div { background-color: #eaf4fc !important; color: #1a3a5c !important; border: 1px solid #bcdcfa !important; border-radius: 6px !important; }
-input:focus, textarea:focus, [data-baseweb="select"] > div:focus-within { border-color: #58a6ff !important; box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2) !important; }
+input:focus, textarea:focus, [data-baseweb="select"] > div:focus-within { border-color: #4a90e2 !important; box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2) !important; }
 input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled="true"] { background-color: #e9ecef !important; color: #6c757d !important; -webkit-text-fill-color: #6c757d !important; border: 1px solid #dddddd !important; }
-button[kind="primary"] { background-color: #2563eb !important; color: #ffffff !important; border: 1px solid #1d4ed8 !important; border-radius: 6px !important; font-weight: 600 !important; }
-button[kind="primary"]:hover { background-color: #1d4ed8 !important; border-color: #1e40af !important; box-shadow: 0 0 8px rgba(37, 99, 235, 0.4) !important; }
+button[kind="primary"] { background-color: #4a90e2 !important; color: #ffffff !important; border: 1px solid #357abd !important; border-radius: 6px !important; font-weight: 600 !important; }
+button[kind="primary"]:hover { background-color: #357abd !important; border-color: #2a6296 !important; box-shadow: 0 0 8px rgba(74, 144, 226, 0.4) !important; }
 
 /* Segmented Control */
 div[data-testid="stRadio"] { display: flex; justify-content: center; margin-bottom: 1rem; }
@@ -371,10 +412,6 @@ div[data-testid="stRadio"] div[role="radiogroup"] label { background-color: tran
 div[data-testid="stRadio"] div[role="radiogroup"] label:hover { background-color: rgba(0,0,0,0.05) !important; }
 div[data-testid="stRadio"] div[role="radio"] { display: none !important; }
 div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) { background-color: #ffffff !important; color: #1a1a1a !important; box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important; font-weight: 600 !important; }
-
-/* Custom light theme uploader dropzone */
-[data-testid="stFileUploadDropzone"] { background-color: #f8fafc !important; }
-[data-testid="stFileUploadDropzone"]:hover { border-color: #3b82f6 !important; background-color: #eff6ff !important; }
 </style>
 """
 
@@ -386,12 +423,12 @@ dark_css = """
 p, span, label { color: #cbd5e1 !important; }
 hr { border-color: #1d3354 !important; }
 input, textarea, [data-baseweb="select"] > div { background-color: #132440 !important; color: #f8fafc !important; border: 1px solid #284470 !important; box-shadow: 0 0 4px rgba(46, 92, 184, 0.2) !important; border-radius: 6px !important; }
-input:focus, textarea:focus, [data-baseweb="select"] > div:focus-within { border: 1px solid #3b82f6 !important; box-shadow: 0 0 6px rgba(59, 130, 246, 0.6) !important; }
+input:focus, textarea:focus, [data-baseweb="select"] > div:focus-within { border: 1px solid #4a90e2 !important; box-shadow: 0 0 6px rgba(74, 144, 226, 0.6) !important; }
 input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled="true"] { background-color: #0f1c34 !important; color: #64748b !important; -webkit-text-fill-color: #64748b !important; border: 1px solid #1d3354 !important; box-shadow: none !important; }
-button[kind="primary"] { background-color: #3b82f6 !important; color: #ffffff !important; border: 1px solid #2563eb !important; border-radius: 6px !important; font-weight: 600 !important; }
-button[kind="primary"]:hover { background-color: #60a5fa !important; border-color: #3b82f6 !important; box-shadow: 0 0 8px rgba(96, 165, 250, 0.4) !important; }
+button[kind="primary"] { background-color: #4a90e2 !important; color: #ffffff !important; border: 1px solid #357abd !important; border-radius: 6px !important; font-weight: 600 !important; }
+button[kind="primary"]:hover { background-color: #5da0eb !important; border-color: #4a90e2 !important; box-shadow: 0 0 8px rgba(93, 160, 235, 0.4) !important; }
 button[kind="secondary"] { background-color: #132440 !important; color: #cbd5e1 !important; border: 1px solid #284470 !important; }
-button[kind="secondary"]:hover { border-color: #3b82f6 !important; color: #ffffff !important; }
+button[kind="secondary"]:hover { border-color: #4a90e2 !important; color: #ffffff !important; }
 
 /* Segmented Control */
 div[data-testid="stRadio"] { display: flex; justify-content: center; margin-bottom: 1rem; }
@@ -399,11 +436,7 @@ div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #0f1c34 !i
 div[data-testid="stRadio"] div[role="radiogroup"] label { background-color: transparent !important; padding: 8px 24px !important; border-radius: 16px !important; color: #64748b !important; font-weight: 500 !important; cursor: pointer !important; border: none !important; transition: all 0.2s; margin:0 !important; }
 div[data-testid="stRadio"] div[role="radiogroup"] label:hover { background-color: rgba(255,255,255,0.05) !important; color: #cbd5e1 !important;}
 div[data-testid="stRadio"] div[role="radio"] { display: none !important; }
-div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) { background-color: #2563eb !important; color: #ffffff !important; box-shadow: 0 2px 5px rgba(0,0,0,0.3) !important; font-weight: 600 !important; }
-
-/* Custom dark theme uploader dropzone */
-[data-testid="stFileUploadDropzone"] { background-color: #132440 !important; border-color: #284470 !important; }
-[data-testid="stFileUploadDropzone"]:hover { border-color: #3b82f6 !important; background-color: #1d3354 !important; }
+div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) { background-color: #4a90e2 !important; color: #ffffff !important; box-shadow: 0 2px 5px rgba(0,0,0,0.3) !important; font-weight: 600 !important; }
 </style>
 """
 
@@ -421,6 +454,12 @@ def extract_text(uploaded_file):
     except Exception as e: return f"[Error: {str(e)}]"
     return ""
 
+def count_wc(text):
+    if not text: return "0 / 0"
+    words = len(text.split())
+    chars = len(text)
+    return f"{words} / {chars}"
+
 def create_sample_docx(section_title):
     doc = docx.Document()
     heading = doc.add_heading(section_title, level=1)
@@ -428,37 +467,29 @@ def create_sample_docx(section_title):
     p = doc.add_paragraph(f"Here is sample content for {section_title}. Delete this and paste your text. ")
     p.add_run("All paragraphs here are justified. ").bold = True
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    p2 = doc.add_paragraph("Example of tagging: The results shown in [@fig1] are summarized in [@tab1]. Relevant literature supports this [@ref1].")
+    p2 = doc.add_paragraph("Example of tagging: The results shown in [@fig1] are summarized in [@tab1]. Equation: [@eq1]. Literature supports this [@ref1].")
     p2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     bio = BytesIO()
     doc.save(bio)
     return bio.getvalue()
 
 def create_sample_table_docx():
-    """Создает шаблон сложной таблицы для скачивания пользователем"""
     doc = docx.Document()
     p_tag = doc.add_paragraph("[@tab1]")
     p_tag.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_title = doc.add_paragraph("Table 1. A complex table example with merged cells.")
     p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     
-    # Создаем тестовую таблицу 3x3
     table = doc.add_table(rows=3, cols=3)
     table.style = 'Table Grid'
-    # Объединяем ячейки для примера
     a = table.cell(0, 0)
     b = table.cell(0, 1)
     a.merge(b)
     a.text = "Merged Header (Col 1 & 2)"
     table.cell(0, 2).text = "Header 3"
-    
     table.cell(1, 0).text = "Data A"
     table.cell(1, 1).text = "Data B"
     table.cell(1, 2).text = "Data C"
-    
-    table.cell(2, 0).text = "Data X"
-    table.cell(2, 1).text = "Data Y"
-    table.cell(2, 2).text = "Data Z"
     
     bio = BytesIO()
     doc.save(bio)
@@ -493,10 +524,10 @@ def append_to_github_csv(filename, row_data, header_data):
     if sha: payload["sha"] = sha
     requests.put(url, headers=headers, json=payload)
 
-def log_generation(title_text, authors_text, lang):
+def log_generation(title_text, authors_text, lang, process_time, file_size_kb, figs, tabs, refs, eqs, wc_intro, wc_meth, wc_res, wc_disc, wc_conc):
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    row = [timestamp, lang, title_text, authors_text]
-    header = ["Уақыты (Timestamp)", "Тіл (Language)", "Тақырып (Title)", "Авторлар (Authors)"]
+    row = [timestamp, lang, title_text, authors_text, process_time, file_size_kb, figs, tabs, refs, eqs, wc_intro, wc_meth, wc_res, wc_disc, wc_conc]
+    header = ["Timestamp", "Language", "Title", "Authors", "Process_Time_sec", "File_Size_KB", "Num_Figs", "Num_Tabs", "Num_Refs", "Num_Eqs", "Intro(W/C)", "Methods(W/C)", "Results(W/C)", "Discussion(W/C)", "Conclusion(W/C)"]
     append_to_github_csv("generation_logs.csv", row, header)
 
 def log_registration(name, email, phone, org, pos):
@@ -506,23 +537,15 @@ def log_registration(name, email, phone, org, pos):
     append_to_github_csv("registered_users.csv", row, header)
 
 def convert_to_pdf(docx_path, pdf_path):
-    """Оболочка для конвертации DOCX -> PDF через LibreOffice или docx2pdf"""
     try:
         subprocess.run(['soffice', '--headless', '--convert-to', 'pdf', docx_path, '--outdir', os.path.dirname(pdf_path)], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         if os.path.exists(pdf_path): return True
     except: pass
-    
-    try:
-        subprocess.run(['libreoffice', '--headless', '--convert-to', 'pdf', docx_path, '--outdir', os.path.dirname(pdf_path)], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        if os.path.exists(pdf_path): return True
-    except: pass
-
     try:
         from docx2pdf import convert
         convert(docx_path, pdf_path)
         if os.path.exists(pdf_path): return True
     except: pass
-
     return False
 
 # ------------ Header ------------
@@ -616,13 +639,10 @@ if app_mode == l["nav_gen"]:
 
     st.markdown("<br><hr>", unsafe_allow_html=True)
     
-    # МАГИЧЕСКИЙ МАРКЕР: Всё, что ниже этого div, получит компактные стили кнопок загрузки
-    st.markdown('<div id="managers-section"></div>', unsafe_allow_html=True)
-    
     # --- ДИНАМИЧЕСКИЕ МЕНЕДЖЕРЫ РИСУНКОВ И ТАБЛИЦ ---
     col_ft1, col_ft2 = st.columns(2)
     
-    # --- ФОРМА РИСУНКОВ ---
+    # ФОРМА РИСУНКОВ
     with col_ft1:
         st.header(l["lbl_fig_manager"])
         with st.expander(l["lbl_fig_hint_title"]):
@@ -637,13 +657,15 @@ if app_mode == l["nav_gen"]:
             cf1, cf2, cf3 = st.columns([1.5, 3.5, 3])
             with cf1: st.text_input(f"fig_tag_{i}", value=f"[@fig{i+1}]", key=f"f_tag_{i}", label_visibility="collapsed", disabled=is_locked)
             with cf2: st.text_input(f"fig_cap_{i}", placeholder="Caption...", key=f"f_cap_{i}", label_visibility="collapsed", disabled=is_locked)
-            with cf3: st.file_uploader(f"fig_file_{i}", type=["png", "jpg", "jpeg"], key=f"f_file_{i}", label_visibility="collapsed", disabled=is_locked)
+            with cf3: 
+                st.markdown('<div class="compact-uploader"></div>', unsafe_allow_html=True)
+                st.file_uploader(f"fig_file_{i}", type=["png", "jpg", "jpeg"], key=f"f_file_{i}", label_visibility="collapsed", disabled=is_locked)
             
         if st.button(l["lbl_add_fig"], disabled=is_locked):
             st.session_state.fig_count += 1
             st.rerun()
 
-    # --- ФОРМА ТАБЛИЦ ---
+    # ФОРМА ТАБЛИЦ
     with col_ft2:
         st.header(l["lbl_tab_manager"])
         with st.expander(l["lbl_tab_hint_title"]):
@@ -659,11 +681,33 @@ if app_mode == l["nav_gen"]:
             ct1, ct2, ct3 = st.columns([1.5, 3.5, 3])
             with ct1: st.text_input(f"tab_tag_{i}", value=f"[@tab{i+1}]", key=f"t_tag_{i}", label_visibility="collapsed", disabled=is_locked)
             with ct2: st.text_input(f"tab_cap_{i}", placeholder="Caption...", key=f"t_cap_{i}", label_visibility="collapsed", disabled=is_locked)
-            with ct3: st.file_uploader(f"tab_file_{i}", type=["xlsx", "csv", "docx", "txt"], key=f"t_file_{i}", label_visibility="collapsed", disabled=is_locked)
+            with ct3: 
+                st.markdown('<div class="compact-uploader"></div>', unsafe_allow_html=True)
+                st.file_uploader(f"tab_file_{i}", type=["xlsx", "csv", "docx", "txt"], key=f"t_file_{i}", label_visibility="collapsed", disabled=is_locked)
             
         if st.button(l["lbl_add_tab"], disabled=is_locked):
             st.session_state.tab_count += 1
             st.rerun()
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # --- МЕНЕДЖЕР ФОРМУЛ (EQUATION MANAGER) ---
+    st.header(l["lbl_eq_manager"])
+    with st.expander(l["lbl_eq_hint_title"]):
+        st.markdown(l["lbl_eq_hint_text"])
+    
+    he1, he2 = st.columns([1.5, 8.5])
+    he1.markdown("**Tag**")
+    he2.markdown("**Equation / Formula**")
+    
+    for i in range(st.session_state.eq_count):
+        ce1, ce2 = st.columns([1.5, 8.5])
+        with ce1: st.text_input(f"eq_tag_{i}", value=f"[@eq{i+1}]", key=f"e_tag_{i}", label_visibility="collapsed", disabled=is_locked)
+        with ce2: st.text_input(f"eq_val_{i}", placeholder="E = mc^2 ...", key=f"e_val_{i}", label_visibility="collapsed", disabled=is_locked)
+        
+    if st.button(l["lbl_add_eq"], disabled=is_locked):
+        st.session_state.eq_count += 1
+        st.rerun()
 
     # --- Әдебиеттер менеджері (Smart Reference Manager) ---
     st.markdown("<hr>", unsafe_allow_html=True)
@@ -712,35 +756,56 @@ if app_mode == l["nav_gen"]:
         elif not title or not authors: st.warning(l["err_fill_req"])
         else:
             with st.spinner("Генерация документов..."):
+                start_time = time.time()
                 try:
-                    # 1. Мәтіндерді жинақтау
-                    main_text_compiled = ""
-                    if file_intro: main_text_compiled += "1. INTRODUCTION\n" + extract_text(file_intro) + "\n\n"
-                    if file_methods: main_text_compiled += "2. MATERIALS AND METHODS\n" + extract_text(file_methods) + "\n\n"
-                    if file_results: main_text_compiled += "3. RESULTS\n" + extract_text(file_results) + "\n\n"
-                    if file_discussion: main_text_compiled += "4. DISCUSSION\n" + extract_text(file_discussion) + "\n\n"
-                    if file_conclusion: main_text_compiled += "5. CONCLUSION\n" + extract_text(file_conclusion) + "\n\n"
+                    # 1. Сбор статистики текста (Word/Char counts)
+                    t_intro = extract_text(file_intro)
+                    t_methods = extract_text(file_methods)
+                    t_results = extract_text(file_results)
+                    t_discussion = extract_text(file_discussion)
+                    t_conclusion = extract_text(file_conclusion)
                     
-                    # 2. Обработка динамических Рисунков
+                    wc_intro = count_wc(t_intro)
+                    wc_meth = count_wc(t_methods)
+                    wc_res = count_wc(t_results)
+                    wc_disc = count_wc(t_discussion)
+                    wc_conc = count_wc(t_conclusion)
+
+                    # Сборка основного текста
+                    main_text_compiled = ""
+                    if t_intro: main_text_compiled += "1. INTRODUCTION\n" + t_intro + "\n\n"
+                    if t_methods: main_text_compiled += "2. MATERIALS AND METHODS\n" + t_methods + "\n\n"
+                    if t_results: main_text_compiled += "3. RESULTS\n" + t_results + "\n\n"
+                    if t_discussion: main_text_compiled += "4. DISCUSSION\n" + t_discussion + "\n\n"
+                    if t_conclusion: main_text_compiled += "5. CONCLUSION\n" + t_conclusion + "\n\n"
+                    
+                    # 2. Обработка Формул (Equations)
+                    added_eqs = 0
+                    for i in range(st.session_state.eq_count):
+                        c_tag = st.session_state.get(f"e_tag_{i}", "").strip()
+                        c_val = st.session_state.get(f"e_val_{i}", "").strip()
+                        if c_val:
+                            if c_tag: main_text_compiled = main_text_compiled.replace(c_tag, c_val)
+                            added_eqs += 1
+
+                    # 3. Обработка динамических Рисунков
                     fig_text_compiled = ""
                     fig_counter = 1
                     for i in range(st.session_state.fig_count):
                         c_tag = st.session_state.get(f"f_tag_{i}", "").strip()
                         c_cap = st.session_state.get(f"f_cap_{i}", "").strip()
-                        
                         if c_cap:
                             fig_label = f"{l['fig_prefix']} {fig_counter}"
                             fig_text_compiled += f"{fig_label}. {c_cap}\n"
                             if c_tag: main_text_compiled = main_text_compiled.replace(c_tag, fig_label)
                             fig_counter += 1
 
-                    # 3. Обработка динамических Таблиц
+                    # 4. Обработка динамических Таблиц
                     tab_text_compiled = ""
                     tab_counter = 1
                     for i in range(st.session_state.tab_count):
                         c_tag = st.session_state.get(f"t_tag_{i}", "").strip()
                         c_cap = st.session_state.get(f"t_cap_{i}", "").strip()
-                        
                         if c_cap:
                             tab_label = f"{l['tab_prefix']} {tab_counter}"
                             tab_text_compiled += f"{tab_label}. {c_cap}\n"
@@ -750,7 +815,7 @@ if app_mode == l["nav_gen"]:
                     if fig_text_compiled or tab_text_compiled:
                         main_text_compiled += "\n\n--- FIGURES & TABLES ---\n" + fig_text_compiled + "\n" + tab_text_compiled
 
-                    # 4. Back Matter
+                    # 5. Back Matter
                     back_matter = ""
                     if val_supp: back_matter += f"6. Supplementary Materials\n{val_supp}\n\n"
                     if val_contrib: back_matter += f"7. Author Contributions\n{val_contrib}\n\n"
@@ -760,7 +825,7 @@ if app_mode == l["nav_gen"]:
                     if val_coi: back_matter += f"11. Conflicts of Interest\n{val_coi}\n\n"
                     main_text_compiled += "\n\n" + back_matter
 
-                    # 5. References
+                    # 6. References
                     refs_compiled = []
                     ref_counter = 1
                     for _, row in edited_refs.iterrows():
@@ -822,8 +887,17 @@ if app_mode == l["nav_gen"]:
                             with open(pdf_path, "rb") as f:
                                 pdf_bytes = f.read()
                     
-                    st.success(l["succ_gen"])
-                    log_generation(title, authors, primary_lang)
+                    process_time = round(time.time() - start_time, 2)
+                    file_size_kb = round(len(docx_bytes) / 1024, 2)
+                    
+                    # Расширенное логирование
+                    log_generation(
+                        title, authors, primary_lang, process_time, file_size_kb, 
+                        fig_counter-1, tab_counter-1, ref_counter-1, added_eqs,
+                        wc_intro, wc_meth, wc_res, wc_disc, wc_conc
+                    )
+
+                    st.success(l["succ_gen"].format(time=process_time))
 
                     dcol1, dcol2 = st.columns(2)
                     with dcol1:
