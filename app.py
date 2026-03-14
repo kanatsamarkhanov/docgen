@@ -10,6 +10,7 @@ import base64
 import io
 import pandas as pd
 import docx
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 # Беттің баптаулары
 st.set_page_config(page_title="Smart Paper Generator", page_icon="📝", layout="wide")
@@ -21,6 +22,8 @@ if "theme" not in st.session_state:
     st.session_state.theme = "light"
 if "is_registered" not in st.session_state:
     st.session_state.is_registered = False
+if "ui_font" not in st.session_state:
+    st.session_state.ui_font = "System Default"
 
 # Аудармалар сөздігі
 locales = {
@@ -31,7 +34,8 @@ locales = {
         "btn_theme_light": "☀️ Светлая тема",
         "nav_gen": "📄 Генератор статей",
         "nav_reg": "👤 Регистрация",
-        "sidebar_title": "⚙️ Настройки статьи",
+        "sidebar_title": "⚙️ Настройки",
+        "lbl_ui_font": "Шрифт интерфейса",
         "lbl_lang": "Основной язык статьи",
         "lbl_sec": "Секция",
         "lbl_type": "Тип статьи",
@@ -56,7 +60,16 @@ locales = {
         "lbl_ref_style": "Стиль цитирования",
         "lbl_fig_manager": "📊 Менеджер рисунков",
         "lbl_tab_manager": "📋 Менеджер таблиц",
+        "lbl_fig_upload": "🖼️ Загрузить рисунки (PNG, JPG)",
+        "lbl_tab_upload": "📝 Загрузить таблицы (Excel, Word, CSV)",
         "lbl_samples": "📥 Скачать шаблоны файлов",
+        "sec_backmatter": "4. Дополнительная информация (Back Matter)",
+        "lbl_supp": "6. Supplementary Materials",
+        "lbl_contrib": "7. Author Contributions",
+        "lbl_auth_info": "8. Author Information",
+        "lbl_funding": "9. Funding",
+        "lbl_ack": "10. Acknowledgements",
+        "lbl_coi": "11. Conflicts of Interest",
         "sec_trans": "3. Переводы метаданных",
         "trans_info": "По требованиям журнала необходимо предоставить название, авторов, аннотацию и ключевые слова на двух других языках.",
         "gen_btn": "🚀 Сгенерировать статью",
@@ -93,7 +106,8 @@ locales = {
         "btn_theme_light": "☀️ Күндізгі режим",
         "nav_gen": "📄 Мақала генераторы",
         "nav_reg": "👤 Тіркелу",
-        "sidebar_title": "⚙️ Мақала баптаулары",
+        "sidebar_title": "⚙️ Баптаулар",
+        "lbl_ui_font": "Интерфейс қаріпі",
         "lbl_lang": "Мақаланың негізгі тілі",
         "lbl_sec": "Секция",
         "lbl_type": "Мақала түрі",
@@ -118,7 +132,16 @@ locales = {
         "lbl_ref_style": "Дәйексөз стилі",
         "lbl_fig_manager": "📊 Суреттер менеджері",
         "lbl_tab_manager": "📋 Кестелер менеджері",
+        "lbl_fig_upload": "🖼️ Суреттерді жүктеу (PNG, JPG)",
+        "lbl_tab_upload": "📝 Кестелерді жүктеу (Excel, Word, CSV)",
         "lbl_samples": "📥 Файл үлгілерін жүктеп алу",
+        "sec_backmatter": "4. Қосымша ақпарат (Back Matter)",
+        "lbl_supp": "6. Supplementary Materials",
+        "lbl_contrib": "7. Author Contributions",
+        "lbl_auth_info": "8. Author Information",
+        "lbl_funding": "9. Funding",
+        "lbl_ack": "10. Acknowledgements",
+        "lbl_coi": "11. Conflicts of Interest",
         "sec_trans": "3. Метадеректер аудармасы",
         "trans_info": "Журнал талаптарына сәйкес атауын, авторларын, аңдатпасын және түйінді сөздерін басқа екі тілде ұсыну қажет.",
         "gen_btn": "🚀 Мақаланы генерациялау",
@@ -156,6 +179,7 @@ locales = {
         "nav_gen": "📄 Paper Generator",
         "nav_reg": "👤 Registration",
         "sidebar_title": "⚙️ Paper Settings",
+        "lbl_ui_font": "Interface Font",
         "lbl_lang": "Primary Language",
         "lbl_sec": "Section",
         "lbl_type": "Paper Type",
@@ -180,7 +204,16 @@ locales = {
         "lbl_ref_style": "Citation Style",
         "lbl_fig_manager": "📊 Figure Manager",
         "lbl_tab_manager": "📋 Table Manager",
+        "lbl_fig_upload": "🖼️ Upload Figures (PNG, JPG)",
+        "lbl_tab_upload": "📝 Upload Tables (Excel, Word, CSV)",
         "lbl_samples": "📥 Download Sample Files",
+        "sec_backmatter": "4. Additional Information (Back Matter)",
+        "lbl_supp": "6. Supplementary Materials",
+        "lbl_contrib": "7. Author Contributions",
+        "lbl_auth_info": "8. Author Information",
+        "lbl_funding": "9. Funding",
+        "lbl_ack": "10. Acknowledgements",
+        "lbl_coi": "11. Conflicts of Interest",
         "sec_trans": "3. Metadata Translations",
         "trans_info": "According to the journal requirements, the title, authors, abstract and keywords must be provided in two other languages.",
         "gen_btn": "🚀 Generate Document",
@@ -214,45 +247,33 @@ locales = {
 
 l = locales[st.session_state.lang]
 
+# Dynamic Font Family mapping
+font_mapping = {
+    "System Default": "sans-serif",
+    "Times New Roman": "'Times New Roman', Times, serif",
+    "Arial": "Arial, Helvetica, sans-serif",
+    "Georgia": "Georgia, serif"
+}
+selected_css_font = font_mapping.get(st.session_state.ui_font, "sans-serif")
+
 # ------------ CSS Дизайн ------------
-# CSS to inject language strings directly into the File Uploader component
 file_uploader_i18n = f"""
 <style>
-/* Translate File Uploader Browse Button */
-[data-testid="stFileUploadDropzone"] button {{
-    color: transparent !important;
-    position: relative;
-}}
-[data-testid="stFileUploadDropzone"] button::after {{
-    content: "{l['browse_files']}";
-    color: #ffffff !important;
-    position: absolute;
-    left: 50%; top: 50%;
-    transform: translate(-50%, -50%);
-    visibility: visible;
-    font-weight: 600;
-}}
-/* Translate File Uploader Drag Text */
-[data-testid="stFileUploadDropzone"] div[data-testid="stText"] span {{
-    display: none !important;
-}}
-[data-testid="stFileUploadDropzone"] div[data-testid="stText"]::before {{
-    content: "{l['drag_drop']}\\A {l['limit']}";
-    white-space: pre-wrap;
-    color: #888888 !important;
-    display: block;
-    text-align: center;
-    font-size: 0.9rem;
-}}
+/* Font family and Text Justify distribution */
+* {{ font-family: {selected_css_font} !important; }}
+.stApp p, .stApp div[data-testid="stMarkdownContainer"] {{ text-align: justify !important; }}
 
-/* -- УБИРАЕМ ВЕРТИКАЛЬНЫЕ ЛИНИИ (CURSOR & BORDERS) В СЕЛЕКТАХ -- */
-[data-baseweb="select"] input {{
-    caret-color: transparent !important; /* Removes blinking vertical cursor line */
+[data-testid="stFileUploadDropzone"] button {{ color: transparent !important; position: relative; }}
+[data-testid="stFileUploadDropzone"] button::after {{
+    content: "{l['browse_files']}"; color: #ffffff !important; position: absolute;
+    left: 50%; top: 50%; transform: translate(-50%, -50%); visibility: visible; font-weight: 600;
 }}
-div[data-baseweb="select"] * {{
-    border-left: none !important; /* Removes inner dividers */
-    border-right: none !important;
+[data-testid="stFileUploadDropzone"] div[data-testid="stText"] span {{ display: none !important; }}
+[data-testid="stFileUploadDropzone"] div[data-testid="stText"]::before {{
+    content: "{l['drag_drop']}\\A {l['limit']}"; white-space: pre-wrap; color: #888888 !important; display: block; text-align: center; font-size: 0.9rem;
 }}
+[data-baseweb="select"] input {{ caret-color: transparent !important; }}
+div[data-baseweb="select"] * {{ border-left: none !important; border-right: none !important; }}
 </style>
 """
 
@@ -261,108 +282,39 @@ light_css = """
 .stApp { background-color: #ffffff !important; }
 [data-testid="stSidebar"] { background-color: #f8f9fa !important; border-right: 1px solid #e9ecef !important; }
 [data-testid="stMarkdownContainer"] h1, [data-testid="stMarkdownContainer"] h2, [data-testid="stMarkdownContainer"] h3 { color: #1a3a5c !important; }
-p, span, label { color: #333333 !important; }
 hr { border-color: #e9ecef !important; }
-input, textarea, [data-baseweb="select"] > div {
-    background-color: #eaf4fc !important;
-    color: #1a3a5c !important;
-    border: 1px solid #bcdcfa !important;
-    border-radius: 6px !important;
-}
-input:focus, textarea:focus, [data-baseweb="select"] > div:focus-within {
-    border-color: #58a6ff !important;
-    box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2) !important;
-}
-input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled="true"] {
-    background-color: #e9ecef !important;
-    color: #6c757d !important;
-    -webkit-text-fill-color: #6c757d !important;
-    border: 1px solid #dddddd !important;
-}
-button[kind="primary"] {
-    background-color: #2563eb !important;
-    color: #ffffff !important;
-    border: 1px solid #1d4ed8 !important;
-    border-radius: 6px !important;
-    font-weight: 600 !important;
-}
-button[kind="primary"]:hover {
-    background-color: #1d4ed8 !important;
-    border-color: #1e40af !important;
-    box-shadow: 0 0 8px rgba(37, 99, 235, 0.4) !important;
-}
-/* Переключатели навигации */
+input, textarea, [data-baseweb="select"] > div { background-color: #eaf4fc !important; color: #1a3a5c !important; border: 1px solid #bcdcfa !important; border-radius: 6px !important; }
+input:focus, textarea:focus, [data-baseweb="select"] > div:focus-within { border-color: #58a6ff !important; box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2) !important; }
+input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled="true"] { background-color: #e9ecef !important; color: #6c757d !important; -webkit-text-fill-color: #6c757d !important; border: 1px solid #dddddd !important; }
+button[kind="primary"] { background-color: #2563eb !important; color: #ffffff !important; border: 1px solid #1d4ed8 !important; border-radius: 6px !important; font-weight: 600 !important; }
+button[kind="primary"]:hover { background-color: #1d4ed8 !important; border-color: #1e40af !important; box-shadow: 0 0 8px rgba(37, 99, 235, 0.4) !important; }
 div[data-testid="stRadio"] { display: flex; justify-content: center; margin-bottom: 1rem; }
-div[data-testid="stRadio"] div[role="radiogroup"] {
-    background-color: #f1f3f4 !important; border-radius: 20px !important; padding: 4px !important;
-    display: inline-flex !important; gap: 4px !important; border: none !important;
-}
-div[data-testid="stRadio"] div[role="radiogroup"] label {
-    background-color: transparent !important; padding: 8px 24px !important; border-radius: 16px !important;
-    color: #5f6368 !important; font-weight: 500 !important; cursor: pointer !important; border: none !important;
-    transition: all 0.2s; margin:0 !important;
-}
+div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #f1f3f4 !important; border-radius: 20px !important; padding: 4px !important; display: inline-flex !important; gap: 4px !important; border: none !important; }
+div[data-testid="stRadio"] div[role="radiogroup"] label { background-color: transparent !important; padding: 8px 24px !important; border-radius: 16px !important; color: #5f6368 !important; font-weight: 500 !important; cursor: pointer !important; border: none !important; transition: all 0.2s; margin:0 !important; }
 div[data-testid="stRadio"] div[role="radiogroup"] label:hover { background-color: rgba(0,0,0,0.05) !important; }
 div[data-testid="stRadio"] div[role="radio"] { display: none !important; }
-div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) {
-    background-color: #ffffff !important; color: #1a1a1a !important; box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important; font-weight: 600 !important;
-}
+div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) { background-color: #ffffff !important; color: #1a1a1a !important; box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important; font-weight: 600 !important; }
 </style>
 """
 
+# В ночном режиме текст кнопки темнее (#0f172a), фон кнопки светло-синий (#60a5fa)
 dark_css = """
 <style>
 .stApp { background-color: #0d1b2e !important; }
 [data-testid="stSidebar"] { background-color: #0b1727 !important; border-right: 1px solid #1e3a5f !important; }
 [data-testid="stMarkdownContainer"] h1, [data-testid="stMarkdownContainer"] h2, [data-testid="stMarkdownContainer"] h3 { color: #e2edf7 !important; }
-p, span, label { color: #c9d8ee !important; }
 hr { border-color: #1e3a5f !important; }
-input, textarea, [data-baseweb="select"] > div {
-    background-color: #172a45 !important;
-    color: #e2edf7 !important;
-    border: 1px solid #2e5cb8 !important;
-    box-shadow: 0 0 4px rgba(46, 92, 184, 0.5) !important;
-    border-radius: 6px !important;
-}
-input:focus, textarea:focus, [data-baseweb="select"] > div:focus-within {
-    border: 1px solid #4a86e8 !important;
-    box-shadow: 0 0 8px rgba(74, 134, 232, 0.8) !important;
-}
-input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled="true"] {
-    background-color: #0b1727 !important;
-    color: #7b96b8 !important;
-    -webkit-text-fill-color: #7b96b8 !important;
-    border: 1px solid #152b4a !important;
-    box-shadow: none !important;
-}
-button[kind="primary"] {
-    background-color: #3b82f6 !important;
-    color: #ffffff !important;
-    border: 1px solid #2563eb !important;
-    border-radius: 6px !important;
-    font-weight: 600 !important;
-}
-button[kind="primary"]:hover {
-    background-color: #60a5fa !important;
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 8px rgba(59, 130, 246, 0.6) !important;
-}
-/* Переключатели навигации */
+input, textarea, [data-baseweb="select"] > div { background-color: #172a45 !important; color: #e2edf7 !important; border: 1px solid #2e5cb8 !important; box-shadow: 0 0 4px rgba(46, 92, 184, 0.5) !important; border-radius: 6px !important; }
+input:focus, textarea:focus, [data-baseweb="select"] > div:focus-within { border: 1px solid #4a86e8 !important; box-shadow: 0 0 8px rgba(74, 134, 232, 0.8) !important; }
+input[disabled], textarea[disabled], [data-baseweb="select"] > div[aria-disabled="true"] { background-color: #0b1727 !important; color: #7b96b8 !important; -webkit-text-fill-color: #7b96b8 !important; border: 1px solid #152b4a !important; box-shadow: none !important; }
+button[kind="primary"] { background-color: #60a5fa !important; color: #0f172a !important; border: 1px solid #3b82f6 !important; border-radius: 6px !important; font-weight: 600 !important; }
+button[kind="primary"]:hover { background-color: #93c5fd !important; border-color: #60a5fa !important; box-shadow: 0 0 8px rgba(96, 165, 250, 0.6) !important; }
 div[data-testid="stRadio"] { display: flex; justify-content: center; margin-bottom: 1rem; }
-div[data-testid="stRadio"] div[role="radiogroup"] {
-    background-color: #0b1727 !important; border-radius: 20px !important; padding: 4px !important;
-    display: inline-flex !important; gap: 4px !important; border: 1px solid #1e3a5f !important;
-}
-div[data-testid="stRadio"] div[role="radiogroup"] label {
-    background-color: transparent !important; padding: 8px 24px !important; border-radius: 16px !important;
-    color: #7b96b8 !important; font-weight: 500 !important; cursor: pointer !important; border: none !important;
-    transition: all 0.2s; margin:0 !important;
-}
+div[data-testid="stRadio"] div[role="radiogroup"] { background-color: #0b1727 !important; border-radius: 20px !important; padding: 4px !important; display: inline-flex !important; gap: 4px !important; border: 1px solid #1e3a5f !important; }
+div[data-testid="stRadio"] div[role="radiogroup"] label { background-color: transparent !important; padding: 8px 24px !important; border-radius: 16px !important; color: #7b96b8 !important; font-weight: 500 !important; cursor: pointer !important; border: none !important; transition: all 0.2s; margin:0 !important; }
 div[data-testid="stRadio"] div[role="radiogroup"] label:hover { background-color: rgba(255,255,255,0.05) !important; }
 div[data-testid="stRadio"] div[role="radio"] { display: none !important; }
-div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) {
-    background-color: #2563eb !important; color: #ffffff !important; box-shadow: 0 2px 5px rgba(0,0,0,0.3) !important; font-weight: 600 !important;
-}
+div[data-testid="stRadio"] div[role="radiogroup"] label:has(div[aria-checked="true"]) { background-color: #2563eb !important; color: #ffffff !important; box-shadow: 0 2px 5px rgba(0,0,0,0.3) !important; font-weight: 600 !important; }
 </style>
 """
 
@@ -381,20 +333,24 @@ def auto_download(bio, filename):
 def extract_text(uploaded_file):
     if not uploaded_file: return ""
     try:
-        if uploaded_file.name.endswith('.txt'):
-            return uploaded_file.read().decode('utf-8')
+        if uploaded_file.name.endswith('.txt'): return uploaded_file.read().decode('utf-8')
         elif uploaded_file.name.endswith('.docx'):
             doc_file = docx.Document(uploaded_file)
             return '\n'.join([p.text for p in doc_file.paragraphs])
-    except Exception as e:
-        return f"[Error: {str(e)}]"
+    except Exception as e: return f"[Error: {str(e)}]"
     return ""
 
 def create_sample_docx(section_title):
     doc = docx.Document()
-    doc.add_heading(section_title, level=1)
-    doc.add_paragraph(f"Here is sample content for {section_title}. Delete this and paste your text.")
-    doc.add_paragraph(f"Example of tagging: The results shown in [@fig1] are summarized in [@tab1]. Relevant literature supports this [@ref1].")
+    heading = doc.add_heading(section_title, level=1)
+    heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p = doc.add_paragraph(f"Here is sample content for {section_title}. Delete this and paste your text. ")
+    p.add_run("All paragraphs here are justified.").bold = True
+    p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    
+    p2 = doc.add_paragraph("Example of tagging: The results shown in [@fig1] are summarized in [@tab1]. Relevant literature supports this [@ref1].")
+    p2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    
     bio = BytesIO()
     doc.save(bio)
     return bio.getvalue()
@@ -418,8 +374,7 @@ def append_to_github_csv(filename, row_data, header_data):
         data = response.json()
         sha = data["sha"]
         content = base64.b64decode(data["content"]).decode("utf-8")
-    else:
-        content = "\ufeff"
+    else: content = "\ufeff"
     output = io.StringIO()
     writer = csv.writer(output)
     if content == "\ufeff": writer.writerow(header_data)
@@ -447,7 +402,7 @@ with hc1:
     st.title(l["title"])
     st.caption(l["subtitle"])
 with hc2:
-    _lang_labels = {"kz": "🇰🇿 Қазақша", "ru": "🇷🇺 Русский", "en": "🇬🇧 English"}
+    _lang_labels = {"kz": "🇰🇿 KZ", "ru": "🇷🇺 RU", "en": "🇬🇧 EN"}
     _lang_keys = list(_lang_labels.keys())
     _sel = st.selectbox("lang", _lang_keys, index=_lang_keys.index(st.session_state.lang), format_func=lambda x: _lang_labels[x], label_visibility="collapsed")
     if _sel != st.session_state.lang:
@@ -463,7 +418,6 @@ st.markdown("---")
 
 if "nav_radio" not in st.session_state or st.session_state.nav_radio not in [l["nav_gen"], l["nav_reg"]]:
     st.session_state.nav_radio = l["nav_gen"]
-
 if st.session_state.get("go_to_gen"):
     st.session_state.nav_radio = l["nav_gen"]
     st.session_state.go_to_gen = False
@@ -481,11 +435,16 @@ if app_mode == l["nav_gen"]:
         st.error(l["reg_req_msg"], icon="🔒")
 
     st.subheader(l["sidebar_title"])
-    col_s1, col_s2, col_s3, col_s4 = st.columns(4)
+    col_s1, col_s2, col_s3, col_s4, col_s5 = st.columns(5)
     with col_s1: primary_lang = st.selectbox(l["lbl_lang"], ["Русский", "Қазақша", "English"], disabled=is_locked)
     with col_s2: section = st.selectbox(l["lbl_sec"], ["Химия", "География"], disabled=is_locked)
     with col_s3: paper_type = st.selectbox(l["lbl_type"], ["Научная статья (Article)", "Обзор (Review)", "Мини-обзор (Mini-review)", "Краткое сообщение (Communication)"], disabled=is_locked)
     with col_s4: mrnti = st.text_input(l["lbl_mrnti"], value="06.81.23", disabled=is_locked)
+    with col_s5: 
+        new_font = st.selectbox(l["lbl_ui_font"], list(font_mapping.keys()), index=list(font_mapping.keys()).index(st.session_state.ui_font))
+        if new_font != st.session_state.ui_font:
+            st.session_state.ui_font = new_font
+            st.rerun()
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -528,11 +487,17 @@ if app_mode == l["nav_gen"]:
     with col_i3:
         file_conclusion = st.file_uploader(l["lbl_conclusion"], type=["txt", "docx"], disabled=is_locked)
 
-    # --- Раздельные Менеджеры: Суреттер мен Кестелер (Figures & Tables Separated) ---
+    # --- Раздельные Менеджеры: Суреттер мен Кестелер ---
     st.markdown("<br>", unsafe_allow_html=True)
     col_ft1, col_ft2 = st.columns(2)
     with col_ft1:
         st.header(l["lbl_fig_manager"])
+        with st.expander("💡 Подсказка для сложных графиков (Complicated Figures)"):
+            st.markdown("""
+            Если ваш рисунок состоит из нескольких частей (например, a, b, c), используйте **один тег** `[@fig1]` для всей группы в тексте статьи.
+            В подписи (Caption) опишите каждую часть: *Figure 1. Main title: (a) chart one; (b) chart two.*
+            """)
+        file_figs = st.file_uploader(l["lbl_fig_upload"], type=["png", "jpg", "jpeg"], accept_multiple_files=True, disabled=is_locked)
         fig_df = pd.DataFrame([{"Tag in text": "[@fig1]", "Caption": ""}])
         if not is_locked:
             edited_figs = st.data_editor(fig_df, num_rows="dynamic", use_container_width=True, key="fig_editor")
@@ -540,6 +505,7 @@ if app_mode == l["nav_gen"]:
 
     with col_ft2:
         st.header(l["lbl_tab_manager"])
+        file_tabs = st.file_uploader(l["lbl_tab_upload"], type=["xlsx", "csv", "docx", "txt"], accept_multiple_files=True, disabled=is_locked)
         tab_df = pd.DataFrame([{"Tag in text": "[@tab1]", "Caption": ""}])
         if not is_locked:
             edited_tabs = st.data_editor(tab_df, num_rows="dynamic", use_container_width=True, key="tab_editor")
@@ -554,6 +520,22 @@ if app_mode == l["nav_gen"]:
         edited_refs = st.data_editor(ref_df, num_rows="dynamic", use_container_width=True)
     else:
         st.dataframe(ref_df, use_container_width=True)
+
+    # --- Дополнительная информация (Back Matter) ---
+    st.header(l["sec_backmatter"])
+    st.info("Пожалуйста, заполните необходимые разделы ниже. В случае отсутствия информации (например, финансирования), оставьте стандартную фразу.")
+    
+    val_supp = st.text_area(l["lbl_supp"], value="No supplementary material.", height=68, disabled=is_locked)
+    
+    val_contrib = st.text_area(l["lbl_contrib"], value="Conceptualization, X.X. and Y.Y.; methodology, X.X.; software, X.X.; validation, X.X., Y.Y. and Z.Z.; formal analysis, X.X.; investigation, X.X.; resources, X.X.; data curation, X.X.; writing—original draft preparation, X.X.; writing—review and editing, X.X.; visualisation, X.X.; supervision, X.X.; project administration, X.X.; funding acquisition, Y.Y. All authors have read and agreed to the published version of the manuscript.", height=120, disabled=is_locked)
+    
+    val_auth_info = st.text_area(l["lbl_auth_info"], value="Beisembayev, Adil Sayatuly - researcher, L.N. Gumilyov Eurasian National University, Kazhymukan st., 13, Astana, Kazakhstan, 010000; email: beisembayev_as@enu.kz, https://orcid.org/0001-0003-2203-9099", height=80, disabled=is_locked)
+    
+    val_funding = st.text_area(l["lbl_funding"], value="This research received no external funding.", height=68, disabled=is_locked)
+    
+    val_ack = st.text_area(l["lbl_ack"], value="Administrative and technical support was provided by...", height=68, disabled=is_locked)
+    
+    val_coi = st.text_area(l["lbl_coi"], value="The authors declare no conflicts of interest. The funders had no role in the study’s design, data collection, analysis, manuscript writing, or publication decisions.", height=80, disabled=is_locked)
 
     # --- Аудармалар ---
     st.header(l["sec_trans"])
@@ -618,7 +600,18 @@ if app_mode == l["nav_gen"]:
                 if fig_text_compiled or tab_text_compiled:
                     main_text_compiled += "\n\n--- FIGURES & TABLES ---\n" + fig_text_compiled + "\n" + tab_text_compiled
 
-                # 4. Әдебиеттер (References)
+                # 4. Дополнительная информация (Back Matter)
+                back_matter = ""
+                if val_supp: back_matter += f"6. Supplementary Materials\n{val_supp}\n\n"
+                if val_contrib: back_matter += f"7. Author Contributions\n{val_contrib}\n\n"
+                if val_auth_info: back_matter += f"8. Author Information\n{val_auth_info}\n\n"
+                if val_funding: back_matter += f"9. Funding\n{val_funding}\n\n"
+                if val_ack: back_matter += f"10. Acknowledgements\n{val_ack}\n\n"
+                if val_coi: back_matter += f"11. Conflicts of Interest\n{val_coi}\n\n"
+
+                main_text_compiled += "\n\n" + back_matter
+
+                # 5. Әдебиеттер (References)
                 refs_compiled = []
                 ref_counter = 1
                 for _, row in edited_refs.iterrows():
